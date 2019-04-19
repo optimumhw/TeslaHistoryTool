@@ -1,13 +1,13 @@
-package model.DataPoints;
+package model.Stations;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
-public class StationInfo {
+public class TeslaStationInfo {
 
     @JsonProperty("id")
-    private String id;
-    
+    private String stationId;
+
     @JsonProperty("name")
     private String name;
 
@@ -22,6 +22,9 @@ public class StationInfo {
 
     @JsonProperty("siteId")
     private String siteId;
+
+    @JsonProperty("salesforceId")
+    private String salesforceId;
 
     @JsonProperty("commissionedAt")
     private String commissionedAt;
@@ -63,15 +66,15 @@ public class StationInfo {
     private String longitude;
 
     @JsonProperty("dataPoints")
-    private List<Datapoint> datapoints;
+    private List<TeslaStationInfoDataPoint> datapoints;
 
     @JsonProperty("equipments")
-    private List<Equipment> equipments;
+    private List<TeslaEquipment> equipments;
 
-    public String getId() {
-        return id;
+    public String getStationId() {
+        return stationId;
     }
-    
+
     public String getName() {
         return name;
     }
@@ -90,6 +93,10 @@ public class StationInfo {
 
     public String getSiteId() {
         return siteId;
+    }
+
+    public String getSalesforceId() {
+        return salesforceId;
     }
 
     public String getcommissionedAt() {
@@ -144,11 +151,11 @@ public class StationInfo {
         return longitude;
     }
 
-    public List<Datapoint> getDatapoints() {
+    public List<TeslaStationInfoDataPoint> getDatapoints() {
         return datapoints;
     }
 
-    public List<Equipment> getequipments() {
+    public List<TeslaEquipment> getequipments() {
         return equipments;
 
     }

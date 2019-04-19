@@ -14,20 +14,28 @@ import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import model.Auth.LoginResponse;
-import model.DataPoints.StationInfo;
+import model.DataPoints.EnumResolutions;
+import model.DataPoints.HistoryQueryResults;
 import model.EnumBaseURLs;
 import model.EnumUsers;
 import model.PropertyChangeNames;
 import model.RestClient.ErrorResponse;
 import model.RestClient.OEResponse;
+import model.Stations.TeslaStationInfo;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import view.HistoryTable.HistoryTableCellRenderer;
+import view.HistoryTable.HistoryTableModel;
 
 
 public class HistoryFrame extends javax.swing.JFrame implements PropertyChangeListener {
@@ -37,13 +45,15 @@ public class HistoryFrame extends javax.swing.JFrame implements PropertyChangeLi
     private EnumBaseURLs selectedBaseURL;
     private EnumUsers selectedUser;
 
-    private StationInfo selectedStation;
-    private StationInfo selectedStationInfo;
+    private TeslaStationInfo selectedStation;
+    private TeslaStationInfo selectedStationInfo;
     
     private final DateTimeFormatter zzFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
    
     
     private String filter;
+    
+    private HistoryQueryResults historyResults;
 
     public HistoryFrame() {
         initComponents();
@@ -116,7 +126,7 @@ public class HistoryFrame extends javax.swing.JFrame implements PropertyChangeLi
                 if (historyResults != null && historyResults.getTimestamps().size() > 0) {
                     int prec = (int) jSpinnerPrec.getModel().getValue();
                     fillHistoryTable(prec);
-                    fillTeslaStatsTable(prec);
+                    //fillTeslaStatsTable(prec);
                 }
             }
         });
@@ -124,62 +134,63 @@ public class HistoryFrame extends javax.swing.JFrame implements PropertyChangeLi
     }
 
     private void fillResolutionDropdown() {
-        ComboBoxModel comboBoxModel = new DefaultComboBoxModel(EnumComboResolutions.getNames().toArray());
-        EnumComboResolutions res = EnumComboResolutions.FIVEMINUTE;
-        this.jComboBoxResolution.setModel(comboBoxModel);
-        this.jComboBoxResolution.setSelectedIndex(res.getDropDownIndex());
-        this.jComboBoxResolution.setEnabled(true);
+        ComboBoxModel comboBoxModel = new DefaultComboBoxModel(EnumResolutions.getNames().toArray());
+        EnumResolutions res = EnumResolutions.FIVEMINUTE;
+        this.jComboBoxResolutions.setModel(comboBoxModel);
+        this.jComboBoxResolutions.setSelectedIndex(res.getDropDownIndex());
+        this.jComboBoxResolutions.setEnabled(true);
     }
 
     // =============
     public void fillTeslasHostsDropdown() {
         ComboBoxModel comboBoxModel = new DefaultComboBoxModel();
-        this.jComboBoxTeslaHosts.setModel(comboBoxModel);
+        this.jComboBoxHosts.setModel(comboBoxModel);
 
-        for (String url : EnumTeslaBaseURLs.getURLs()) {
-            jComboBoxTeslaHosts.addItem(url);
+        for (String url : EnumBaseURLs.getURLs()) {
+            jComboBoxHosts.addItem(url);
         }
-        this.jComboBoxTeslaHosts.setSelectedItem(selectedBaseURL.getURL());
+        this.jComboBoxHosts.setSelectedItem(selectedBaseURL.getURL());
     }
 
     public void fillUsersDropdown() {
         ComboBoxModel comboBoxModel = new DefaultComboBoxModel();
-        this.jComboTeslaUsers.setModel(comboBoxModel);
-        for (String user : EnumTeslaUsers.getUsernames()) {
+        this.jComboBoxUsers.setModel(comboBoxModel);
+        for (String user : EnumUsers.getUsernames()) {
             //EnumTeslaUsers.getUsernames().toArray()
-            jComboTeslaUsers.addItem(user);
+            jComboBoxUsers.addItem(user);
         }
-        this.jComboTeslaUsers.setSelectedItem(selectedUser.name());
+        this.jComboBoxUsers.setSelectedItem(selectedUser.name());
 
     }
 
-    private void initTeslaModel(EnumTeslaBaseURLs baseURL, EnumTeslaUsers selectedUser) {
-        controller.teslaLogin(baseURL, selectedUser);
+    private void initTeslaModel(EnumBaseURLs baseURL, EnumUsers selectedUser) {
+        controller.login(baseURL, selectedUser);
     }
     
-    public void clearTeslaSitesDropdown(){
-        for (ActionListener oldListener : jComboBoxTeslaStations.getActionListeners()) {
-            this.jComboBoxTeslaStations.removeActionListener(oldListener);
+    public void clearStationsDropdown(){
+        for (ActionListener oldListener : jComboBoxStations.getActionListeners()) {
+            this.jComboBoxStations.removeActionListener(oldListener);
         }
         ComboBoxModel comboBoxModel = new DefaultComboBoxModel();
-        this.jComboBoxTeslaStations.setModel(comboBoxModel);
+        this.jComboBoxStations.setModel(comboBoxModel);
     }
-
+    
+    
     public void fillTeslasStationsDropdown(final List<TeslaStationInfo> stations) {
 
-        for (ActionListener oldListener : jComboBoxTeslaStations.getActionListeners()) {
-            this.jComboBoxTeslaStations.removeActionListener(oldListener);
+        for (ActionListener oldListener : jComboBoxStations.getActionListeners()) {
+            this.jComboBoxStations.removeActionListener(oldListener);
         }
         ComboBoxModel comboBoxModel = new DefaultComboBoxModel();
-        this.jComboBoxTeslaStations.setModel(comboBoxModel);
+        this.jComboBoxStations.setModel(comboBoxModel);
         final Map< String, String> stationNameToStationIdMap = new HashMap<>();
 
         for (TeslaStationInfo station : stations) {
-            jComboBoxTeslaStations.addItem(station.getName());
+            jComboBoxStations.addItem(station.getName());
             stationNameToStationIdMap.put(station.getName(), station.getStationId());
         }
 
-        this.jComboBoxTeslaStations.addActionListener(new ActionListener() {
+        this.jComboBoxStations.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(final ActionEvent event) {
@@ -189,14 +200,42 @@ public class HistoryFrame extends javax.swing.JFrame implements PropertyChangeLi
                     public void run() {
                         JComboBox<String> combo = (JComboBox<String>) event.getSource();
                         final String name = (String) combo.getSelectedItem();
-                        controller.getTeslaStationDatapoints(stationNameToStationIdMap.get(name));
+                        controller.getDatapoints(stationNameToStationIdMap.get(name));
                     }
                 });
             }
         });
 
-        jComboBoxTeslaStations.setSelectedIndex(0);
+        jComboBoxStations.setSelectedIndex(0);
 
+    }
+    
+        public void clearHistoryTable() {
+
+        this.jTableHistoryResults.setDefaultRenderer(Object.class, new DefaultTableCellRenderer());
+        this.jTableHistoryResults.setModel(new DefaultTableModel());
+        this.jTableHistoryResults.setAutoCreateRowSorter(true);
+
+    }
+
+    public void fillHistoryTable(int prec) {
+        this.jTableHistoryResults.setDefaultRenderer(Object.class, new HistoryTableCellRenderer());
+        this.jTableHistoryResults.setModel(new HistoryTableModel(historyResults));
+        this.jTableHistoryResults.setAutoCreateRowSorter(true);
+        fixHistoryTableColumnWidths(jTableHistoryResults);
+
+    }
+
+    public void fixHistoryTableColumnWidths(JTable t) {
+
+        for (int i = 0; i < t.getColumnCount(); i++) {
+            TableColumn column = t.getColumnModel().getColumn(i);
+            if (i == 0) {
+                column.setPreferredWidth(250);
+            } else {
+                column.setPreferredWidth(150);
+            }
+        }
     }
 
 
@@ -216,7 +255,7 @@ public class HistoryFrame extends javax.swing.JFrame implements PropertyChangeLi
         jTextFieldStartDate = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         jTextFieldEndDate = new javax.swing.JTextField();
-        jComboBox3 = new javax.swing.JComboBox<>();
+        jComboBoxResolutions = new javax.swing.JComboBox<>();
         jLabel6 = new javax.swing.JLabel();
         jButton3 = new javax.swing.JButton();
         jLabelToken = new javax.swing.JLabel();
@@ -229,6 +268,8 @@ public class HistoryFrame extends javax.swing.JFrame implements PropertyChangeLi
         jSpinnerPrec = new javax.swing.JSpinner();
         jLabel7 = new javax.swing.JLabel();
         jButtonChart = new javax.swing.JButton();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        jTableHistoryStats = new javax.swing.JTable();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTableDataPoints = new javax.swing.JTable();
@@ -268,7 +309,7 @@ public class HistoryFrame extends javax.swing.JFrame implements PropertyChangeLi
 
         jTextFieldEndDate.setText("jTextField3");
 
-        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBoxResolutions.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         jLabel6.setText("Reso:");
 
@@ -321,7 +362,7 @@ public class HistoryFrame extends javax.swing.JFrame implements PropertyChangeLi
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
                                 .addComponent(jLabel6)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(jComboBoxResolutions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
                                 .addComponent(jButtonViewRequests)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -345,7 +386,7 @@ public class HistoryFrame extends javax.swing.JFrame implements PropertyChangeLi
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(jTextFieldStartDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBoxResolutions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel6))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -369,11 +410,25 @@ public class HistoryFrame extends javax.swing.JFrame implements PropertyChangeLi
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        jTableHistoryResults.setShowGrid(true);
         jScrollPane3.setViewportView(jTableHistoryResults);
 
         jLabel7.setText("Precision:");
 
         jButtonChart.setText("Chart");
+
+        jTableHistoryStats.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane4.setViewportView(jTableHistoryStats);
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
@@ -381,15 +436,14 @@ public class HistoryFrame extends javax.swing.JFrame implements PropertyChangeLi
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane3)
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addComponent(jLabel7)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jSpinnerPrec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButtonChart)))
+                .addComponent(jLabel7)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSpinnerPrec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 576, Short.MAX_VALUE)
+                .addComponent(jButtonChart)
                 .addContainerGap())
+            .addComponent(jScrollPane3)
+            .addComponent(jScrollPane4, javax.swing.GroupLayout.Alignment.TRAILING)
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -400,8 +454,9 @@ public class HistoryFrame extends javax.swing.JFrame implements PropertyChangeLi
                     .addComponent(jLabel7)
                     .addComponent(jButtonChart))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 479, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 318, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -550,7 +605,7 @@ public class HistoryFrame extends javax.swing.JFrame implements PropertyChangeLi
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1190, Short.MAX_VALUE)
+                    .addComponent(jSplitPane1)
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -575,8 +630,8 @@ public class HistoryFrame extends javax.swing.JFrame implements PropertyChangeLi
     private javax.swing.JButton jButtonQuit;
     private javax.swing.JButton jButtonViewRequests;
     private javax.swing.JCheckBox jCheckBox1;
-    private javax.swing.JComboBox<String> jComboBox3;
     private javax.swing.JComboBox<String> jComboBoxHosts;
+    private javax.swing.JComboBox<String> jComboBoxResolutions;
     private javax.swing.JComboBox<String> jComboBoxStations;
     private javax.swing.JComboBox<String> jComboBoxUsers;
     private javax.swing.JLabel jLabel1;
@@ -598,10 +653,12 @@ public class HistoryFrame extends javax.swing.JFrame implements PropertyChangeLi
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JSpinner jSpinnerPrec;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTable jTableDataPoints;
     private javax.swing.JTable jTableHistoryResults;
+    private javax.swing.JTable jTableHistoryStats;
     private javax.swing.JTextArea jTextAreaCalculation;
     private javax.swing.JTextField jTextFieldEndDate;
     private javax.swing.JTextField jTextFieldFilter;
@@ -622,8 +679,12 @@ public class HistoryFrame extends javax.swing.JFrame implements PropertyChangeLi
             setLoggedInInfo(true, loginResponse);
 
         } else if (propName.equals(PropertyChangeNames.StationsListReturned.getName())) {
-            List<StationInfo> stations = (List<StationInfo>) evt.getNewValue();
-            fillStationsDropdown(stations);
+            List<TeslaStationInfo> stations = (List<TeslaStationInfo>) evt.getNewValue();
+            fillTeslasStationsDropdown(stations);
+            
+        } else if (propName.equals(PropertyChangeNames.HistoryReturned.getName())) {
+            historyResults = (HistoryQueryResults) evt.getNewValue();
+            fillHistoryTable(3);
         }
 
         /*

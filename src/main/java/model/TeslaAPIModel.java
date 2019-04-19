@@ -12,13 +12,13 @@ import model.DataPoints.Equipment;
 import model.DataPoints.HistoryQueryResults;
 import model.DataPoints.HistoryRequest;
 import model.DataPoints.LiveDatapoint;
-import model.DataPoints.StationInfo;
 import model.DatapointList.DatapointListItem;
 import model.RestClient.LoginClient;
 import model.RestClient.OEResponse;
 import model.RestClient.RequestsResponses;
 import model.RestClient.RestClientCommon;
 import model.RestClient.StationClient;
+import model.Stations.TeslaStationInfo;
 import org.joda.time.DateTime;
 import org.joda.time.Hours;
 import org.joda.time.format.DateTimeFormat;
@@ -129,7 +129,7 @@ public class TeslaAPIModel extends java.util.Observable {
                     OEResponse resp = get();
 
                     if (resp.responseCode == 200) {
-                        List<StationInfo> stations = (List<StationInfo>) resp.responseObject;
+                        List<TeslaStationInfo> stations = (List<TeslaStationInfo>) resp.responseObject;
 
                         pcs.firePropertyChange(PropertyChangeNames.StationsListReturned.getName(), null, stations);
                     } else {
@@ -162,15 +162,7 @@ public class TeslaAPIModel extends java.util.Observable {
                     OEResponse resp = get();
 
                     if (resp.responseCode == 200) {
-                        StationInfo stationInfo = (StationInfo) resp.responseObject;
-
-                        for (Datapoint dp : stationInfo.getDatapoints()) {
-                            if (dp.getShortName().contentEquals("CHWFLO")) {
-                                String msg = String.format("%s - %s ", dp.getShortName(), dp.getId());
-                                System.out.println(msg);
-                            }
-                        }
-
+                        TeslaStationInfo stationInfo = (TeslaStationInfo) resp.responseObject;
                         pcs.firePropertyChange(PropertyChangeNames.StationInfoRetrieved.getName(), null, stationInfo);
                     } else {
                         pcs.firePropertyChange(PropertyChangeNames.ErrorResponse.getName(), null, resp);
@@ -231,19 +223,12 @@ public class TeslaAPIModel extends java.util.Observable {
                 OEResponse resultA = stationClient.getStationInfo(stationID);
                 OEResponse resultB = stationClient.getSubscribed(stationID);
 
-                StationInfo stationInfo = (StationInfo) resultA.responseObject;
-                setSubscribedFlag(stationInfo, (List<String>) resultB.responseObject);
+                TeslaStationInfo stationInfo = (TeslaStationInfo) resultA.responseObject;
+                //setSubscribedFlag(stationInfo, (List<String>) resultB.responseObject);
 
                 OEResponse retVal = new OEResponse();
                 retVal.responseCode = 200;
                 retVal.responseObject = stationInfo;
-
-                for (Datapoint dp : stationInfo.getDatapoints()) {
-                    if (dp.getShortName().contentEquals("CHWFLO")) {
-                        String msg = String.format("%s - %s ", dp.getShortName(), dp.getId());
-                        System.out.println(msg);
-                    }
-                }
 
                 return retVal;
             }
@@ -254,7 +239,7 @@ public class TeslaAPIModel extends java.util.Observable {
                     OEResponse resp = get();
 
                     if (resp.responseCode == 200) {
-                        StationInfo stationInfo = (StationInfo) resp.responseObject;
+                        TeslaStationInfo stationInfo = (TeslaStationInfo) resp.responseObject;
 
                         pcs.firePropertyChange(PropertyChangeNames.StationInfoAndSubFlagRetrieved.getName(), null, stationInfo);
                     } else {
@@ -271,22 +256,7 @@ public class TeslaAPIModel extends java.util.Observable {
         worker.execute();
     }
 
-    private void setSubscribedFlag(StationInfo stationInfo, List<String> subscribedPoints) {
-        
-        if( subscribedPoints == null || subscribedPoints.size() <= 0  ){
-            return;
-        }
 
-        for (Datapoint dp : stationInfo.getDatapoints()) {
-            dp.setSubScribedFlag(subscribedPoints.contains(dp.getId()));
-        }
-
-        for (Equipment eq : stationInfo.getequipments()) {
-            for (Datapoint dp : eq.getDatapoints()) {
-                dp.setSubScribedFlag(subscribedPoints.contains(dp.getId()));
-            }
-        }
-    }
 
     public void getLiveData(final List<String> dataPointIDs) {
 

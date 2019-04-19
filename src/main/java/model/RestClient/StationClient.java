@@ -1,7 +1,6 @@
 package model.RestClient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import model.DataPoints.StationInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -10,6 +9,7 @@ import model.DataPoints.HistoryRequest;
 import model.DataPoints.LiveDatapoint;
 import model.DatapointList.DatapointListItem;
 import model.EnumBaseURLs;
+import model.Stations.TeslaStationInfo;
 
 public class StationClient {
 
@@ -34,7 +34,7 @@ public class StationClient {
 
         if (resObj.responseCode == 200) {
             ObjectMapper mapper = new ObjectMapper();
-            resObj.responseObject = mapper.readValue((String) resObj.responseObject, new TypeReference<List<StationInfo>>() {
+            resObj.responseObject = mapper.readValue((String) resObj.responseObject, new TypeReference<List<TeslaStationInfo>>() {
             });
         }
 
@@ -48,7 +48,7 @@ public class StationClient {
 
         if (resObj.responseCode == 200) {
             ObjectMapper mapper = new ObjectMapper();
-            resObj.responseObject = mapper.readValue((String) resObj.responseObject, StationInfo.class);
+            resObj.responseObject = mapper.readValue((String) resObj.responseObject, TeslaStationInfo.class);
         }
 
         return resObj;
