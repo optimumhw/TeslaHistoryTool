@@ -1,5 +1,1 @@
-target/
-**/~$*.xlsx
-.idea/*
-*.iml
-*.log
+/target/
