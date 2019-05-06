@@ -6,4 +6,3 @@ public enum EnumCallType {
     REQUEST,
     RESPONSE
 }
-

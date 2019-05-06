@@ -20,6 +20,9 @@ public class Equipment {
 
     @JsonProperty("stationId")
     private String stationId;
+    
+    @JsonProperty("salesforceId")
+    private String salesforceId;
 
     @JsonProperty("createdAt")
     private String createdAt;
@@ -56,7 +59,11 @@ public class Equipment {
     public String getStationId() {
         return stationId;
     }
-
+    
+    public String getSalesforceId(){
+        return salesforceId;
+    }
+    
     public String getCreatedAt() {
         return createdAt;
     }

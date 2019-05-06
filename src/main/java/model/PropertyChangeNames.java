@@ -10,9 +10,10 @@ public enum PropertyChangeNames {
     DatapointsReturned("DatapointsReturned"),
     StationInfoAndSubFlagRetrieved("DatapointsAndSubFlagRetrieved"),
     LiveDataReturned("LiveDataReturned"),
-    HistoryReturned("HistoryReturned");
-    //StationDatapointHistoryOneHourPushed("StationDatapointHistoryOneHourPushed"),
-    //StationHistoryAllPushed("StationHistoryForPeriodPushed");
+    HistoryReturned("HistoryReturned"),
+    StationDatapointHistoryOneHourPushed("StationDatapointHistoryOneHourPushed"),
+    StationHistoryAllPushed("StationHistoryForPeriodPushed"),
+    CSVCreated("CSVCreated");
 
     private final String name;
 

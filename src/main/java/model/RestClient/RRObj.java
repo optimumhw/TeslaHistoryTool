@@ -1,8 +1,6 @@
-
 package model.RestClient;
 
 import org.joda.time.DateTime;
-
 
 public class RRObj {
 

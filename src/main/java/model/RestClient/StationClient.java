@@ -1,15 +1,16 @@
 package model.RestClient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import model.DataPoints.StationInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.List;
+import model.DataPoints.DatapointUpsertRequest;
 import model.DataPoints.HistoryRequest;
 import model.DataPoints.LiveDatapoint;
 import model.DatapointList.DatapointListItem;
 import model.EnumBaseURLs;
-import model.Stations.TeslaStationInfo;
 
 public class StationClient {
 
@@ -34,7 +35,7 @@ public class StationClient {
 
         if (resObj.responseCode == 200) {
             ObjectMapper mapper = new ObjectMapper();
-            resObj.responseObject = mapper.readValue((String) resObj.responseObject, new TypeReference<List<TeslaStationInfo>>() {
+            resObj.responseObject = mapper.readValue((String) resObj.responseObject, new TypeReference<List<StationInfo>>() {
             });
         }
 
@@ -48,7 +49,7 @@ public class StationClient {
 
         if (resObj.responseCode == 200) {
             ObjectMapper mapper = new ObjectMapper();
-            resObj.responseObject = mapper.readValue((String) resObj.responseObject, TeslaStationInfo.class);
+            resObj.responseObject = mapper.readValue((String) resObj.responseObject, StationInfo.class);
         }
 
         return resObj;
@@ -120,6 +121,17 @@ public class StationClient {
         return resObj;
     }
 
+    public OEResponse putHistory(DatapointUpsertRequest dur) throws JsonProcessingException, IOException {
 
+        String url = baseURL.getURL() + "/data/upsert";
+
+        ObjectMapper mapper = new ObjectMapper();
+        String payload = mapper.writeValueAsString(dur.getListOfPoints());
+
+        OEResponse resObj = restClient.doPostAndGetBody(url, payload, true);
+
+        return resObj;
+
+    }
 
 }
