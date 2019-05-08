@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum EnumUsers {
-    DevOps("devops@optimumenergyco.com", "password"),
-    ProdUser("devops@optimumenergyco.com", "jm#@5wM*SHO4Pq$^8dQizjc1vkLkZonQ7&s4f00kE1Gf1@ewR6w^^XbDnwkAVIbd");
+    DevOps("devops@optimumenergyco.com", "xxxx"),
+    ProdUser("devops@optimumenergyco.com", "xxxxx");
 
     private final String email;
     private final String password;
