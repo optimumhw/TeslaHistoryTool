@@ -1,19 +1,26 @@
 package view.HistoryFrame;
 
 import controller.Controller;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -32,6 +39,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import view.DataGenerator.DataGeneratorFrame;
 import view.DataPointsTable.EnumDatpointsTableColumns;
+import view.HistoryFrame.Chart.HistoryChartFrame;
 import view.HistoryFrame.DatapointsListTable.DataPointsListTableCellRenderer;
 import view.HistoryFrame.DatapointsListTable.DataPointsListTableModel;
 import view.HistoryFrame.DatapointsListTable.EnumDataPointsListTableColumns;
@@ -58,6 +66,11 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
     private final String timeZone = "UTC";
     private final DateTimeFormatter zzFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
 
+    private DateTime utcStartDate;
+    private DateTime utcEndDate;
+
+    private EnumQueryPeriods queryPeriod;
+
     private String filter = "";
 
     public static HistoryFrame getInstance(final Controller controller, StationInfo selectedStation) {
@@ -73,12 +86,12 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         this.controller = controller;
         this.selectedStation = selectedStation;
 
-        DateTime endDateTime = DateTime.now().withZone(DateTimeZone.UTC);
-        endDateTime = endDateTime.minus(endDateTime.getMillisOfDay());
-        DateTime startDateTime = endDateTime.minusDays(30);
+        queryPeriod = EnumQueryPeriods.LAST_30_DAYS;
 
-        this.jTextFieldStartDate.setText(startDateTime.toString(zzFormat));
-        this.jTextFieldEndDate.setText(endDateTime.toString(zzFormat));
+        setStartAndEndDates(queryPeriod);
+
+
+        fillQueryPeriodsDropDown(queryPeriod);
 
         setPrecSpinner();
         fillHistoryResolutionDropdown();
@@ -109,6 +122,111 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         });
     }
 
+
+
+    private void fillQueryPeriodsDropDown(EnumQueryPeriods initPeriod) {
+
+        ComboBoxModel comboBoxModel = new DefaultComboBoxModel(EnumQueryPeriods.getQueryPeriodNames().toArray());
+        this.jComboBoxQueryPeriods.setModel(comboBoxModel);
+        this.jComboBoxQueryPeriods.setSelectedIndex(initPeriod.getDropDownIndex());
+        this.jComboBoxQueryPeriods.setEnabled(true);
+
+        this.jComboBoxQueryPeriods.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                JComboBox<String> combo = (JComboBox<String>) event.getSource();
+                String name = (String) combo.getSelectedItem();
+                queryPeriod = EnumQueryPeriods.getQueryPeriodFromName(name);
+
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        setStartAndEndDates(queryPeriod);
+                    }
+                });
+
+            }
+        });
+    }
+
+    private void setStartAndEndDates(EnumQueryPeriods queryPeriod) {
+
+        /*
+    LAST_12_MONTHS("Last 12 Months", 0),
+    THIS_YEAR("This Year", 1),
+    LAST_30_DAYS("Last 30 Days", 2),
+    THIS_MONTH("This Month", 3),
+    LAST_7_DAYS("Last 7 Days", 4),
+    THIS_WEEK("This Week", 5),
+    LAST_24_HOURS("Last 24 Hours", 6),
+    TODAY("Today", 7);
+         */
+        DateTime today = DateTime.now().withZone(DateTimeZone.UTC);
+
+        //Calendar cal = Calendar.getInstance();
+        //cal.set(Calendar.MONTH, month.getMonthNumber());
+        //cal.set(Calendar.YEAR, year.getYearNumber());
+        //int numOfDaysInMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+        switch (queryPeriod) {
+            case LAST_12_MONTHS: {
+                utcEndDate = today;
+                utcStartDate = today.minusMonths(12);
+            }
+            break;
+            case THIS_YEAR: {
+                utcEndDate = today;
+                utcStartDate = utcEndDate.minusDays(today.getDayOfYear() - 1);
+                utcStartDate = utcStartDate.minusMillis(utcStartDate.getMillisOfDay());
+
+            }
+            break;
+            case LAST_30_DAYS: {
+                utcEndDate = today;
+                utcStartDate = utcEndDate.minusDays(30);
+                utcStartDate = utcStartDate.minusMillis(utcStartDate.getMillisOfDay());
+
+            }
+            break;
+            case THIS_MONTH: {
+                utcEndDate = today;
+                utcStartDate = utcEndDate.minusDays(utcEndDate.getDayOfMonth() - 1);
+                utcStartDate = utcStartDate.minusMillis(utcStartDate.getMillisOfDay());
+            }
+            break;
+            case LAST_7_DAYS: {
+                utcEndDate = today;
+                utcStartDate = utcEndDate.minusDays(7);
+                utcStartDate = utcStartDate.minusMillis(utcStartDate.getMillisOfDay());
+            }
+            break;
+
+            case THIS_WEEK: {
+                utcEndDate = today;
+                utcStartDate = utcEndDate.minusDays(utcEndDate.getDayOfWeek());
+                utcStartDate = utcStartDate.minusMillis(utcStartDate.getMillisOfDay());
+            }
+            break;
+
+            case LAST_24_HOURS: {
+                utcEndDate = today;
+                utcStartDate = utcEndDate.minusDays(1);
+
+            }
+            break;
+
+            case TODAY: {
+                utcEndDate = today;
+                utcStartDate = utcEndDate.minusMillis(utcEndDate.getMillisOfDay());
+
+            }
+        }
+
+        this.jTextFieldStartDate.setText(utcStartDate.toString());
+        this.jTextFieldEndDate.setText(utcEndDate.toString());
+
+    }
+
     public void fillDataPointsListTable(String filter) {
 
         List<DatapointListItem> filteredList = new ArrayList<>();
@@ -124,12 +242,16 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
             for (String pointNameFilter : Arrays.asList(pointNamesInFilter)) {
                 if (!this.jCheckBoxRegEx.isSelected() && point.getShortName().contains(pointNameFilter)) {
-                    filteredList.add(point);
+                    if (!filteredList.contains(point)) {
+                        filteredList.add(point);
+                    }
                 } else if (this.jCheckBoxRegEx.isSelected()) {
                     Pattern r = Pattern.compile(pointNameFilter);
                     Matcher m = r.matcher(point.getShortName());
                     if (m.find()) {
-                        filteredList.add(point);
+                        if (!filteredList.contains(point)) {
+                            filteredList.add(point);
+                        }
                     }
                 }
             }
@@ -178,7 +300,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         fixHistoryTableColumnWidths(jTableHistory);
 
     }
-    
+
     public void clearHistoryStatsTable() {
 
         this.jTableHistoryStats.setDefaultRenderer(Object.class, new DefaultTableCellRenderer());
@@ -247,7 +369,8 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         jLabel4 = new javax.swing.JLabel();
         jTextFieldStartDate = new javax.swing.JTextField();
         jTextFieldEndDate = new javax.swing.JTextField();
-        jButtonPushHistory = new javax.swing.JButton();
+        jComboBoxQueryPeriods = new javax.swing.JComboBox<>();
+        jLabel6 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jSpinnerPrec = new javax.swing.JSpinner();
         jLabel5 = new javax.swing.JLabel();
@@ -259,6 +382,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         jPanel10 = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         jTableHistoryStats = new javax.swing.JTable();
+        jButtonChart = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTableDataPointsList = new javax.swing.JTable();
@@ -317,12 +441,9 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
         jTextFieldEndDate.setText("jTextField2");
 
-        jButtonPushHistory.setText("Push History");
-        jButtonPushHistory.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonPushHistoryActionPerformed(evt);
-            }
-        });
+        jComboBoxQueryPeriods.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        jLabel6.setText("Query Period:");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -340,7 +461,10 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                             .addComponent(jLabel2)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(jTextFieldEndDate, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(jButtonPushHistory))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel6)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jComboBoxQueryPeriods, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 94, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jButtonRunQuery)
@@ -365,11 +489,17 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(jTextFieldEndDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButtonRunQuery)
-                    .addComponent(jButtonPushHistory))
-                .addContainerGap())
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
+                        .addComponent(jButtonRunQuery)
+                        .addContainerGap())
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jComboBoxQueryPeriods, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel6))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), "Query Results"));
@@ -473,6 +603,13 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                 .addContainerGap())
         );
 
+        jButtonChart.setText("Chart");
+        jButtonChart.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonChartActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -482,7 +619,9 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jButtonMakeCSV)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 483, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonChart)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jSpinnerPrec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -496,7 +635,8 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jSpinnerPrec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel5)
-                    .addComponent(jButtonMakeCSV))
+                    .addComponent(jButtonMakeCSV)
+                    .addComponent(jButtonChart))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -722,10 +862,6 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         dispose();
     }//GEN-LAST:event_jButtonCloseActionPerformed
 
-    private void jButtonPushHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPushHistoryActionPerformed
-
-    }//GEN-LAST:event_jButtonPushHistoryActionPerformed
-
     private void jButtonSpecialSelectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSpecialSelectActionPerformed
         List<String> specialPoints = getSpecialPointNames();
 
@@ -770,6 +906,19 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         }
     }//GEN-LAST:event_jTableHistoryStatsMousePressed
 
+    private void jButtonChartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonChartActionPerformed
+                if (history != null && history.getTimestamps().size() > 0) {
+
+
+                    HistoryChartFrame chartFrame = new HistoryChartFrame(controller, history);
+            controller.addModelListener(chartFrame);
+            chartFrame.pack();
+            chartFrame.setLocationRelativeTo(this);
+            chartFrame.setVisible(true);
+
+        }
+    }//GEN-LAST:event_jButtonChartActionPerformed
+
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         String propName = evt.getPropertyName();
@@ -797,18 +946,20 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButtonChart;
     private javax.swing.JButton jButtonClose;
     private javax.swing.JButton jButtonMakeCSV;
-    private javax.swing.JButton jButtonPushHistory;
     private javax.swing.JButton jButtonRunQuery;
     private javax.swing.JButton jButtonSpecialSelect;
     private javax.swing.JCheckBox jCheckBoxRegEx;
+    private javax.swing.JComboBox<String> jComboBoxQueryPeriods;
     private javax.swing.JComboBox<String> jComboBoxResolutions;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel2;
