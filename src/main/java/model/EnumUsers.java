@@ -1,18 +1,22 @@
 package model;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public enum EnumUsers {
-    DevOps("devops@optimumenergyco.com", "xxxx"),
-    ProdUser("devops@optimumenergyco.com", "xxxxx");
+    DevOps("devops@optimumenergyco.com", "TESLA_DEV_USER_PASSWORD"),
+    ProdUser("devops@optimumenergyco.com", "TESLA_PROD_USER_PASSWORD");
 
     private final String email;
-    private final String password;
+    private String password;
 
-    EnumUsers(String email, String password) {
+    EnumUsers(String email, String envVarName) {
         this.email = email;
-        this.password = password;
+        this.password = System.getenv(envVarName);
     }
 
     public String getEmail() {
