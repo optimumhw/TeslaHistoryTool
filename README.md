@@ -1,4 +1,4 @@
-# TeslaHistoryTool
+# Tesla History Tool
 This tool is for querying Tesla history
 
 ## Set up
