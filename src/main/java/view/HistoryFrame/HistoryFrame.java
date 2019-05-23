@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Timer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.ComboBoxModel;
@@ -30,6 +31,7 @@ import model.DataPoints.Datapoint;
 import model.DataPoints.EnumResolutions;
 import model.DataPoints.HistoryQueryResults;
 import model.DataPoints.HistoryRequest;
+import model.DataPoints.LiveDatapoint;
 import model.DataPoints.StationInfo;
 import model.DatapointList.DatapointListItem;
 import model.PropertyChangeNames;
@@ -72,6 +74,8 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
     private EnumQueryPeriods queryPeriod;
 
     private String filter = "";
+    
+    private Timer timer = null;
 
     public static HistoryFrame getInstance(final Controller controller, StationInfo selectedStation) {
         if (thisInstance == null) {
@@ -90,7 +94,6 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
         setStartAndEndDates(queryPeriod);
 
-
         fillQueryPeriodsDropDown(queryPeriod);
 
         setPrecSpinner();
@@ -98,6 +101,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         controller.getDatapoints(selectedStation.getId());
 
     }
+    
 
     @Override
     public void dispose() {
@@ -105,6 +109,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         thisInstance = null;
         super.dispose();
     }
+    
 
     private void setPrecSpinner() {
         SpinnerNumberModel spinModel = new SpinnerNumberModel(3, 0, 6, 1);
@@ -539,7 +544,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 630, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel8Layout.setVerticalGroup(
@@ -941,6 +946,14 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
             boolean flag = (boolean) evt.getNewValue();
             System.out.println("done! : " + ((flag) ? "created" : "failed"));
             this.jButtonMakeCSV.setEnabled(true);
+        }
+        
+        if (propName.equals(PropertyChangeNames.LiveDataReturned.getName())) {
+            List<LiveDatapoint> dpList = (List<LiveDatapoint>) evt.getNewValue();
+            
+            HistoryTableModel model = (HistoryTableModel) this.jTableHistory.getModel();
+            model.appendLiveData(dpList);
+
         }
     }
 

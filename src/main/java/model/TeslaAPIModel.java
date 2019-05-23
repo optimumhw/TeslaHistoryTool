@@ -235,13 +235,6 @@ public class TeslaAPIModel extends java.util.Observable {
                 retVal.responseCode = 200;
                 retVal.responseObject = stationInfo;
 
-                for (Datapoint dp : stationInfo.getDatapoints()) {
-                    if (dp.getShortName().contentEquals("CHWFLO")) {
-                        String msg = String.format("%s - %s ", dp.getShortName(), dp.getId());
-                        System.out.println(msg);
-                    }
-                }
-
                 return retVal;
             }
 

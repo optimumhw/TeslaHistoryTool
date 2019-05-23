@@ -11,7 +11,7 @@ import model.DatapointList.DatapointListItem;
 public class DataPointsListTableModel extends AbstractTableModel {
 
     private final List<DatapointListItem> datapointList;
-    private Map<String, DatapointListItem> idToDatapointMap;
+    private final Map<String, DatapointListItem> idToDatapointMap;
 
     public DataPointsListTableModel(List<DatapointListItem> datapointList) {
         super();

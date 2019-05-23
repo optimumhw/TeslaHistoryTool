@@ -631,6 +631,10 @@ public class MainFrame extends javax.swing.JFrame {
     private void jButtonHistoryFrameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonHistoryFrameActionPerformed
 
         if (selectedStation != null) {
+            
+            killLivePollingTimer();
+            this.jTogglePollForLiveData.setSelected(false);
+            
             HistoryFrame frame = HistoryFrame.getInstance(controller, selectedStation);
             controller.addModelListener(frame);
             frame.pack();

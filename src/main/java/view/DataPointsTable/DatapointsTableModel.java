@@ -18,32 +18,29 @@ public class DatapointsTableModel extends AbstractTableModel {
 
     public DatapointsTableModel(StationInfo stationInfo, String name) {
         super();
-        
+
         datapointList = new ArrayList<>();
         if (name.contentEquals("Station")) {
             datapointList = stationInfo.getDatapoints();
-            return;
-        }
-        
-        else{
-
-        for (Equipment eq : stationInfo.getequipments()) {
-            if (eq.getShortName().contentEquals(name)) {
-                datapointList = eq.getDatapoints();
-                break;
+        } else {
+            for (Equipment eq : stationInfo.getequipments()) {
+                if (eq.getShortName().contentEquals(name)) {
+                    datapointList = eq.getDatapoints();
+                    break;
+                }
             }
-        }}
-
-        idToDatapointMap = new HashMap<>();
-        for (Datapoint dp : datapointList) {
-            idToDatapointMap.put(dp.getId(), dp);
         }
 
         idToDatapointMap = new HashMap<>();
         for (Datapoint dp : datapointList) {
             idToDatapointMap.put(dp.getId(), dp);
         }
-        
+
+        idToDatapointMap = new HashMap<>();
+        for (Datapoint dp : datapointList) {
+            idToDatapointMap.put(dp.getId(), dp);
+        }
+
         subscribedPoints = new ArrayList<>();
         for (Datapoint dp : datapointList) {
             if (dp.getSubscribedFlag()) {
@@ -52,8 +49,8 @@ public class DatapointsTableModel extends AbstractTableModel {
         }
 
     }
-    
-    public List<String> getSubscribedPoints(){
+
+    public List<String> getSubscribedPoints() {
         return subscribedPoints;
     }
 

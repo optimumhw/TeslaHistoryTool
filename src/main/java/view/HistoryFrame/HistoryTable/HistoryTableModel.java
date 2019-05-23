@@ -4,6 +4,7 @@ package view.HistoryFrame.HistoryTable;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
 import model.DataPoints.HistoryQueryResults;
+import model.DataPoints.LiveDatapoint;
 import org.joda.time.DateTime;
 
 
@@ -14,6 +15,14 @@ public class HistoryTableModel extends AbstractTableModel {
     public HistoryTableModel(HistoryQueryResults history) {
         super();
         this.history = history;
+    }
+    
+    
+    public void appendLiveData(List<LiveDatapoint> dpList) {
+        for (LiveDatapoint livePoint : dpList) {
+            history.addLivePointResult(livePoint);
+        }
+        fireTableDataChanged();
     }
 
     @Override
