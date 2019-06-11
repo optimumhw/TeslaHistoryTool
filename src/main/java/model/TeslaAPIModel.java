@@ -3,29 +3,35 @@ package model;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
 import javax.swing.SwingWorker;
 import model.Auth.LoginResponse;
 import model.CSVCreator.CSVMaker;
 import model.DataPoints.Datapoint;
-import model.DataPoints.DatapointUpsertRequest;
-import model.DataPoints.EnumResolutions;
 import model.DataPoints.Equipment;
 import model.DataPoints.HistoryQueryResults;
 import model.DataPoints.HistoryRequest;
 import model.DataPoints.LiveDatapoint;
 import model.DataPoints.StationInfo;
 import model.DatapointList.DatapointListItem;
+import model.LoadFromE3OS.DSG2QueryResultRecord;
+import model.LoadFromE3OS.DSG2Runner;
+import model.LoadFromE3OS.DataPointFromSql;
+import model.LoadFromE3OS.E3OSConnProperties;
+import model.LoadFromE3OS.MappingTableRow;
+import model.LoadFromE3OS.PointsListQueryRunner;
+import model.LoadFromE3OS.TeslaDataPointUpsertRequest;
 import model.RestClient.LoginClient;
 import model.RestClient.OEResponse;
 import model.RestClient.RequestsResponses;
 import model.RestClient.RestClientCommon;
 import model.RestClient.StationClient;
-import model.simulator.UpsertPoint;
 import org.joda.time.DateTime;
 import org.joda.time.Hours;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +42,7 @@ public class TeslaAPIModel extends java.util.Observable {
 
     private LoginClient loginClient;
     private StationClient stationClient;
+    private EnumBaseURLs baseURL;
 
     final private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
@@ -49,7 +56,7 @@ public class TeslaAPIModel extends java.util.Observable {
         pcs.removePropertyChangeListener(listener);
     }
 
-    public void initModel(EnumBaseURLs baseURL, EnumUsers user) {
+    public void initModel() {
         rrs = new RequestsResponses();
         api = new RestClientCommon(rrs);
         loginClient = new LoginClient(api);
@@ -69,17 +76,19 @@ public class TeslaAPIModel extends java.util.Observable {
     }
 
     // === LOGIN ==========
-    public void login(final EnumBaseURLs baseUrl, final EnumUsers user) {
+    public void login(final EnumBaseURLs baseUrl) {
 
-        if (baseUrl == null || user == null) {
+        if (baseUrl == null) {
             return;
         }
+
+        this.baseURL = baseUrl;
 
         SwingWorker worker = new SwingWorker< OEResponse, Void>() {
 
             @Override
             public OEResponse doInBackground() throws IOException {
-                OEResponse results = loginClient.login(baseUrl, user);
+                OEResponse results = loginClient.login(baseUrl);
                 return results;
             }
 
@@ -357,76 +366,6 @@ public class TeslaAPIModel extends java.util.Observable {
         worker.execute();
     }
 
-    public void putHistory(final List<UpsertPoint> dgPointsList, final EnumResolutions res, final DateTime startDateTime, final DateTime endDateTime) {
-
-        SwingWorker worker = new SwingWorker< OEResponse, Void>() {
-
-            @Override
-            public OEResponse doInBackground() throws IOException {
-
-                DateTime intervalStart = startDateTime.minusMillis(startDateTime.getMillisOfSecond());
-                intervalStart = intervalStart.minusSeconds(intervalStart.getSecondOfMinute());
-                intervalStart = intervalStart.minusMinutes(intervalStart.getMinuteOfHour());
-
-                //endOfPeriod is the number of whole hours between the startDate and the endDate.
-                DateTime stopTime = endDateTime;
-                Hours hours = Hours.hoursBetween(intervalStart, stopTime);
-                DateTime endOfPeriod = intervalStart.plusHours(hours.getHours());
-
-                //if the endDate was not on an hour boundary, and an hour to cover the remainder.
-                //e.g., if endDate was ...03:45:37 we want to push data to ...04:00:00
-                if (stopTime.isAfter(endOfPeriod)) {
-                    endOfPeriod = endOfPeriod.plusHours(1);
-                }
-
-                DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-
-                while (intervalStart.isBefore(endOfPeriod)) {
-
-                    DateTime intervalEnd = intervalStart.plusHours(1);
-                    DatapointUpsertRequest req = new DatapointUpsertRequest(dgPointsList, res, startDateTime, intervalStart, intervalEnd);
-
-                    OEResponse hourResponse = stationClient.putHistory(req);
-
-                    if (hourResponse.responseCode != 201) {
-                        System.out.println("error pushing hour");
-                    }
-                    pcs.firePropertyChange(PropertyChangeNames.StationDatapointHistoryOneHourPushed.getName(), null, 1);
-
-                    //increment loop index
-                    pcs.firePropertyChange(PropertyChangeNames.StationDatapointHistoryOneHourPushed.getName(), null, 1);
-                    intervalStart = intervalEnd;
-                }
-
-                OEResponse allHistoryPushedResponse = new OEResponse();
-                allHistoryPushedResponse.responseCode = 200;
-                allHistoryPushedResponse.responseObject = "Done!";
-
-                return allHistoryPushedResponse;
-
-            }
-
-            @Override
-            public void done() {
-                try {
-                    OEResponse resp = get();
-
-                    if (resp.responseCode == 200) {
-                        pcs.firePropertyChange(PropertyChangeNames.StationHistoryAllPushed.getName(), null, 1);
-                    } else {
-                        pcs.firePropertyChange(PropertyChangeNames.ErrorResponse.getName(), null, resp);
-                    }
-                    pcs.firePropertyChange(PropertyChangeNames.RequestResponseChanged.getName(), null, getRRS());
-
-                } catch (Exception ex) {
-                    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
-                    logger.error(this.getClass().getName(), ex);
-                }
-            }
-        };
-        worker.execute();
-    }
-
     public void createCSV(final String filePath, final HistoryQueryResults history) {
 
         SwingWorker worker = new SwingWorker< OEResponse, Void>() {
@@ -466,6 +405,192 @@ public class TeslaAPIModel extends java.util.Observable {
             }
         };
         worker.execute();
+    }
+
+    public void getE3OSDatapoints(final String stationID) {
+
+        SwingWorker worker = new SwingWorker< OEResponse, Void>() {
+
+            @Override
+            public OEResponse doInBackground() throws IOException {
+
+                PointsListQueryRunner queryRunner = new PointsListQueryRunner();
+                List<DataPointFromSql> listOfPoints = queryRunner.runDataPointsQuery(stationID);
+                OEResponse results = new OEResponse();
+                results.responseCode = 200;
+                results.responseObject = listOfPoints;
+                return results;
+            }
+
+            @Override
+            public void done() {
+                try {
+                    OEResponse resp = get();
+
+                    if (resp.responseCode == 200) {
+                        List<DataPointFromSql> pointsList = (List<DataPointFromSql>) resp.responseObject;
+
+                        pcs.firePropertyChange(PropertyChangeNames.E3OSPointsReturned.getName(), null, pointsList);
+                    } else {
+                        pcs.firePropertyChange(PropertyChangeNames.ErrorResponse.getName(), null, resp);
+                    }
+                    pcs.firePropertyChange(PropertyChangeNames.RequestResponseChanged.getName(), null, getRRS());
+
+                } catch (Exception ex) {
+                    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+                    logger.error(this.getClass().getName(), ex);
+                }
+            }
+        };
+        worker.execute();
+    }
+
+    public void pullFromE3OSPushToTesla(
+            final DateTime pushStartTime,
+            final DateTime pushEndTime,
+            final List<MappingTableRow> mappedRows,
+            final int maxHoursPerPush,
+            final int maxPointsPerPush) {
+
+        SwingWorker worker = new SwingWorker< OEResponse, Void>() {
+
+            @Override
+            public OEResponse doInBackground() throws IOException {
+
+                //Push data on hour boudaries
+                //Starting from startTime with minutes, seconds, millis set to zero.
+                DateTime intervalStart = pushStartTime.minusMillis(pushStartTime.getMillisOfSecond());
+                intervalStart = intervalStart.minusSeconds(intervalStart.getSecondOfMinute());
+                intervalStart = intervalStart.minusMinutes(intervalStart.getMinuteOfHour());
+
+                //endOfPeriod is the number of whole hours between the startDate and the endDate.
+                Hours hours = Hours.hoursBetween(intervalStart, pushEndTime);
+                DateTime endOfPeriod = intervalStart.plusHours(hours.getHours());
+
+                //if the endDate was not on an hour boundary, add an hour to cover the remainder.
+                //e.g., if endDate was ...03:45:37 we want to push data to ...04:00:00
+                if (pushEndTime.isAfter(endOfPeriod)) {
+                    endOfPeriod = endOfPeriod.plusHours(1);
+                }
+
+                while (intervalStart.isBefore(endOfPeriod)) {
+
+                    DateTime intervalEnd = intervalStart.plusHours(maxHoursPerPush);
+
+                    int startPushIndex = 0;
+
+                    while (startPushIndex < mappedRows.size()) {
+
+                        int endIndex = Math.min(startPushIndex + maxPointsPerPush, mappedRows.size());
+
+                        List<MappingTableRow> pointsToPush = mappedRows.subList(startPushIndex, endIndex);
+                        pullFromEdisonPushToTeslaInterval(intervalStart, intervalEnd, pointsToPush);
+                        pcs.firePropertyChange(PropertyChangeNames.TeslaBucketPushed.getName(), null, 1);
+                        startPushIndex += maxPointsPerPush;
+                    }
+
+                    //increment loop index
+                    intervalStart = intervalEnd;
+                }
+
+                OEResponse periodHistoryPushStatus = new OEResponse();
+                periodHistoryPushStatus.responseCode = 201;
+                periodHistoryPushStatus.responseObject = "points pushed";
+                return periodHistoryPushStatus;
+
+            }
+
+            @Override
+            public void done() {
+                try {
+                    OEResponse resp = get();
+
+                    if (resp.responseCode == 201) {
+                        String msg = (String) resp.responseObject;
+                        pcs.firePropertyChange(PropertyChangeNames.TeslaPushComplete.getName(), null, msg);
+                    } else {
+                        pcs.firePropertyChange(PropertyChangeNames.ErrorResponse.getName(), null, resp);
+                    }
+                    pcs.firePropertyChange(PropertyChangeNames.RequestResponseChanged.getName(), null, getRRS());
+
+                } catch (Exception ex) {
+                    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+                    logger.error(this.getClass().getName(), ex);
+                }
+            }
+        };
+        worker.execute();
+    }
+
+    private OEResponse pullFromEdisonPushToTeslaInterval(DateTime pushStartTime, DateTime pushEndTime, List<MappingTableRow> mappedRows) {
+
+        List<String> e3osPointNames = new ArrayList<>();
+        List<DataPointFromSql> points = new ArrayList<>();
+        Map< String, MappingTableRow> e3osNameToMappingTableRowMap = new HashMap<>();
+
+        for (MappingTableRow mtr : mappedRows) {
+            e3osPointNames.add(mtr.getE3osName());
+            e3osNameToMappingTableRowMap.put(mtr.getE3osName(), mtr);
+            points.add(mtr.getXid());
+        }
+
+        try {
+
+            E3OSConnProperties e3osConnProps = new E3OSConnProperties();
+
+            DSG2Runner dsg2Runner = new DSG2Runner(e3osConnProps);
+
+            String startTime = pushStartTime.toString();
+            String endTime = pushEndTime.toString();
+
+            List<DSG2QueryResultRecord> e3osHistory = dsg2Runner.runDSG2Query(startTime, endTime, points);
+
+            if (e3osHistory.size() == 0) {
+                OEResponse resp = new OEResponse();
+                resp.responseCode = 201;
+                resp.responseObject = "no histories from e3os";
+                return resp;
+            }
+
+            TeslaDataPointUpsertRequest tdpu = new TeslaDataPointUpsertRequest(e3osHistory, e3osNameToMappingTableRowMap);
+            OEResponse teslaPutResponse = stationClient.putHistory(tdpu);
+
+            if (teslaPutResponse.responseCode == 422) {
+                System.out.println("unprocessable entity");
+                return teslaPutResponse;
+            }
+
+            if (teslaPutResponse.responseCode >= 500) {
+                System.out.println("retrying...");
+                teslaPutResponse = stationClient.putHistory(tdpu);
+
+            } else if (teslaPutResponse.responseCode == 401) {
+                System.out.println("getting a new token. was:");
+                System.out.println(api.getOAuthToken());
+
+                OEResponse resp = loginClient.login(this.baseURL);
+
+                if (resp.responseCode == 200) {
+                    LoginResponse loginResponse = (LoginResponse) resp.responseObject;
+                    String newToken = loginResponse.getAccessToken();
+                    api.setOauthToken(newToken);
+
+                    System.out.println("new token is:");
+                    System.out.println(api.getOAuthToken());
+
+                    teslaPutResponse = stationClient.putHistory(tdpu);
+                }
+            }
+
+            return teslaPutResponse;
+
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(TeslaAPIModel.class.getName()).log(Level.SEVERE, null, ex);
+            OEResponse resp = new OEResponse();
+            resp.responseCode = 999;
+            resp.responseObject = "not sure";
+            return resp;
+        }
     }
 
 }

@@ -1,10 +1,12 @@
 
-package model.DataPoints;
+package model.LoadFromE3OS;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class DatapointUpsert {
+
+public class TeslaDataPointUpsert {
+
     @JsonProperty("id")
     private String id;
 
@@ -13,13 +15,13 @@ public class DatapointUpsert {
 
     @JsonProperty("timestamp")
     private String timestamp;
-   
-    public DatapointUpsert(){
-        
+
+    public TeslaDataPointUpsert() {
+
     }
-    
+
     @JsonIgnore
-    public DatapointUpsert( String id, Object value, String timestamp){
+    public TeslaDataPointUpsert(String id, Object value, String timestamp) {
         this.id = id;
         this.value = value;
         this.timestamp = timestamp;
@@ -28,7 +30,6 @@ public class DatapointUpsert {
     public String getId() {
         return id;
     }
-   
 
     public Object getValue() {
         return value;

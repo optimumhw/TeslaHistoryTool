@@ -2,7 +2,6 @@ package com.oe.tesla_tester;
 
 import controller.Controller;
 import model.EnumBaseURLs;
-import model.EnumUsers;
 import model.TeslaAPIModel;
 import view.MainFrame;
 
@@ -20,9 +19,8 @@ public class GlueCode {
         view.setLocationRelativeTo(null);
         view.setVisible(true);
 
-        controller.initModel( EnumBaseURLs.LocalHost, EnumUsers.DevOps);
+        controller.initModel();
 
         view.fillAPIHosts();
-        view.fillUsers();
     }
 }

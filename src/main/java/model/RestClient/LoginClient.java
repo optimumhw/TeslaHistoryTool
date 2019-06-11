@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import model.Auth.LoginResponse;
 import model.EnumBaseURLs;
-import model.EnumUsers;
+import model.TeslaUsersInfo;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
@@ -25,8 +25,9 @@ public class LoginClient {
     }
     
     
-    public OEResponse login(EnumBaseURLs serviceURL, EnumUsers user) throws IOException {
+    public OEResponse login(EnumBaseURLs serviceURL) throws IOException {
 
+        TeslaUsersInfo user = new TeslaUsersInfo();
         String url = serviceURL.getURL() + "/oauth/token";
 
         List<NameValuePair> nvps = new ArrayList<>();
@@ -34,7 +35,7 @@ public class LoginClient {
 
         Map<String, String> postBody = new HashMap<>();
         postBody.put("grant_type", "password");
-        postBody.put("email", user.getEmail());
+        postBody.put("email", user.getUserName());
         postBody.put("password", user.getPassword());
 
         ObjectMapper mapper = new ObjectMapper();

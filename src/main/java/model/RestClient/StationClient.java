@@ -6,11 +6,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.List;
-import model.DataPoints.DatapointUpsertRequest;
 import model.DataPoints.HistoryRequest;
 import model.DataPoints.LiveDatapoint;
 import model.DatapointList.DatapointListItem;
 import model.EnumBaseURLs;
+import model.LoadFromE3OS.TeslaDataPointUpsertRequest;
 
 public class StationClient {
 
@@ -121,7 +121,7 @@ public class StationClient {
         return resObj;
     }
 
-    public OEResponse putHistory(DatapointUpsertRequest dur) throws JsonProcessingException, IOException {
+    public OEResponse putHistory(TeslaDataPointUpsertRequest dur) throws JsonProcessingException, IOException {
 
         String url = baseURL.getURL() + "/data/upsert";
 

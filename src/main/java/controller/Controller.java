@@ -3,7 +3,6 @@ package controller;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.IOException;
 import java.util.List;
 import model.Auth.LoginResponse;
 import model.DataPoints.EnumResolutions;
@@ -12,15 +11,13 @@ import model.DataPoints.HistoryRequest;
 import model.DataPoints.LiveDatapoint;
 import model.DataPoints.StationInfo;
 import model.EnumBaseURLs;
-import model.EnumUsers;
+import model.LoadFromE3OS.MappingTableRow;
 import model.PropertyChangeNames;
 import model.RestClient.OEResponse;
 import model.RestClient.RequestsResponses;
 import model.TeslaAPIModel;
-import model.simulator.UpsertPoint;
 import org.joda.time.DateTime;
 import view.MainFrame;
-import static model.PropertyChangeNames.LoginResponseReturned;
 
 public class Controller implements java.awt.event.ActionListener, PropertyChangeListener {
 
@@ -60,12 +57,12 @@ public class Controller implements java.awt.event.ActionListener, PropertyChange
         this.view = view;
     }
 
-    public void initModel(EnumBaseURLs baseURL, EnumUsers user){
-        model.initModel(baseURL, user);
+    public void initModel(){
+        model.initModel();
     }
     
-    public void login(final EnumBaseURLs baseUrl, final EnumUsers user){
-        model.login(baseUrl, user);
+    public void login(EnumBaseURLs baseUrl ){
+        model.login(baseUrl);
     }
 
     public void getStations() {
@@ -91,9 +88,18 @@ public class Controller implements java.awt.event.ActionListener, PropertyChange
     public void getHistory(final HistoryRequest historyRequest) {
         model.getHistory(historyRequest);
     }
+    
+     public void getE3OSDatapoints(final String stationID) {
+         model.getE3OSDatapoints(stationID);
+     }
 
-    public void putHistory(List<UpsertPoint> dgPointsList, EnumResolutions res, DateTime startDateTime, DateTime endDateTime) {
-        model.putHistory(dgPointsList, res, startDateTime, endDateTime);
+    public void pullFromE3OSPushToTesla(
+            final DateTime pushStartTime,
+            final DateTime pushEndTime,
+            final List<MappingTableRow> mappedRows,
+            final int maxHoursPerPush,
+            final int maxPointsPerPush) {
+        model.pullFromE3OSPushToTesla(pushStartTime, pushEndTime, mappedRows, maxHoursPerPush, maxPointsPerPush);
     }
     
     public void createCSV( String filePath,  HistoryQueryResults history){

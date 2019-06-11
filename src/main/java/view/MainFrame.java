@@ -27,7 +27,6 @@ import model.DataPoints.Equipment;
 import model.DataPoints.LiveDatapoint;
 import model.DataPoints.StationInfo;
 import model.EnumBaseURLs;
-import model.EnumUsers;
 import model.RestClient.ErrorResponse;
 import model.RestClient.OEResponse;
 import org.jfree.ui.DateCellRenderer;
@@ -46,7 +45,6 @@ public class MainFrame extends javax.swing.JFrame {
     private Controller controller;
 
     private EnumBaseURLs selectedBaseURL;
-    private EnumUsers selectedUser;
 
     private StationInfo selectedStation;
     private StationInfo selectedStationInfo;
@@ -63,7 +61,6 @@ public class MainFrame extends javax.swing.JFrame {
         selectedStationInfo = null;
 
         selectedBaseURL = EnumBaseURLs.Prod;
-        selectedUser = EnumUsers.ProdUser;
 
         setLoggedInInfo(false, null);
         //subscribedPoints = new ArrayList<>();
@@ -119,29 +116,6 @@ public class MainFrame extends javax.swing.JFrame {
 
     }
 
-    public void fillUsers() {
-        ComboBoxModel comboBoxModel = new DefaultComboBoxModel(EnumUsers.getUsernames().toArray());
-        this.jComboBoxUsers.setModel(comboBoxModel);
-        this.jComboBoxUsers.setSelectedItem(selectedUser.name());
-
-        this.jComboBoxUsers.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                JComboBox<String> combo = (JComboBox<String>) event.getSource();
-                String name = (String) combo.getSelectedItem();
-                selectedUser = EnumUsers.getUserFromName(name);
-
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        clearStationsTable();
-                        clearDatapointsTable();
-                    }
-                });
-
-            }
-        });
-    }
 
     public void fillAPIHosts() {
         ComboBoxModel comboBoxModel = new DefaultComboBoxModel(EnumBaseURLs.getURLs().toArray());
@@ -168,9 +142,9 @@ public class MainFrame extends javax.swing.JFrame {
         });
     }
 
-    private void initModel(EnumBaseURLs baseURL, EnumUsers selectedUser) {
-        controller.initModel(baseURL, selectedUser);
-        controller.login(baseURL, selectedUser);
+    private void initModel(EnumBaseURLs baseURL) {
+        controller.initModel();
+        controller.login(baseURL);
     }
 
     public void clearStationsTable() {
@@ -302,8 +276,6 @@ public class MainFrame extends javax.swing.JFrame {
         jSpinnerPollInterval = new javax.swing.JSpinner();
         jLabel2 = new javax.swing.JLabel();
         jTogglePollForLiveData = new javax.swing.JToggleButton();
-        jLabel4 = new javax.swing.JLabel();
-        jComboBoxUsers = new javax.swing.JComboBox<>();
         jLabelLoggedIn = new javax.swing.JLabel();
         jButtonLogin = new javax.swing.JButton();
 
@@ -478,10 +450,6 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
-        jLabel4.setText("User:");
-
-        jComboBoxUsers.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
         jLabelLoggedIn.setText("*loggedIn*");
 
         jButtonLogin.setText("Login");
@@ -502,10 +470,6 @@ public class MainFrame extends javax.swing.JFrame {
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jComboBoxBaseURLs, javax.swing.GroupLayout.PREFERRED_SIZE, 276, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel4)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jComboBoxUsers, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButtonLogin)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -536,8 +500,6 @@ public class MainFrame extends javax.swing.JFrame {
                     .addComponent(jButtonRequests)
                     .addComponent(jLabel1)
                     .addComponent(jComboBoxBaseURLs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4)
-                    .addComponent(jComboBoxUsers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabelLoggedIn)
                     .addComponent(jButtonLogin))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -644,7 +606,7 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonHistoryFrameActionPerformed
 
     private void jButtonLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonLoginActionPerformed
-        initModel(selectedBaseURL, selectedUser);
+        initModel(selectedBaseURL);
     }//GEN-LAST:event_jButtonLoginActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -655,11 +617,9 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JButton jButtonSiteInfo;
     private javax.swing.JComboBox<String> jComboBoxBaseURLs;
     private javax.swing.JComboBox<String> jComboBoxEquipment;
-    private javax.swing.JComboBox<String> jComboBoxUsers;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabelLoggedIn;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
