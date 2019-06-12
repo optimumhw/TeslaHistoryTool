@@ -551,7 +551,7 @@ public class TeslaAPIModel extends java.util.Observable {
                 resp.responseObject = "no histories from e3os";
                 return resp;
             }
-
+            
             TeslaDataPointUpsertRequest tdpu = new TeslaDataPointUpsertRequest(e3osHistory, e3osNameToMappingTableRowMap);
             OEResponse teslaPutResponse = stationClient.putHistory(tdpu);
 

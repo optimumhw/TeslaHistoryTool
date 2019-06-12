@@ -13,7 +13,7 @@ public class E3OSConnProperties {
     }
 
     public String getHost() {
-        return this.user;
+        return this.host;
     }
 
     public String getUsername() {

@@ -5,9 +5,9 @@ import java.util.List;
 
 public enum EnumE3OSEnvVars {
 
-    E3OS_SQL_HOST("E3OS_SQL_HOST"),
-    E3OS_SQL_USER("E3OS_SQL_USER"),
-    E3OS_SQL_PASSWORD("E3OS_SQL_PASSWORD");
+    E3OS_SQL_HOST("E3OS_HOST"),
+    E3OS_SQL_USER("E3OS_USER"),
+    E3OS_SQL_PASSWORD("E3OS_PASSWORD");
 
     private final String propertyName;
 

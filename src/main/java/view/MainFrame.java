@@ -159,6 +159,7 @@ public class MainFrame extends javax.swing.JFrame {
     public void fillStationsTable(List<StationInfo> stations) {
         this.jTableStationsTable.setDefaultRenderer(Object.class, new StationsTableCellRenderer());
         this.jTableStationsTable.setModel(new StationsTableModel(stations));
+        fixStationsTableColumnWidths(jTableStationsTable);
     }
 
     public void fixStationsTableColumnWidths(JTable t) {

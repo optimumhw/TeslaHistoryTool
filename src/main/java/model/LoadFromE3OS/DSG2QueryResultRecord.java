@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -50,7 +51,9 @@ public class DSG2QueryResultRecord {
             this.tz = rs.getInt("tz");
             
             DateTimeFormatter fromFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SS");
-            DateTime temp = DateTime.parse( timeStr, fromFormat );
+            DateTime temp = DateTime.parse( timeStr, fromFormat ).withZone(DateTimeZone.UTC);
+            
+       
             
             this.timestamp = temp.minuteOfDay().roundFloorCopy();
                                                                                                

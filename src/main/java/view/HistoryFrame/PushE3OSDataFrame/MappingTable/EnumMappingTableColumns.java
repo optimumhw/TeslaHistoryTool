@@ -9,10 +9,10 @@ public enum EnumMappingTableColumns {
 
     MapStatus(0, "MapStatus", 100),
     E3OSName(1,"EdisonName", 200),
-    E3OSXid(2,"Sid", 250),
+    E3OSXid(2,"XID", 400),
     TeslaName(3, "TeslaName", 200),
     TeslaType(4, "TeslaType", 50),
-    TeslaID(5, "TesalID", 250);
+    TeslaID(5, "TesalID", 300); 
 
     private final String friendlyName;
     private final int columnNumber;

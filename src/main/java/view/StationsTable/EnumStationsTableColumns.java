@@ -5,12 +5,12 @@ import java.util.List;
 
 public enum EnumStationsTableColumns {
 
-    ID(0, "ID", 250),
+    ID(0, "ID", 300),
     Name(1, "Name", 120),
     ActivationCode(2, "ActivationCode", 275),
     ActivatedAt(3, "ActivatedAt", 100),
     ExpiresAt(4, "ExpiresAt", 100),
-    SiteID(5, "SiteID", 275),
+    SiteID(5, "SiteID", 300),
     CommissionedAt(6, "CommissionedAt", 100),
     ShortName(7, "ShortName", 100),
     PlantID(8, "PlantID", 100),

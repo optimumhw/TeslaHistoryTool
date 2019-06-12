@@ -17,13 +17,18 @@ import model.LoadFromE3OS.EnumMapStatus;
 import model.LoadFromE3OS.MappingTableRow;
 import model.PropertyChangeNames;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.Hours;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.PeriodFormat;
+import view.HistoryFrame.DatapointsListTable.DataPointsListTableModel;
 import view.HistoryFrame.DatapointsListTable.EnumDataPointsListTableColumns;
+import view.HistoryFrame.PushE3OSDataFrame.MappingTable.EnumMappingTableColumns;
 import view.HistoryFrame.PushE3OSDataFrame.MappingTable.MappingTableCellRenderer;
 import view.HistoryFrame.PushE3OSDataFrame.MappingTable.MappingTableModel;
+import view.HistoryFrame.PushE3OSDataFrame.MappingTable.PopupMenuForMappingTable;
 
 public class PushE3OSHistoryFrame extends javax.swing.JFrame implements PropertyChangeListener {
 
@@ -87,11 +92,11 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
         super.dispose();
     }
 
-    private List<MappingTableRow> createMappingsTable(List<DataPointFromSql> e3osPoints) {
+    private void createMappingsTable(List<DataPointFromSql> e3osPoints) {
 
-        List<MappingTableRow> mappings = new ArrayList<>();
+        mappingTable = new ArrayList<>();
         for (DatapointListItem pt : datapointsList) {
-            mappings.add(new MappingTableRow(pt));
+            mappingTable.add(new MappingTableRow(pt));
         }
 
         for (DataPointFromSql e3osPoint : e3osPoints) {
@@ -109,7 +114,6 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
             }
         }
 
-        return mappings;
     }
 
     private void fillMappingsTable() {
@@ -124,7 +128,7 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
     public void fixTableDataPointsListColumns(JTable t) {
 
         for (int i = 0; i < t.getColumnCount(); i++) {
-            EnumDataPointsListTableColumns colEnum = EnumDataPointsListTableColumns.getColumnFromColumnNumber(i);
+            EnumMappingTableColumns colEnum = EnumMappingTableColumns.getColumnFromColumnNumber(i);
             TableColumn column = t.getColumnModel().getColumn(i);
             if (colEnum != null) {
                 column.setPreferredWidth(colEnum.getWidth());
@@ -154,7 +158,7 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
         jScrollPane1 = new javax.swing.JScrollPane();
         jTableMapping = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
+        jButtonPushData = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
         jProgressBarPush = new javax.swing.JProgressBar();
         jButtonClose = new javax.swing.JButton();
@@ -254,6 +258,13 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        jTableMapping.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        jTableMapping.setShowGrid(true);
+        jTableMapping.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jTableMappingMousePressed(evt);
+            }
+        });
         jScrollPane1.setViewportView(jTableMapping);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -275,11 +286,21 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
 
         jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
-        jButton1.setText("Push Data");
+        jButtonPushData.setText("Push Data");
+        jButtonPushData.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonPushDataActionPerformed(evt);
+            }
+        });
 
         jLabel6.setText("Progress:");
 
         jButtonClose.setText("Close");
+        jButtonClose.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonCloseActionPerformed(evt);
+            }
+        });
 
         jLabelStatus.setText("*status*");
 
@@ -289,7 +310,7 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton1)
+                .addComponent(jButtonPushData)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -307,7 +328,7 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jProgressBarPush, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jButton1)
+                        .addComponent(jButtonPushData)
                         .addComponent(jLabel6))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jButtonClose)
@@ -342,11 +363,67 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButtonCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCloseActionPerformed
+        this.dispose();
+    }//GEN-LAST:event_jButtonCloseActionPerformed
+
+    private void jButtonPushDataActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPushDataActionPerformed
+
+        if (jTableMapping.getSelectedRowCount() > 0) {
+
+            int maxHoursPerPush = Integer.parseInt(this.jTextFieldMaxHoursPush.getText());
+            int maxPointsPerPush = Integer.parseInt(this.jTextFieldMaxPointsPush.getText());
+
+            MappingTableModel model = (MappingTableModel) this.jTableMapping.getModel();
+            int[] rowNumbers = jTableMapping.getSelectedRows();
+            List<MappingTableRow> pushRows = new ArrayList<>();
+            for (int selectedRowNumber : rowNumbers) {
+                int modelIndex = jTableMapping.convertRowIndexToModel(selectedRowNumber);
+                MappingTableRow mappedRow = model.getRow(modelIndex);
+
+                if (mappedRow.getMapStatus() == EnumMapStatus.Mapped) {
+                    pushRows.add(mappedRow);
+                }
+            }
+
+            DateTime pushStartTime = DateTime.parse(jTextFieldStartDate.getText(), zzFormat).withZone(DateTimeZone.UTC);
+            DateTime pushEndTime = DateTime.parse(jTextFieldEndDate.getText(), zzFormat).withZone(DateTimeZone.UTC);
+
+            //endOfPeriod is the number of whole hours between the startDate and the endDate.
+            Hours hours = Hours.hoursBetween(pushStartTime, pushEndTime);
+            int totalNumberOfHoursToPush = hours.getHours();
+            int totalNumberOfPointsToPush = pushRows.size();
+            maxPointsPerPush = Math.min(maxPointsPerPush, pushRows.size());
+
+            int numHourGroups = (totalNumberOfHoursToPush + 1) / maxHoursPerPush;
+            int numPointGroups = (totalNumberOfPointsToPush + 1) / maxPointsPerPush;
+
+            totalBatchesToPush = numHourGroups * numPointGroups;
+
+            jProgressBarPush.setMaximum(100);
+            jProgressBarPush.setValue(0);
+            jProgressBarPush.setStringPainted(true);
+
+            this.jButtonPushData.setEnabled(false);
+            teslaPushTimerStartTime = DateTime.now();
+            lapsedTimeTimer = new Timer(1000, lapsedTimeUpdater);
+            lapsedTimeTimer.start();
+
+            controller.pullFromE3OSPushToTesla(pushStartTime, pushEndTime, pushRows, maxHoursPerPush, maxPointsPerPush);
+        }
+    }//GEN-LAST:event_jButtonPushDataActionPerformed
+
+    private void jTableMappingMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTableMappingMousePressed
+        if (evt.isPopupTrigger()) {
+            PopupMenuForMappingTable popup = new PopupMenuForMappingTable(evt, jTableMapping);
+        }
+    }//GEN-LAST:event_jTableMappingMousePressed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonClose;
     private javax.swing.JButton jButtonLoginE3OS;
+    private javax.swing.JButton jButtonPushData;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -374,7 +451,7 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
         if (propName.equals(PropertyChangeNames.E3OSPointsReturned.getName())) {
 
             List<DataPointFromSql> e3osPoints = (List<DataPointFromSql>) evt.getNewValue();
-            mappingTable = createMappingsTable(e3osPoints);
+            createMappingsTable(e3osPoints);
             fillMappingsTable();
 
         } else if (propName.equals(PropertyChangeNames.TeslaBucketPushed.getName())) {

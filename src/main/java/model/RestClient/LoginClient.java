@@ -27,7 +27,7 @@ public class LoginClient {
     
     public OEResponse login(EnumBaseURLs serviceURL) throws IOException {
 
-        TeslaUsersInfo user = new TeslaUsersInfo();
+        TeslaUsersInfo user = new TeslaUsersInfo(serviceURL);
         String url = serviceURL.getURL() + "/oauth/token";
 
         List<NameValuePair> nvps = new ArrayList<>();

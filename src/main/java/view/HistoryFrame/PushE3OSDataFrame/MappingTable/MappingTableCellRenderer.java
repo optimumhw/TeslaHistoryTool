@@ -45,8 +45,11 @@ public class MappingTableCellRenderer extends DefaultTableCellRenderer {
             if (mappedRow.getMapStatus() == EnumMapStatus.Overridden) {
                 color = Color.YELLOW;
             }
-            else if (mappedRow.getMapStatus() != EnumMapStatus.Mapped) {
+            else if (mappedRow.getMapStatus() == EnumMapStatus.NoE3OSInfo) {
                 color = Color.PINK;
+            }
+            else if (mappedRow.getMapStatus() == EnumMapStatus.NoTeslaInfo) {
+                color = Color.YELLOW;
             }
         } else {
             if (value == null) {

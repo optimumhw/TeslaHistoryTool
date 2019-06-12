@@ -932,18 +932,14 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
     private void jButtonPushE3OSDataActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPushE3OSDataActionPerformed
 
         List<DatapointListItem> listOfPoints = new ArrayList<>();
-        DataPointsListTableModel tableModel = (DataPointsListTableModel) (jTableDataPointsList.getModel());
-        int[] selectedRowNumbers = jTableDataPointsList.getSelectedRows();
-        for (int selectedRowNumber : selectedRowNumbers) {
-            int modelRowNumber = jTableDataPointsList.convertRowIndexToModel(selectedRowNumber);
-            DatapointListItem dataRow = tableModel.getRow(modelRowNumber);
-            if (dataRow.getPointType().contentEquals("raw")) {
-                listOfPoints.add(dataRow);
+
+        for (DatapointListItem teslaPoint : datapointsList) {
+            if (teslaPoint.getPointType().contentEquals("raw")) {
+                listOfPoints.add(teslaPoint);
             }
         }
 
         if (listOfPoints.size() > 0) {
-
             DateTime pushStart = DateTime.parse(jTextFieldStartDate.getText(), zzFormat).withZone(DateTimeZone.UTC);
             DateTime pushEnd = DateTime.parse(jTextFieldEndDate.getText(), zzFormat).withZone(DateTimeZone.UTC);
 

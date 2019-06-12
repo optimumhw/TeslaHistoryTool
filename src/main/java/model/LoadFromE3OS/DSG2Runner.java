@@ -70,12 +70,12 @@ public class DSG2Runner {
             cs = (SQLServerCallableStatement) conn.prepareCall(sprocCaller);
 
             //DECLARE @FromTime_Local datetime
-            java.sql.Date fromTime = getSqlDate(startDate);
-            cs.setDate(1, fromTime);
+            java.sql.Timestamp fromTime = getSqlDate(startDate);
+            cs.setTimestamp(1, fromTime);
 
             //DECLARE @ToTime_Local datetime
-            java.sql.Date toTime = getSqlDate(endDate);
-            cs.setDate(2, toTime);
+            java.sql.Timestamp toTime = getSqlDate(endDate);
+            cs.setTimestamp(2, toTime);
 
             //DECLARE @DataPointsOfInterest [fact].[DataPointsOfInterest]
             cs.setStructured(3, "fact.DataPointsOfInterest", sourceDataTable);
@@ -156,10 +156,11 @@ public class DSG2Runner {
         return list;
     }
 
-    private static java.sql.Date getSqlDate(String dateString) {
+    private static java.sql.Timestamp getSqlDate(String dateString) {
         DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         DateTime ts = DateTime.parse(dateString, fmt);
-        return new java.sql.Date(ts.getMillis());
+        //return new java.sql.Date(ts.getMillis());
+        return new java.sql.Timestamp(ts.getMillis());
     }
 }
 

@@ -2,10 +2,12 @@ package model.RestClient;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -131,21 +133,27 @@ public class RestClientCommon {
             }
 
             postRequest.setEntity(new StringEntity(payload));
-            String temp = postRequest.toString();
 
             rrs.addRequest(new RRObj(DateTime.now(), EnumCallType.REQUEST, EnumRequestType.POST, 0, url, payload, oauthToken));
 
             response = httpClient.execute(postRequest);
             resp.responseCode = response.getStatusLine().getStatusCode();
-            BufferedReader br = new BufferedReader(new InputStreamReader((response.getEntity().getContent())));
-            String output;
-            while ((output = br.readLine()) != null) {
-                responseString += output;
+
+            resp.responseObject = "no content";
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                InputStream stream = entity.getContent();
+
+                BufferedReader br = new BufferedReader(new InputStreamReader((stream)));
+                String output;
+                while ((output = br.readLine()) != null) {
+                    responseString += output;
+                }
+                if (resp.responseCode == 401) {
+                    responseString = badCredentials;
+                }
+                resp.responseObject = responseString;
             }
-            if (resp.responseCode == 401) {
-                responseString = badCredentials;
-            }
-            resp.responseObject = responseString;
 
         } catch (Exception ex) {
             resp.responseObject = ex.getMessage();

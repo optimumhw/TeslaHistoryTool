@@ -66,7 +66,7 @@ public class MappingTableModel extends AbstractTableModel {
                 val = dataRow.getE3osName();
                 break;
             case E3OSXid:
-                val = dataRow.getXid().getXID();
+                val = dataRow.getXid().getXID() + dataRow.getE3osName();
                 break;
             case TeslaName:
                 val = dataRow.getTeslaName();
