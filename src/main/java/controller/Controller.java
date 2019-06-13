@@ -89,6 +89,10 @@ public class Controller implements java.awt.event.ActionListener, PropertyChange
         model.getHistory(historyRequest);
     }
     
+    public void getE3OSSites() {
+        model.getE3OSSites();
+    }
+    
      public void getE3OSDatapoints(final String stationID) {
          model.getE3OSDatapoints(stationID);
      }

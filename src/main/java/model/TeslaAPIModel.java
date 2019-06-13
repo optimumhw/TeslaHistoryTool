@@ -22,8 +22,10 @@ import model.LoadFromE3OS.DSG2QueryResultRecord;
 import model.LoadFromE3OS.DSG2Runner;
 import model.LoadFromE3OS.DataPointFromSql;
 import model.LoadFromE3OS.E3OSConnProperties;
+import model.LoadFromE3OS.E3OSStationRecord;
 import model.LoadFromE3OS.MappingTableRow;
 import model.LoadFromE3OS.PointsListQueryRunner;
+import model.LoadFromE3OS.SiteQuery;
 import model.LoadFromE3OS.TeslaDataPointUpsertRequest;
 import model.RestClient.LoginClient;
 import model.RestClient.OEResponse;
@@ -407,6 +409,44 @@ public class TeslaAPIModel extends java.util.Observable {
         worker.execute();
     }
 
+    public void getE3OSSites() {
+
+        SwingWorker worker = new SwingWorker< OEResponse, Void>() {
+
+            @Override
+            public OEResponse doInBackground() throws IOException {
+
+                SiteQuery queryRunner = new SiteQuery();
+                List<E3OSStationRecord> sitesList = queryRunner.runSiteQuery();
+                OEResponse results = new OEResponse();
+                results.responseCode = 200;
+                results.responseObject = sitesList;
+                return results;
+            }
+
+            @Override
+            public void done() {
+                try {
+                    OEResponse resp = get();
+
+                    if (resp.responseCode == 200) {
+                        List<E3OSStationRecord> sitesList = (List<E3OSStationRecord>) resp.responseObject;
+
+                        pcs.firePropertyChange(PropertyChangeNames.E3OSSitesReturned.getName(), null, sitesList);
+                    } else {
+                        pcs.firePropertyChange(PropertyChangeNames.ErrorResponse.getName(), null, resp);
+                    }
+                    pcs.firePropertyChange(PropertyChangeNames.RequestResponseChanged.getName(), null, getRRS());
+
+                } catch (Exception ex) {
+                    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+                    logger.error(this.getClass().getName(), ex);
+                }
+            }
+        };
+        worker.execute();
+    }
+
     public void getE3OSDatapoints(final String stationID) {
 
         SwingWorker worker = new SwingWorker< OEResponse, Void>() {
@@ -551,7 +591,7 @@ public class TeslaAPIModel extends java.util.Observable {
                 resp.responseObject = "no histories from e3os";
                 return resp;
             }
-            
+
             TeslaDataPointUpsertRequest tdpu = new TeslaDataPointUpsertRequest(e3osHistory, e3osNameToMappingTableRowMap);
             OEResponse teslaPutResponse = stationClient.putHistory(tdpu);
 

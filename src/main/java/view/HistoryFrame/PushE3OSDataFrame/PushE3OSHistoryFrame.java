@@ -6,13 +6,17 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.Timer;
 import javax.swing.table.TableColumn;
 import model.DatapointList.DatapointListItem;
 import model.LoadFromE3OS.DataPointFromSql;
+import model.LoadFromE3OS.E3OSStationRecord;
 import model.LoadFromE3OS.EnumMapStatus;
 import model.LoadFromE3OS.MappingTableRow;
 import model.PropertyChangeNames;
@@ -23,17 +27,20 @@ import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.PeriodFormat;
-import view.HistoryFrame.DatapointsListTable.DataPointsListTableModel;
-import view.HistoryFrame.DatapointsListTable.EnumDataPointsListTableColumns;
 import view.HistoryFrame.PushE3OSDataFrame.MappingTable.EnumMappingTableColumns;
 import view.HistoryFrame.PushE3OSDataFrame.MappingTable.MappingTableCellRenderer;
 import view.HistoryFrame.PushE3OSDataFrame.MappingTable.MappingTableModel;
 import view.HistoryFrame.PushE3OSDataFrame.MappingTable.PopupMenuForMappingTable;
+import view.HistoryFrame.PushE3OSDataFrame.SitesTable.E3OSSitesTableCellRenderer;
+import view.HistoryFrame.PushE3OSDataFrame.SitesTable.E3OSSitesTableModel;
+import view.HistoryFrame.PushE3OSDataFrame.SitesTable.EnumSitesTableColumns;
+import view.HistoryFrame.PushE3OSDataFrame.SitesTable.PopupMenuForE3OSSitesTable;
 
 public class PushE3OSHistoryFrame extends javax.swing.JFrame implements PropertyChangeListener {
 
     private static PushE3OSHistoryFrame thisInstance;
     private final Controller controller;
+    private List<E3OSStationRecord> sitesList;
     private final List<DatapointListItem> datapointsList;
 
     private Timer lapsedTimeTimer;
@@ -78,7 +85,6 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
         this.jTextFieldMaxHoursPush.setText("12");
         this.jTextFieldMaxPointsPush.setText("50");
 
-        controller.getE3OSDatapoints("293");
     }
 
     @Override
@@ -90,6 +96,69 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
         controller.removePropChangeListener(this);
         thisInstance = null;
         super.dispose();
+    }
+
+    private void fillSitesTable(String filter) {
+
+        List<E3OSStationRecord> filteredList = new ArrayList<>();
+
+        String[] pointNamesInFilter = filter.split(" ");
+
+        for (E3OSStationRecord stationRecord : this.sitesList) {
+
+            if (filter.length() == 0) {
+                filteredList.add(stationRecord);
+                continue;
+            }
+
+            for (String filterPiece : Arrays.asList(pointNamesInFilter)) {
+
+                if (matchesFilter(stationRecord.GetCustomerName(), filterPiece)
+                        || matchesFilter(stationRecord.GetSiteShortName(), filterPiece)
+                        || matchesFilter(stationRecord.GetInstShortName(), filterPiece)
+                        || matchesFilter(stationRecord.GetStationShortName(), filterPiece)) {
+
+                    if (!filteredList.contains(stationRecord)) {
+                        filteredList.add(stationRecord);
+                    }
+
+                }
+
+            }
+        }
+
+        this.jTableE3OSSites.setDefaultRenderer(Object.class, new E3OSSitesTableCellRenderer());
+        this.jTableE3OSSites.setModel(new E3OSSitesTableModel(this.sitesList));
+        this.jTableE3OSSites.setAutoCreateRowSorter(true);
+        fixSitesTableDataPointsListColumns(jTableE3OSSites);
+    }
+
+    public boolean matchesFilter(String recordText, String filterPiece) {
+
+        if (!this.jCheckBoxRegEx.isSelected() && recordText.contains(filterPiece)) {
+            return true;
+        } else if (this.jCheckBoxRegEx.isSelected()) {
+            Pattern r = Pattern.compile(filterPiece);
+            Matcher m = r.matcher(recordText);
+            if (m.find()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void fixSitesTableDataPointsListColumns(JTable t) {
+
+        for (int i = 0; i < t.getColumnCount(); i++) {
+            EnumSitesTableColumns colEnum = EnumSitesTableColumns.getColumnFromColumnNumber(i);
+            TableColumn column = t.getColumnModel().getColumn(i);
+            if (colEnum != null) {
+                column.setPreferredWidth(colEnum.getWidth());
+            } else {
+                column.setPreferredWidth(50);
+            }
+        }
     }
 
     private void createMappingsTable(List<DataPointFromSql> e3osPoints) {
@@ -143,9 +212,6 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        jTextFieldStationId = new javax.swing.JTextField();
-        jButtonLoginE3OS = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         jTextFieldStartDate = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
@@ -154,26 +220,27 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
         jTextFieldMaxHoursPush = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         jTextFieldMaxPointsPush = new javax.swing.JTextField();
-        jPanel2 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTableMapping = new javax.swing.JTable();
+        jTextFieldSitesFilter = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
+        jCheckBoxRegEx = new javax.swing.JCheckBox();
         jPanel3 = new javax.swing.JPanel();
         jButtonPushData = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
         jProgressBarPush = new javax.swing.JProgressBar();
         jButtonClose = new javax.swing.JButton();
         jLabelStatus = new javax.swing.JLabel();
+        jSplitPane1 = new javax.swing.JSplitPane();
+        jPanel2 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTableMapping = new javax.swing.JTable();
+        jPanel4 = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTableE3OSSites = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Push E3OS Data");
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), "Parameters"));
-
-        jLabel1.setText("Station ID:");
-
-        jTextFieldStationId.setText("jTextField1");
-
-        jButtonLoginE3OS.setText("Login");
 
         jLabel2.setText("Start Date:");
 
@@ -191,6 +258,17 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
 
         jTextFieldMaxPointsPush.setText("jTextField4");
 
+        jTextFieldSitesFilter.setText("jTextField1");
+        jTextFieldSitesFilter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextFieldSitesFilterActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setText("Sites Filter:");
+
+        jCheckBoxRegEx.setText("RegEx");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -199,38 +277,33 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel1)
+                        .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextFieldStationId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jTextFieldStartDate, javax.swing.GroupLayout.PREFERRED_SIZE, 328, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonLoginE3OS))
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTextFieldEndDate, javax.swing.GroupLayout.PREFERRED_SIZE, 305, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel4)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jTextFieldMaxHoursPush, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextFieldMaxPointsPush, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel2)
+                        .addComponent(jTextFieldMaxPointsPush, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(64, 64, 64)
+                        .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextFieldStartDate, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jTextFieldSitesFilter)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextFieldEndDate, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(464, Short.MAX_VALUE))
+                        .addComponent(jCheckBoxRegEx)))
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(jTextFieldStationId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButtonLoginE3OS))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(jTextFieldStartDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -241,47 +314,10 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
                     .addComponent(jLabel4)
                     .addComponent(jTextFieldMaxHoursPush, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel5)
-                    .addComponent(jTextFieldMaxPointsPush, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), "Mapping"));
-
-        jTableMapping.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
-        jTableMapping.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
-        jTableMapping.setShowGrid(true);
-        jTableMapping.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                jTableMappingMousePressed(evt);
-            }
-        });
-        jScrollPane1.setViewportView(jTableMapping);
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1)
-                .addContainerGap())
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 509, Short.MAX_VALUE)
-                .addContainerGap())
+                    .addComponent(jTextFieldMaxPointsPush, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextFieldSitesFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1)
+                    .addComponent(jCheckBoxRegEx)))
         );
 
         jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
@@ -336,6 +372,85 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
+        jSplitPane1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), "E3OS Stations"));
+        jSplitPane1.setDividerLocation(200);
+        jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), "Mapping"));
+
+        jTableMapping.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jTableMapping.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        jTableMapping.setShowGrid(true);
+        jTableMapping.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jTableMappingMousePressed(evt);
+            }
+        });
+        jScrollPane1.setViewportView(jTableMapping);
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1026, Short.MAX_VALUE)
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE))
+        );
+
+        jSplitPane1.setBottomComponent(jPanel2);
+
+        jTableE3OSSites.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jTableE3OSSites.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        jTableE3OSSites.setShowGrid(true);
+        jTableE3OSSites.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jTableE3OSSitesMousePressed(evt);
+            }
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTableE3OSSitesMouseClicked(evt);
+            }
+        });
+        jScrollPane2.setViewportView(jTableE3OSSites);
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1036, Short.MAX_VALUE)
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 176, Short.MAX_VALUE))
+        );
+
+        jSplitPane1.setLeftComponent(jPanel4);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -344,8 +459,8 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jSplitPane1))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -354,7 +469,7 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jSplitPane1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -419,11 +534,33 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
         }
     }//GEN-LAST:event_jTableMappingMousePressed
 
+    private void jTableE3OSSitesMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTableE3OSSitesMousePressed
+        if (evt.isPopupTrigger()) {
+            PopupMenuForE3OSSitesTable popup = new PopupMenuForE3OSSitesTable(evt, jTableMapping);
+        }
+    }//GEN-LAST:event_jTableE3OSSitesMousePressed
+
+    private void jTableE3OSSitesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTableE3OSSitesMouseClicked
+        if (evt.getClickCount() == 2) {
+            int row = jTableE3OSSites.rowAtPoint(evt.getPoint());
+            int modelIndex = jTableE3OSSites.convertRowIndexToModel(row);
+            E3OSSitesTableModel mod = (E3OSSitesTableModel) jTableE3OSSites.getModel();
+            E3OSStationRecord e3osStationRecord = mod.getRow(modelIndex);
+            int stationId = e3osStationRecord.GetStationId();
+            controller.getDatapoints(Integer.toString(stationId));
+        }
+    }//GEN-LAST:event_jTableE3OSSitesMouseClicked
+
+    private void jTextFieldSitesFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldSitesFilterActionPerformed
+        String filter = this.jTextFieldSitesFilter.getText();
+        fillSitesTable(filter);
+    }//GEN-LAST:event_jTextFieldSitesFilterActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonClose;
-    private javax.swing.JButton jButtonLoginE3OS;
     private javax.swing.JButton jButtonPushData;
+    private javax.swing.JCheckBox jCheckBoxRegEx;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -434,22 +571,29 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JProgressBar jProgressBarPush;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JTable jTableE3OSSites;
     private javax.swing.JTable jTableMapping;
     private javax.swing.JTextField jTextFieldEndDate;
     private javax.swing.JTextField jTextFieldMaxHoursPush;
     private javax.swing.JTextField jTextFieldMaxPointsPush;
+    private javax.swing.JTextField jTextFieldSitesFilter;
     private javax.swing.JTextField jTextFieldStartDate;
-    private javax.swing.JTextField jTextFieldStationId;
     // End of variables declaration//GEN-END:variables
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         String propName = evt.getPropertyName();
 
-        if (propName.equals(PropertyChangeNames.E3OSPointsReturned.getName())) {
+        if (propName.equals(PropertyChangeNames.E3OSSitesReturned.getName())) {
+            this.sitesList = (List<E3OSStationRecord>) evt.getNewValue();
+            fillSitesTable( this.jTextFieldSitesFilter.getText());
 
+        } else if (propName.equals(PropertyChangeNames.E3OSPointsReturned.getName())) {
             List<DataPointFromSql> e3osPoints = (List<DataPointFromSql>) evt.getNewValue();
             createMappingsTable(e3osPoints);
             fillMappingsTable();

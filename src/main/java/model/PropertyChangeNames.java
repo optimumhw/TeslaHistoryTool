@@ -14,9 +14,10 @@ public enum PropertyChangeNames {
     StationDatapointHistoryOneHourPushed("StationDatapointHistoryOneHourPushed"),
     StationHistoryAllPushed("StationHistoryForPeriodPushed"),
     CSVCreated("CSVCreated"),
+    E3OSSitesReturned("E3OSSitesReturned"),
     E3OSPointsReturned("E3OSPointsReturned"),
     TeslaBucketPushed("TeslaBucketPushed"),
-    TeslaPushComplete("TeslaPushComplete"),;
+    TeslaPushComplete("TeslaPushComplete");
 
     private final String name;
 
