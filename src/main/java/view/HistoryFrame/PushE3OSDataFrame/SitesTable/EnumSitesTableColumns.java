@@ -5,14 +5,14 @@ import java.util.List;
 
 public enum EnumSitesTableColumns {
 
-    CustomerID(0, "CustomerID", 100),
-    CustShortName(1, "CustShortName", 200),
-    SiteId(2, "SiteId", 400),
-    SiteShortName(3, "SiteShortName", 200),
+    CustomerID(0, "CustomerID", 50),
+    CustShortName(1, "CustShortName", 100),
+    SiteId(2, "SiteId", 50),
+    SiteShortName(3, "SiteShortName", 100),
     InstId(4, "InstId", 50),
-    InstShortName(5, "InstShortName", 300),
+    InstShortName(5, "InstShortName", 100),
     StationId(6, "StationId", 50),
-    StationShortName(7, "StationShortName", 300);
+    StationShortName(7, "StationShortName", 100);
 
     private final String friendlyName;
     private final int columnNumber;

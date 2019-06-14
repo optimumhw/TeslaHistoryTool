@@ -84,6 +84,9 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
 
         this.jTextFieldMaxHoursPush.setText("12");
         this.jTextFieldMaxPointsPush.setText("50");
+        this.jTextFieldSitesFilter.setText("");
+        
+        controller.getE3OSSites();
 
     }
 
@@ -128,7 +131,7 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
         }
 
         this.jTableE3OSSites.setDefaultRenderer(Object.class, new E3OSSitesTableCellRenderer());
-        this.jTableE3OSSites.setModel(new E3OSSitesTableModel(this.sitesList));
+        this.jTableE3OSSites.setModel(new E3OSSitesTableModel(filteredList));
         this.jTableE3OSSites.setAutoCreateRowSorter(true);
         fixSitesTableDataPointsListColumns(jTableE3OSSites);
     }
@@ -547,7 +550,7 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
             E3OSSitesTableModel mod = (E3OSSitesTableModel) jTableE3OSSites.getModel();
             E3OSStationRecord e3osStationRecord = mod.getRow(modelIndex);
             int stationId = e3osStationRecord.GetStationId();
-            controller.getDatapoints(Integer.toString(stationId));
+            controller.getE3OSDatapoints(Integer.toString(stationId));
         }
     }//GEN-LAST:event_jTableE3OSSitesMouseClicked
 

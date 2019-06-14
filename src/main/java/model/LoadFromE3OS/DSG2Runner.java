@@ -103,7 +103,7 @@ public class DSG2Runner {
             cs.setBoolean(10, false);
 
             //DECLARE @IncludeUncommissioned bit
-            cs.setBoolean(11, false);
+            cs.setBoolean(11, true);
 
             //DECLARE @ForceCacheRefresh bit
             cs.setNull(12, java.sql.Types.NULL);
