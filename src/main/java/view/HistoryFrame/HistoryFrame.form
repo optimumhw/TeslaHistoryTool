@@ -47,7 +47,7 @@
                       <EmptySpace max="32767" attributes="0"/>
                       <Component id="jButtonClose" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="jSplitPane1" alignment="0" max="32767" attributes="0"/>
+                  <Component id="jSplitPane1" alignment="0" pref="1308" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -76,7 +76,7 @@
     </Component>
     <Container class="javax.swing.JSplitPane" name="jSplitPane1">
       <Properties>
-        <Property name="dividerLocation" type="int" value="700"/>
+        <Property name="dividerLocation" type="int" value="800"/>
       </Properties>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout"/>
@@ -143,25 +143,34 @@
                       <Group type="102" alignment="1" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="jTextFieldStartDate" max="32767" attributes="0"/>
+                              <Group type="102" attributes="0">
+                                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="jTextFieldStartDate" min="-2" pref="267" max="-2" attributes="0"/>
+                                      </Group>
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="jTextFieldEndDate" max="32767" attributes="0"/>
+                                      </Group>
                                   </Group>
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="jTextFieldEndDate" min="-2" pref="307" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                      <Component id="jLabelutcStart" max="32767" attributes="0"/>
+                                      <Component id="jLabelutcEnd" max="32767" attributes="0"/>
                                   </Group>
                               </Group>
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jComboBoxQueryPeriods" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="jLabelTimeZone" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <EmptySpace pref="94" max="32767" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
                           <Group type="103" groupAlignment="1" attributes="0">
                               <Component id="jButtonRunQuery" min="-2" max="-2" attributes="0"/>
                               <Group type="102" attributes="0">
@@ -182,6 +191,7 @@
                               <Group type="103" groupAlignment="3" attributes="0">
                                   <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="jTextFieldStartDate" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabelutcStart" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <Group type="103" groupAlignment="3" attributes="0">
                                   <Component id="jComboBoxResolutions" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -192,6 +202,7 @@
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="jTextFieldEndDate" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabelutcEnd" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" attributes="0">
@@ -204,6 +215,7 @@
                                   <Group type="103" groupAlignment="3" attributes="0">
                                       <Component id="jComboBoxQueryPeriods" alignment="3" min="-2" max="-2" attributes="0"/>
                                       <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jLabelTimeZone" alignment="3" min="-2" max="-2" attributes="0"/>
                                   </Group>
                                   <EmptySpace max="32767" attributes="0"/>
                               </Group>
@@ -279,6 +291,21 @@
                 <Component class="javax.swing.JLabel" name="jLabel6">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Query Period:"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabelTimeZone">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="*timezone*"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabelutcStart">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="2019-05-15T06:00:00.000Z"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabelutcEnd">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="2019-05-15T06:00:00.000Z"/>
                   </Properties>
                 </Component>
               </SubComponents>
@@ -384,7 +411,7 @@
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" alignment="0" attributes="0">
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="jScrollPane1" pref="630" max="32767" attributes="0"/>
+                                  <Component id="jScrollPane1" max="32767" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                               </Group>
                           </Group>
@@ -658,7 +685,7 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="jScrollPane3" alignment="1" pref="254" max="32767" attributes="0"/>
+                      <Component id="jScrollPane3" alignment="1" pref="465" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
