@@ -34,6 +34,9 @@ public class Datapoint {
 
     @JsonProperty("calculation")
     private String calculation;
+    
+    @JsonProperty("editable")
+    private Boolean editable;
 
     @JsonProperty("minimumResolution")
     private String minimumResolution;
@@ -85,6 +88,10 @@ public class Datapoint {
 
     public String getCalculation() {
         return calculation;
+    }
+    
+    public Boolean getEditable(){
+        return this.editable;
     }
 
     public String getMinimumResolution() {

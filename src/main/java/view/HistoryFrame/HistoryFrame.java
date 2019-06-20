@@ -71,7 +71,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
     private DateTime utcStartDate;
     private DateTime utcEndDate;
-    
+
     private DateTime siteLocalStartDate;
     private DateTime siteLocalEndDate;
 
@@ -80,6 +80,8 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
     private String filter = "";
 
     private Timer timer = null;
+    
+    private final String fiveMinuteString = "fiveMinute";
 
     public static HistoryFrame getInstance(final Controller controller, StationInfo selectedStation) {
         if (thisInstance == null) {
@@ -100,21 +102,8 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
         fillQueryPeriodsDropDown(queryPeriod);
 
-        this.jLabelTimeZone.setText( selectedStation.getTimeZone() );
-        
-        DateTimeZone zone = DateTimeZone.forID( selectedStation.getTimeZone() );
-        DateTime here = DateTime.now();
-        DateTime kkk = DateTime.now().withZone(zone);
-        
-        
-        String dateString = "2019-05-15T06:00:00.000Z";
-        DateTime thisDate = DateTime.parse(dateString,zzFormat).withZone(zone);
-        
-        
-        
-        //xxx = zone.getOff
-        
-        
+        this.jLabelTimeZone.setText(selectedStation.getTimeZone());
+
         setPrecSpinner();
         fillHistoryResolutionDropdown();
         controller.getDatapoints(selectedStation.getId());
@@ -171,12 +160,11 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
     private void setStartAndEndDates(EnumQueryPeriods queryPeriod) {
 
-
         DateTime utcToday = DateTime.now().withZone(DateTimeZone.UTC);
-        
-        DateTimeZone zone = DateTimeZone.forID( selectedStation.getTimeZone() );
-        DateTime siteLocalToday = new DateTime( utcToday ).withZone(zone);
-        
+
+        DateTimeZone zone = DateTimeZone.forID(selectedStation.getTimeZone());
+        DateTime siteLocalToday = new DateTime(utcToday).withZone(zone);
+
         switch (queryPeriod) {
             case LAST_12_MONTHS: {
                 siteLocalEndDate = siteLocalStartDate;
@@ -230,13 +218,13 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
             }
         }
-        
+
         this.jTextFieldStartDate.setText(siteLocalStartDate.toString(zzFormat));
         this.jTextFieldEndDate.setText(siteLocalEndDate.toString(zzFormat));
-        
-        utcStartDate = new DateTime( siteLocalStartDate ).withZone(DateTimeZone.UTC);
-        utcEndDate = new DateTime( siteLocalEndDate ).withZone(DateTimeZone.UTC);
-        
+
+        utcStartDate = new DateTime(siteLocalStartDate).withZone(DateTimeZone.UTC);
+        utcEndDate = new DateTime(siteLocalEndDate).withZone(DateTimeZone.UTC);
+
         this.jLabelutcStart.setText(utcStartDate.toString(utcFormat));
         this.jLabelutcEnd.setText(utcEndDate.toString(utcFormat));
 
@@ -878,23 +866,47 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         clearHistoryTable();
         clearHistoryStatsTable();
 
-        List<String> listOfPoints = new ArrayList<>();
+        List<String> listOfTeslaPointIDs = new ArrayList<>();
+        List<DatapointListItem> listOfTeslaPoints = new ArrayList<>();
         DataPointsListTableModel tableModel = (DataPointsListTableModel) (jTableDataPointsList.getModel());
         int[] selectedRowNumbers = jTableDataPointsList.getSelectedRows();
         for (int selectedRowNumber : selectedRowNumbers) {
             int modelRowNumber = jTableDataPointsList.convertRowIndexToModel(selectedRowNumber);
-            DatapointListItem dataRow = tableModel.getRow(modelRowNumber);
-            listOfPoints.add(dataRow.getId());
+            DatapointListItem teslaPoint = tableModel.getRow(modelRowNumber);
+            listOfTeslaPoints.add(teslaPoint);
+            listOfTeslaPointIDs.add(teslaPoint.getId());
         }
 
         String resolution = (String) (this.jComboBoxResolutions.getSelectedItem());
 
-        DateTimeZone zone = DateTimeZone.forID( selectedStation.getTimeZone() );
+        DateTimeZone zone = DateTimeZone.forID(selectedStation.getTimeZone());
         DateTime queryStart = DateTime.parse(jTextFieldStartDate.getText(), zzFormat).withZone(zone);
         DateTime queryEnd = DateTime.parse(jTextFieldEndDate.getText(), zzFormat).withZone(zone);
 
-        HistoryRequest hr = new HistoryRequest(listOfPoints, queryStart, queryEnd, resolution, selectedStation.getTimeZone());
-        controller.getHistory(hr);
+        if (!resolution.contentEquals(fiveMinuteString)) {
+            HistoryRequest hr = new HistoryRequest(listOfTeslaPointIDs, queryStart, queryEnd, resolution, selectedStation.getTimeZone());
+            controller.getHistory(hr);
+            return;
+
+        }
+
+
+        List<String> listOfFiveMinutePointIDs = new ArrayList<>();
+        List<String> listOfHourlyPointIDs = new ArrayList<>();
+
+        for (DatapointListItem teslaPoint : listOfTeslaPoints) {
+            String minRes = teslaPoint.getMinimumResolution();
+            if (minRes.contentEquals(fiveMinuteString)) {
+                listOfFiveMinutePointIDs.add(teslaPoint.getId());
+            } else {
+                listOfHourlyPointIDs.add(teslaPoint.getId());
+            }
+        }
+
+        HistoryRequest generalRequest = new HistoryRequest(listOfFiveMinutePointIDs, queryStart, queryEnd, resolution, selectedStation.getTimeZone());
+        HistoryRequest secondaryHourlyRequest = new HistoryRequest(listOfHourlyPointIDs, queryStart, queryEnd, "hour", selectedStation.getTimeZone());
+        controller.getComboHistory(generalRequest, secondaryHourlyRequest);
+
     }//GEN-LAST:event_jButtonRunQueryActionPerformed
 
     private void jTableHistoryMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTableHistoryMousePressed

@@ -43,8 +43,8 @@ public class HistoryTableCellRenderer extends DefaultTableCellRenderer {
         } else if (value instanceof String) {
             color = Color.WHITE;
             String temp = (String) value;
-            if (temp.compareTo("NaN") == 0) {
-                value = "'NaN'";
+            if (temp.compareTo("nodata") == 0) {
+                color = Color.lightGray;
             }
         } else if (value instanceof Double) {
             try {

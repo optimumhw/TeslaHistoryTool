@@ -25,6 +25,9 @@ public class DatapointListItem {
     @JsonProperty("calculation")
     private String calculation;
 
+    @JsonProperty("editable")
+    private Boolean editable;
+
     @JsonProperty("minimumResolution")
     private String minimumResolution;
 
@@ -63,6 +66,10 @@ public class DatapointListItem {
 
     public String getCalculation() {
         return calculation;
+    }
+
+    public Boolean getEditable() {
+        return editable;
     }
 
     public String getMinimumResolution() {

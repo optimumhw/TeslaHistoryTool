@@ -11,6 +11,7 @@ public enum PropertyChangeNames {
     StationInfoAndSubFlagRetrieved("DatapointsAndSubFlagRetrieved"),
     LiveDataReturned("LiveDataReturned"),
     HistoryReturned("HistoryReturned"),
+    ComboHistoryReturned("ComboHistoryReturned"),
     StationDatapointHistoryOneHourPushed("StationDatapointHistoryOneHourPushed"),
     StationHistoryAllPushed("StationHistoryForPeriodPushed"),
     CSVCreated("CSVCreated"),

@@ -1,6 +1,5 @@
 package model.DataPoints;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
@@ -26,6 +25,9 @@ public class LiveDatapoint {
 
     @JsonProperty("calculation")
     private String calculation;
+    
+    @JsonProperty("editable")
+    private Boolean editable;
 
     @JsonProperty("minimumResolution")
     private String minimumResolution;
@@ -71,6 +73,10 @@ public class LiveDatapoint {
 
     public String getCalculation() {
         return calculation;
+    }
+    
+    public Boolean getEditable() {
+        return editable;
     }
 
     public String getMinimumResolution() {

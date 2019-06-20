@@ -118,6 +118,9 @@ public class DatapointsTableModel extends AbstractTableModel {
             case Calculation:
                 val = datapoint.getCalculation();
                 break;
+            case Editable:
+                val = datapoint.getEditable();
+                break;
             case Reso:
                 val = datapoint.getMinimumResolution();
                 break;

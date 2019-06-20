@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import javax.swing.SwingWorker;
 import model.Auth.LoginResponse;
 import model.CSVCreator.CSVMaker;
+import model.DataPoints.ComboHistories;
 import model.DataPoints.Datapoint;
 import model.DataPoints.Equipment;
 import model.DataPoints.HistoryQueryResults;
@@ -351,9 +352,66 @@ public class TeslaAPIModel extends java.util.Observable {
                     OEResponse resp = get();
 
                     if (resp.responseCode == 200) {
-                        HistoryQueryResults historyPoints = (HistoryQueryResults) resp.responseObject;
+                        HistoryQueryResults historyResults = (HistoryQueryResults) resp.responseObject;
 
-                        pcs.firePropertyChange(PropertyChangeNames.HistoryReturned.getName(), null, historyPoints);
+                        pcs.firePropertyChange(PropertyChangeNames.HistoryReturned.getName(), null, historyResults);
+                    } else {
+                        pcs.firePropertyChange(PropertyChangeNames.ErrorResponse.getName(), null, resp);
+                    }
+                    pcs.firePropertyChange(PropertyChangeNames.RequestResponseChanged.getName(), null, getRRS());
+
+                } catch (Exception ex) {
+                    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+                    logger.error(this.getClass().getName(), ex);
+                }
+            }
+        };
+        worker.execute();
+    }
+
+    public void getComboHistory(final HistoryRequest fiveMinuteRequest, final HistoryRequest hourRequest) {
+
+        SwingWorker worker = new SwingWorker< OEResponse, Void>() {
+
+            @Override
+            public OEResponse doInBackground() throws IOException {
+
+                HistoryQueryResults fiveMinHistory = null;
+                HistoryQueryResults hourHistory = null;
+
+                if (fiveMinuteRequest.getIds().size() > 0 ) {
+                    OEResponse fiveMinResponse = stationClient.getHistory(fiveMinuteRequest);
+                    if (fiveMinResponse.responseCode == 200) {
+                        fiveMinHistory = new HistoryQueryResults((List<LiveDatapoint>) fiveMinResponse.responseObject);
+                    }
+                }
+
+                if (hourRequest.getIds().size() > 0 ) {
+                    OEResponse hourResponse = stationClient.getHistory(hourRequest);
+                    if (hourResponse.responseCode == 200) {
+                        hourHistory = new HistoryQueryResults((List<LiveDatapoint>) hourResponse.responseObject);
+                    }
+                }
+
+                ComboHistories comboHistories = new ComboHistories(fiveMinHistory, hourHistory);
+                HistoryQueryResults historyResults = new HistoryQueryResults(comboHistories);
+                
+                OEResponse comboResponse = new OEResponse();
+                comboResponse.responseCode = 200;
+                comboResponse.responseObject = historyResults;
+
+                return comboResponse;
+            }
+
+            @Override
+            public void done() {
+                try {
+                    OEResponse resp = get();
+
+                    if (resp.responseCode == 200) {
+                        HistoryQueryResults historyResults = (HistoryQueryResults) resp.responseObject;
+
+                        pcs.firePropertyChange(PropertyChangeNames.HistoryReturned.getName(), null, historyResults);
                     } else {
                         pcs.firePropertyChange(PropertyChangeNames.ErrorResponse.getName(), null, resp);
                     }

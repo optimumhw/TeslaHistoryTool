@@ -18,8 +18,9 @@ public enum EnumDatpointsTableColumns {
     OwnerID(9,"OwnerId", 300),
     PointType(10,"Type", 100),
     Calculation(11,"Calculation",250),
-    Reso(12,"MinResolution", 100),
-    Rollup(13,"RollupAgreg", 100);
+    Editable(12,"Editable",50),
+    Reso(13,"MinResolution", 100),
+    Rollup(14,"RollupAgreg", 100);
 
     private final String friendlyName;
     private final int columnNumber;

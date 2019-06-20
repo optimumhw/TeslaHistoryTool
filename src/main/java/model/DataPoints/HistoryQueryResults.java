@@ -62,6 +62,13 @@ public class HistoryQueryResults {
        
     }
     
+    public HistoryQueryResults( ComboHistories comboHistories ){
+        timeStamps = comboHistories.getTimestamps();
+        pointNames = comboHistories.getPointNames();
+        pointNameToValueIndex = null;
+        timeStampToValuesArray = comboHistories.getTimeStampToValuesArray();
+    }
+    
     
     public void addLivePointResult( LiveDatapoint ldp ){
 

@@ -89,6 +89,10 @@ public class Controller implements java.awt.event.ActionListener, PropertyChange
         model.getHistory(historyRequest);
     }
     
+    public void getComboHistory(final HistoryRequest fiveMinuteRequest, final HistoryRequest hourRequest) {
+        model.getComboHistory(fiveMinuteRequest, hourRequest);
+    }
+    
     public void getE3OSSites() {
         model.getE3OSSites();
     }
