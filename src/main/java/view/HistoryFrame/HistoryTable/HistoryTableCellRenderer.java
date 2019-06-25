@@ -15,13 +15,15 @@ import org.joda.time.format.DateTimeFormatter;
 
 public class HistoryTableCellRenderer extends DefaultTableCellRenderer {
 
-    final int prec;
-    final Color limeGreen;
-    private final DateTimeFormatter zzFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
+    private final int prec;
+    private final Color limeGreen = new Color(204, 255, 204);
+    private final Color lightBlue = new Color(204,255,255);
+    private final Color lightYellow = new Color(255,255,229);
+    //private final DateTimeFormatter zzFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
+    private final DateTimeFormatter uiFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
 
     public HistoryTableCellRenderer( int prec) {
         this.prec = prec;
-        limeGreen = new Color(204, 255, 204);
     }
 
     @Override
@@ -43,8 +45,8 @@ public class HistoryTableCellRenderer extends DefaultTableCellRenderer {
         } else if (value instanceof String) {
             color = Color.WHITE;
             String temp = (String) value;
-            if (temp.compareTo("nodata") == 0) {
-                color = Color.lightGray;
+            if (temp.compareTo("*blank*") == 0) {
+                color = lightBlue;
             }
         } else if (value instanceof Double) {
             try {
@@ -62,11 +64,11 @@ public class HistoryTableCellRenderer extends DefaultTableCellRenderer {
             }
         } else if (value instanceof Boolean) {
             boolean b = (Boolean) value;
-            color = (b) ? limeGreen : Color.lightGray;
+            color = (b) ? limeGreen : lightYellow;
 
         } else if (value instanceof DateTime ){
             DateTime ts = (DateTime)value;
-            String dateStr = ts.toString( zzFormat );
+            String dateStr = ts.toString( uiFormat );
             value = dateStr;
         }
 

@@ -35,7 +35,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLabelLoggedIn" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
-                      <Component id="jButtonSiteInfo" min="-2" max="-2" attributes="0"/>
+                      <Component id="jButtonGetStations" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jButtonRequests" min="-2" max="-2" attributes="0"/>
                   </Group>
@@ -61,7 +61,7 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jButtonSiteInfo" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jButtonGetStations" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jButtonRequests" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jComboBoxBaseURLs" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -84,12 +84,12 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JButton" name="jButtonSiteInfo">
+    <Component class="javax.swing.JButton" name="jButtonGetStations">
       <Properties>
         <Property name="text" type="java.lang.String" value="Get Stations List"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonSiteInfoActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonGetStationsActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JButton" name="jButtonQuit">

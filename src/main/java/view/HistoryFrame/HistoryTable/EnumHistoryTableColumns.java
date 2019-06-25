@@ -4,7 +4,7 @@ package view.HistoryFrame.HistoryTable;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/*
 public enum EnumHistoryTableColumns {
 
     ShortName(0,"ShortName", 200),
@@ -51,4 +51,5 @@ public enum EnumHistoryTableColumns {
         return names;
     }
 }
+*/
 

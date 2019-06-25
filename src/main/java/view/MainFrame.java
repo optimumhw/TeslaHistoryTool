@@ -257,7 +257,7 @@ public class MainFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jButtonSiteInfo = new javax.swing.JButton();
+        jButtonGetStations = new javax.swing.JButton();
         jButtonQuit = new javax.swing.JButton();
         jButtonRequests = new javax.swing.JButton();
         jSplitPane1 = new javax.swing.JSplitPane();
@@ -282,10 +282,10 @@ public class MainFrame extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jButtonSiteInfo.setText("Get Stations List");
-        jButtonSiteInfo.addActionListener(new java.awt.event.ActionListener() {
+        jButtonGetStations.setText("Get Stations List");
+        jButtonGetStations.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonSiteInfoActionPerformed(evt);
+                jButtonGetStationsActionPerformed(evt);
             }
         });
 
@@ -476,7 +476,7 @@ public class MainFrame extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabelLoggedIn)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButtonSiteInfo)
+                        .addComponent(jButtonGetStations)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButtonRequests))
                     .addGroup(layout.createSequentialGroup()
@@ -497,7 +497,7 @@ public class MainFrame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButtonSiteInfo)
+                    .addComponent(jButtonGetStations)
                     .addComponent(jButtonRequests)
                     .addComponent(jLabel1)
                     .addComponent(jComboBoxBaseURLs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -522,9 +522,9 @@ public class MainFrame extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_jButtonQuitActionPerformed
 
-    private void jButtonSiteInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSiteInfoActionPerformed
+    private void jButtonGetStationsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonGetStationsActionPerformed
         controller.getStations();
-    }//GEN-LAST:event_jButtonSiteInfoActionPerformed
+    }//GEN-LAST:event_jButtonGetStationsActionPerformed
 
     private void jTableDatapointsTableMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTableDatapointsTableMousePressed
 
@@ -611,11 +611,11 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonLoginActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButtonGetStations;
     private javax.swing.JButton jButtonHistoryFrame;
     private javax.swing.JButton jButtonLogin;
     private javax.swing.JButton jButtonQuit;
     private javax.swing.JButton jButtonRequests;
-    private javax.swing.JButton jButtonSiteInfo;
     private javax.swing.JComboBox<String> jComboBoxBaseURLs;
     private javax.swing.JComboBox<String> jComboBoxEquipment;
     private javax.swing.JLabel jLabel1;

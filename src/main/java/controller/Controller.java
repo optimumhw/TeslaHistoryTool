@@ -131,6 +131,7 @@ public class Controller implements java.awt.event.ActionListener, PropertyChange
         } else if (propName.equals(PropertyChangeNames.LoginResponseReturned.getName())) {
             LoginResponse loginResponse = (LoginResponse) evt.getNewValue();
             view.setLoggedInInfo(true, loginResponse);
+            model.getStations();
 
         } else if (propName.equals(PropertyChangeNames.StationsListReturned.getName())) {
             List<StationInfo> stations = (List<StationInfo>) evt.getNewValue();

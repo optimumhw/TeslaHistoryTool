@@ -10,11 +10,11 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 public class DataPointsListTableCellRenderer extends DefaultTableCellRenderer {
 
-    final Color limeGreen;
+    private final Color limeGreen = new Color(204, 255, 204);
+    private final Color lightBlue = new Color(204,255,255);
+    private final Color lightYellow = new Color(255,255,229);
 
     public DataPointsListTableCellRenderer() {
-
-        limeGreen = new Color(204, 255, 204);
 
     }
 
@@ -26,10 +26,22 @@ public class DataPointsListTableCellRenderer extends DefaultTableCellRenderer {
             boolean hasFocus,
             int row,
             int column) {
+        
+         Color color = Color.WHITE;
 
         EnumDataPointsListTableColumns colEnum = EnumDataPointsListTableColumns.getColumnFromColumnNumber(column);
+        
+        if( colEnum == EnumDataPointsListTableColumns.Rollup){
+            if (value instanceof String){
+                String rollup = (String)value;
+                if( rollup.contentEquals("avg")){
+                    color = lightBlue;
+                }
+            }
+            
+        }
 
-        Color color = Color.WHITE;
+       
         setBackground(isSelected ? color : color);
         this.setHorizontalAlignment(JLabel.LEFT);
 
@@ -37,7 +49,6 @@ public class DataPointsListTableCellRenderer extends DefaultTableCellRenderer {
             color = Color.lightGray;
             value = "---";
         } else if (value instanceof String) {
-            color = Color.WHITE;
             String temp = (String) value;
             if (temp.compareTo("NaN") == 0) {
                 value = "'NaN'";
@@ -58,8 +69,7 @@ public class DataPointsListTableCellRenderer extends DefaultTableCellRenderer {
             }
         } else if (value instanceof Boolean) {
             boolean b = (Boolean) value;
-            color = (b) ? limeGreen : Color.lightGray;
-
+            color = (b) ? limeGreen : lightYellow;
         }
 
         setBackground(isSelected ? color : color);

@@ -62,7 +62,7 @@ public class ComboHistories {
                     comboValues.addAll(hourValues);
                 } else {
                     for (int i = 0; i < hourResults.getPointNames().size(); i++) {
-                        comboValues.add("nodata");
+                        comboValues.add("*blank*");
                     }
 
                 }

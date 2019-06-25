@@ -80,7 +80,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
     private String filter = "";
 
     private Timer timer = null;
-    
+
     private final String fiveMinuteString = "fiveMinute";
 
     public static HistoryFrame getInstance(final Controller controller, StationInfo selectedStation) {
@@ -167,14 +167,14 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
         switch (queryPeriod) {
             case LAST_12_MONTHS: {
-                siteLocalEndDate = siteLocalStartDate;
-                siteLocalStartDate = siteLocalToday.minusMonths(12);
+                siteLocalEndDate = siteLocalToday;
+                siteLocalStartDate = siteLocalEndDate.minusMonths(12);
             }
             break;
             case THIS_YEAR: {
                 siteLocalEndDate = siteLocalToday;
                 siteLocalStartDate = siteLocalEndDate.minusDays(siteLocalToday.getDayOfYear() - 1);
-                siteLocalEndDate = siteLocalStartDate.minusMillis(siteLocalStartDate.getMillisOfDay());
+                siteLocalStartDate = siteLocalStartDate.minusMillis(siteLocalStartDate.getMillisOfDay());
 
             }
             break;
@@ -324,7 +324,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         for (int i = 0; i < t.getColumnCount(); i++) {
             TableColumn column = t.getColumnModel().getColumn(i);
             if (i == 0) {
-                column.setPreferredWidth(250);
+                column.setPreferredWidth(150);
             } else {
                 column.setPreferredWidth(150);
             }
@@ -866,46 +866,47 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         clearHistoryTable();
         clearHistoryStatsTable();
 
-        List<String> listOfTeslaPointIDs = new ArrayList<>();
-        List<DatapointListItem> listOfTeslaPoints = new ArrayList<>();
-        DataPointsListTableModel tableModel = (DataPointsListTableModel) (jTableDataPointsList.getModel());
-        int[] selectedRowNumbers = jTableDataPointsList.getSelectedRows();
-        for (int selectedRowNumber : selectedRowNumbers) {
-            int modelRowNumber = jTableDataPointsList.convertRowIndexToModel(selectedRowNumber);
-            DatapointListItem teslaPoint = tableModel.getRow(modelRowNumber);
-            listOfTeslaPoints.add(teslaPoint);
-            listOfTeslaPointIDs.add(teslaPoint.getId());
-        }
-
-        String resolution = (String) (this.jComboBoxResolutions.getSelectedItem());
-
-        DateTimeZone zone = DateTimeZone.forID(selectedStation.getTimeZone());
-        DateTime queryStart = DateTime.parse(jTextFieldStartDate.getText(), zzFormat).withZone(zone);
-        DateTime queryEnd = DateTime.parse(jTextFieldEndDate.getText(), zzFormat).withZone(zone);
-
-        if (!resolution.contentEquals(fiveMinuteString)) {
-            HistoryRequest hr = new HistoryRequest(listOfTeslaPointIDs, queryStart, queryEnd, resolution, selectedStation.getTimeZone());
-            controller.getHistory(hr);
-            return;
-
-        }
-
-
-        List<String> listOfFiveMinutePointIDs = new ArrayList<>();
-        List<String> listOfHourlyPointIDs = new ArrayList<>();
-
-        for (DatapointListItem teslaPoint : listOfTeslaPoints) {
-            String minRes = teslaPoint.getMinimumResolution();
-            if (minRes.contentEquals(fiveMinuteString)) {
-                listOfFiveMinutePointIDs.add(teslaPoint.getId());
-            } else {
-                listOfHourlyPointIDs.add(teslaPoint.getId());
+        if (jTableDataPointsList.getSelectedRowCount() > 0) {
+            List<String> listOfTeslaPointIDs = new ArrayList<>();
+            List<DatapointListItem> listOfTeslaPoints = new ArrayList<>();
+            DataPointsListTableModel tableModel = (DataPointsListTableModel) (jTableDataPointsList.getModel());
+            int[] selectedRowNumbers = jTableDataPointsList.getSelectedRows();
+            for (int selectedRowNumber : selectedRowNumbers) {
+                int modelRowNumber = jTableDataPointsList.convertRowIndexToModel(selectedRowNumber);
+                DatapointListItem teslaPoint = tableModel.getRow(modelRowNumber);
+                listOfTeslaPoints.add(teslaPoint);
+                listOfTeslaPointIDs.add(teslaPoint.getId());
             }
-        }
 
-        HistoryRequest generalRequest = new HistoryRequest(listOfFiveMinutePointIDs, queryStart, queryEnd, resolution, selectedStation.getTimeZone());
-        HistoryRequest secondaryHourlyRequest = new HistoryRequest(listOfHourlyPointIDs, queryStart, queryEnd, "hour", selectedStation.getTimeZone());
-        controller.getComboHistory(generalRequest, secondaryHourlyRequest);
+            String resolution = (String) (this.jComboBoxResolutions.getSelectedItem());
+
+            DateTimeZone zone = DateTimeZone.forID(selectedStation.getTimeZone());
+            DateTime queryStart = DateTime.parse(jTextFieldStartDate.getText(), zzFormat).withZone(zone);
+            DateTime queryEnd = DateTime.parse(jTextFieldEndDate.getText(), zzFormat).withZone(zone);
+
+            if (!resolution.contentEquals(fiveMinuteString)) {
+                HistoryRequest hr = new HistoryRequest(listOfTeslaPointIDs, queryStart, queryEnd, resolution, selectedStation.getTimeZone());
+                controller.getHistory(hr);
+                return;
+
+            }
+
+            List<String> listOfFiveMinutePointIDs = new ArrayList<>();
+            List<String> listOfHourlyPointIDs = new ArrayList<>();
+
+            for (DatapointListItem teslaPoint : listOfTeslaPoints) {
+                String minRes = teslaPoint.getMinimumResolution();
+                if (minRes.contentEquals(fiveMinuteString)) {
+                    listOfFiveMinutePointIDs.add(teslaPoint.getId());
+                } else {
+                    listOfHourlyPointIDs.add(teslaPoint.getId());
+                }
+            }
+
+            HistoryRequest generalRequest = new HistoryRequest(listOfFiveMinutePointIDs, queryStart, queryEnd, resolution, selectedStation.getTimeZone());
+            HistoryRequest secondaryHourlyRequest = new HistoryRequest(listOfHourlyPointIDs, queryStart, queryEnd, "hour", selectedStation.getTimeZone());
+            controller.getComboHistory(generalRequest, secondaryHourlyRequest);
+        }
 
     }//GEN-LAST:event_jButtonRunQueryActionPerformed
 
