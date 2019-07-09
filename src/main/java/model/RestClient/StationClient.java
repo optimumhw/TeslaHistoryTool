@@ -11,6 +11,7 @@ import model.DataPoints.LiveDatapoint;
 import model.DatapointList.DatapointListItem;
 import model.EnumBaseURLs;
 import model.LoadFromE3OS.TeslaDataPointUpsertRequest;
+import model.TTT.TTTDataPointUpsertRequest;
 
 public class StationClient {
 
@@ -122,6 +123,19 @@ public class StationClient {
     }
 
     public OEResponse putHistory(TeslaDataPointUpsertRequest dur) throws JsonProcessingException, IOException {
+
+        String url = baseURL.getURL() + "/data/upsert";
+
+        ObjectMapper mapper = new ObjectMapper();
+        String payload = mapper.writeValueAsString(dur.getListOfPoints());
+
+        OEResponse resObj = restClient.doPostAndGetBody(url, payload, true);
+
+        return resObj;
+
+    }
+    
+        public OEResponse putHistory(TTTDataPointUpsertRequest dur) throws JsonProcessingException, IOException {
 
         String url = baseURL.getURL() + "/data/upsert";
 

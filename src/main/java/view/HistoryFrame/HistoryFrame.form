@@ -47,7 +47,7 @@
                       <EmptySpace max="32767" attributes="0"/>
                       <Component id="jButtonClose" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="jSplitPane1" alignment="0" pref="1308" max="32767" attributes="0"/>
+                  <Component id="jSplitPane1" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -170,7 +170,7 @@
                                   <Component id="jLabelTimeZone" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <EmptySpace max="32767" attributes="0"/>
+                          <EmptySpace pref="42" max="32767" attributes="0"/>
                           <Group type="103" groupAlignment="1" attributes="0">
                               <Component id="jButtonRunQuery" min="-2" max="-2" attributes="0"/>
                               <Group type="102" attributes="0">
@@ -335,6 +335,8 @@
                                   <Component id="jButtonChart" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jButtonPushE3OSData" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="jButtonPushFromTesla" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="32767" attributes="0"/>
                                   <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
@@ -356,6 +358,7 @@
                               <Component id="jButtonMakeCSV" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="jButtonChart" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="jButtonPushE3OSData" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="jButtonPushFromTesla" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="jPanel7" max="32767" attributes="0"/>
@@ -518,10 +521,18 @@
                 </Component>
                 <Component class="javax.swing.JButton" name="jButtonPushE3OSData">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Push E3OS Data"/>
+                    <Property name="text" type="java.lang.String" value="Push Data From E3OS"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonPushE3OSDataActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JButton" name="jButtonPushFromTesla">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Push from existing Tesla site"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonPushFromTeslaActionPerformed"/>
                   </Events>
                 </Component>
               </SubComponents>

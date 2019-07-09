@@ -15,6 +15,7 @@ import model.LoadFromE3OS.MappingTableRow;
 import model.PropertyChangeNames;
 import model.RestClient.OEResponse;
 import model.RestClient.RequestsResponses;
+import model.TTT.TTTTableRow;
 import model.TeslaAPIModel;
 import org.joda.time.DateTime;
 import view.MainFrame;
@@ -108,6 +109,17 @@ public class Controller implements java.awt.event.ActionListener, PropertyChange
             final int maxHoursPerPush,
             final int maxPointsPerPush) {
         model.pullFromE3OSPushToTesla(pushStartTime, pushEndTime, mappedRows, maxHoursPerPush, maxPointsPerPush);
+    }
+    
+    
+    public void pullFromTeslsPushToTesla(
+            final DateTime pushStartTime,
+            final DateTime pushEndTime,
+            final List<TTTTableRow> mappedRows,
+            final int maxHoursPerPush,
+            final int maxPointsPerPush,
+            final String stationTimeZone){
+        model.pullFromTeslsPushToTesla(pushStartTime, pushEndTime, mappedRows, maxHoursPerPush, maxPointsPerPush, stationTimeZone);
     }
     
     public void createCSV( String filePath,  HistoryQueryResults history){

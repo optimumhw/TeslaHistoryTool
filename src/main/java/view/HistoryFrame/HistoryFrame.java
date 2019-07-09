@@ -53,6 +53,7 @@ import view.HistoryFrame.HistoryTable.HistoryTableCellRenderer;
 import view.HistoryFrame.HistoryTable.HistoryTableModel;
 import view.HistoryFrame.HistoryTable.PopupMenuForHistoryTable;
 import view.HistoryFrame.PushE3OSDataFrame.PushE3OSHistoryFrame;
+import view.HistoryFrame.PushFromTeslaFrame.PushFromTeslaFrame;
 
 public final class HistoryFrame extends javax.swing.JFrame implements PropertyChangeListener {
 
@@ -334,25 +335,13 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
     private List<String> getSpecialPointNames() {
 
         return Arrays.asList(new String[]{
-            "PlantRunning",
-            "OptimizationDisabled",
-            "BASCommunicationFailure",
-            "CDWSTSPNotOptimized",
-            "CHWDPSPNotOptimized",
-            "CH1CHWSTSPNotOptimized",
-            "CH2CHWSTSPNotOptimized",
-            "CH3CHWSTSPNotOptimized ",
-            "CT1SPDNotOptimized",
-            "CT2SPDNotOptimized",
-            "PCHWP1SPDNotOptimized",
-            "PCHWP2SPDNotOptimized",
-            "PCHWP3SPDNotOptimized",
-            "SCHWP1SPDNotOptimized",
-            "SCHWP2SPDNotOptimized",
-            "SCHWP3SPDNotOptimized",
-            "CDWP1SPDNotOptimized",
-            "CDWP2SPDNotOptimized",
-            "CDWP3SPDNotOptimized"
+            "TotalkWh",
+            "BaselinekWh",
+            "BaselinekW",
+            "BaselinekWTon",
+            "OAT",
+            "OAWB",
+            "TotalkW"
         });
     }
 
@@ -390,6 +379,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         jTableHistoryStats = new javax.swing.JTable();
         jButtonChart = new javax.swing.JButton();
         jButtonPushE3OSData = new javax.swing.JButton();
+        jButtonPushFromTesla = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTableDataPointsList = new javax.swing.JTable();
@@ -485,7 +475,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                         .addComponent(jComboBoxQueryPeriods, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabelTimeZone)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 42, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jButtonRunQuery)
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -633,10 +623,17 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
             }
         });
 
-        jButtonPushE3OSData.setText("Push E3OS Data");
+        jButtonPushE3OSData.setText("Push Data From E3OS");
         jButtonPushE3OSData.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonPushE3OSDataActionPerformed(evt);
+            }
+        });
+
+        jButtonPushFromTesla.setText("Push from existing Tesla site");
+        jButtonPushFromTesla.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonPushFromTeslaActionPerformed(evt);
             }
         });
 
@@ -653,6 +650,8 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                         .addComponent(jButtonChart)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButtonPushE3OSData)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonPushFromTesla)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -669,7 +668,8 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                     .addComponent(jLabel5)
                     .addComponent(jButtonMakeCSV)
                     .addComponent(jButtonChart)
-                    .addComponent(jButtonPushE3OSData))
+                    .addComponent(jButtonPushE3OSData)
+                    .addComponent(jButtonPushFromTesla))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -825,7 +825,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jButtonClose))
-                    .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1308, Short.MAX_VALUE))
+                    .addComponent(jSplitPane1))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -999,6 +999,27 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         }
     }//GEN-LAST:event_jButtonPushE3OSDataActionPerformed
 
+    private void jButtonPushFromTeslaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPushFromTeslaActionPerformed
+                List<DatapointListItem> listOfPoints = new ArrayList<>();
+
+        for (DatapointListItem teslaPoint : datapointsList) {
+            if (teslaPoint.getPointType().contentEquals("raw")) {
+                listOfPoints.add(teslaPoint);
+            }
+        }
+
+        if (listOfPoints.size() > 0) {
+            DateTime pushStart = DateTime.parse(jTextFieldStartDate.getText(), zzFormat).withZone(DateTimeZone.UTC);
+            DateTime pushEnd = DateTime.parse(jTextFieldEndDate.getText(), zzFormat).withZone(DateTimeZone.UTC);
+
+            PushFromTeslaFrame frame = PushFromTeslaFrame.getInstance(controller, selectedStation, listOfPoints, pushStart, pushEnd );
+            controller.addModelListener(frame);
+            frame.pack();
+            frame.setLocationRelativeTo(this);
+            frame.setVisible(true);
+        }
+    }//GEN-LAST:event_jButtonPushFromTeslaActionPerformed
+
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         String propName = evt.getPropertyName();
@@ -1038,6 +1059,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
     private javax.swing.JButton jButtonClose;
     private javax.swing.JButton jButtonMakeCSV;
     private javax.swing.JButton jButtonPushE3OSData;
+    private javax.swing.JButton jButtonPushFromTesla;
     private javax.swing.JButton jButtonRunQuery;
     private javax.swing.JButton jButtonSpecialSelect;
     private javax.swing.JCheckBox jCheckBoxRegEx;

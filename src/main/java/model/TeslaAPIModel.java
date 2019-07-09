@@ -33,6 +33,8 @@ import model.RestClient.OEResponse;
 import model.RestClient.RequestsResponses;
 import model.RestClient.RestClientCommon;
 import model.RestClient.StationClient;
+import model.TTT.TTTDataPointUpsertRequest;
+import model.TTT.TTTTableRow;
 import org.joda.time.DateTime;
 import org.joda.time.Hours;
 import org.slf4j.Logger;
@@ -379,14 +381,14 @@ public class TeslaAPIModel extends java.util.Observable {
                 HistoryQueryResults fiveMinHistory = null;
                 HistoryQueryResults hourHistory = null;
 
-                if (fiveMinuteRequest.getIds().size() > 0 ) {
+                if (fiveMinuteRequest.getIds().size() > 0) {
                     OEResponse fiveMinResponse = stationClient.getHistory(fiveMinuteRequest);
                     if (fiveMinResponse.responseCode == 200) {
                         fiveMinHistory = new HistoryQueryResults((List<LiveDatapoint>) fiveMinResponse.responseObject);
                     }
                 }
 
-                if (hourRequest.getIds().size() > 0 ) {
+                if (hourRequest.getIds().size() > 0) {
                     OEResponse hourResponse = stationClient.getHistory(hourRequest);
                     if (hourResponse.responseCode == 200) {
                         hourHistory = new HistoryQueryResults((List<LiveDatapoint>) hourResponse.responseObject);
@@ -395,7 +397,7 @@ public class TeslaAPIModel extends java.util.Observable {
 
                 ComboHistories comboHistories = new ComboHistories(fiveMinHistory, hourHistory);
                 HistoryQueryResults historyResults = new HistoryQueryResults(comboHistories);
-                
+
                 OEResponse comboResponse = new OEResponse();
                 comboResponse.responseCode = 200;
                 comboResponse.responseObject = historyResults;
@@ -690,5 +692,156 @@ public class TeslaAPIModel extends java.util.Observable {
             return resp;
         }
     }
+
+    /*
+    =============================================
+    =============================================
+    =============================================
+    =============================================
+    =============================================
+    
+     */
+    public void pullFromTeslsPushToTesla(
+            final DateTime pushStartTime,
+            final DateTime pushEndTime,
+            final List<TTTTableRow> mappedRows,
+            final int maxHoursPerPush,
+            final int maxPointsPerPush,
+            final String stationTimeZone) {
+
+        SwingWorker worker = new SwingWorker< OEResponse, Void>() {
+
+            @Override
+            public OEResponse doInBackground() throws IOException {
+
+                //Push data on hour boudaries
+                //Starting from startTime with minutes, seconds, millis set to zero.
+                DateTime intervalStart = pushStartTime.minusMillis(pushStartTime.getMillisOfSecond());
+                intervalStart = intervalStart.minusSeconds(intervalStart.getSecondOfMinute());
+                intervalStart = intervalStart.minusMinutes(intervalStart.getMinuteOfHour());
+
+                //endOfPeriod is the number of whole hours between the startDate and the endDate.
+                Hours hours = Hours.hoursBetween(intervalStart, pushEndTime);
+                DateTime endOfPeriod = intervalStart.plusHours(hours.getHours());
+
+                //if the endDate was not on an hour boundary, add an hour to cover the remainder.
+                //e.g., if endDate was ...03:45:37 we want to push data to ...04:00:00
+                if (pushEndTime.isAfter(endOfPeriod)) {
+                    endOfPeriod = endOfPeriod.plusHours(1);
+                }
+
+                while (intervalStart.isBefore(endOfPeriod)) {
+
+                    DateTime intervalEnd = intervalStart.plusHours(maxHoursPerPush);
+
+                    int startPushIndex = 0;
+
+                    while (startPushIndex < mappedRows.size()) {
+
+                        int endIndex = Math.min(startPushIndex + maxPointsPerPush, mappedRows.size());
+
+                        List<TTTTableRow> pointsToPush = mappedRows.subList(startPushIndex, endIndex);
+                        pullFromTeslsPushToTeslaInterval(intervalStart, intervalEnd, pointsToPush, stationTimeZone);
+                        pcs.firePropertyChange(PropertyChangeNames.TeslaBucketPushed.getName(), null, 1);
+                        startPushIndex += maxPointsPerPush;
+                    }
+
+                    //increment loop index
+                    intervalStart = intervalEnd;
+                }
+
+                OEResponse periodHistoryPushStatus = new OEResponse();
+                periodHistoryPushStatus.responseCode = 201;
+                periodHistoryPushStatus.responseObject = "points pushed";
+                return periodHistoryPushStatus;
+
+            }
+
+            @Override
+            public void done() {
+                try {
+                    OEResponse resp = get();
+
+                    if (resp.responseCode == 201) {
+                        String msg = (String) resp.responseObject;
+                        pcs.firePropertyChange(PropertyChangeNames.TeslaPushComplete.getName(), null, msg);
+                    } else {
+                        pcs.firePropertyChange(PropertyChangeNames.ErrorResponse.getName(), null, resp);
+                    }
+                    pcs.firePropertyChange(PropertyChangeNames.RequestResponseChanged.getName(), null, getRRS());
+
+                } catch (Exception ex) {
+                    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+                    logger.error(this.getClass().getName(), ex);
+                }
+            }
+        };
+        worker.execute();
+    }
+
+    private OEResponse pullFromTeslsPushToTeslaInterval(DateTime pushStartTime, DateTime pushEndTime, List<TTTTableRow> mappedRows, String stationTimeZone) {
+
+        final String fiveMinuteString = "fiveMinute";
+        List<String> fromIDs = new ArrayList<>();
+        Map< String, String> fromIDtoIDMap = new HashMap<>();
+
+        for (TTTTableRow mtr : mappedRows) {
+            fromIDs.add(mtr.getFromID());
+            fromIDtoIDMap.put(mtr.getFromID(), mtr.getToID());
+        }
+
+        try {
+
+            HistoryRequest historyRequest = new HistoryRequest(fromIDs, pushStartTime, pushEndTime, fiveMinuteString, stationTimeZone);
+            OEResponse results = stationClient.getHistory(historyRequest);
+
+            if (results.responseCode != 200) {
+                return results;
+            }
+
+            List<LiveDatapoint> history = (List<LiveDatapoint>) results.responseObject;
+
+            TTTDataPointUpsertRequest tdpu = new TTTDataPointUpsertRequest(history, fromIDtoIDMap);
+            OEResponse teslaPutResponse = stationClient.putHistory(tdpu);
+
+            if (teslaPutResponse.responseCode == 422) {
+                System.out.println("unprocessable entity");
+                return teslaPutResponse;
+            }
+
+            if (teslaPutResponse.responseCode >= 500) {
+                System.out.println("retrying...");
+                teslaPutResponse = stationClient.putHistory(tdpu);
+
+            } else if (teslaPutResponse.responseCode == 401) {
+                System.out.println("getting a new token. was:");
+                System.out.println(api.getOAuthToken());
+
+                OEResponse resp = loginClient.login(this.baseURL);
+
+                if (resp.responseCode == 200) {
+                    LoginResponse loginResponse = (LoginResponse) resp.responseObject;
+                    String newToken = loginResponse.getAccessToken();
+                    api.setOauthToken(newToken);
+
+                    System.out.println("new token is:");
+                    System.out.println(api.getOAuthToken());
+
+                    teslaPutResponse = stationClient.putHistory(tdpu);
+                }
+                
+            }
+            
+            return teslaPutResponse;
+
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(TeslaAPIModel.class.getName()).log(Level.SEVERE, null, ex);
+            OEResponse resp = new OEResponse();
+            resp.responseCode = 999;
+            resp.responseObject = "not sure";
+            return resp;
+        }
+    }
+
 
 }
