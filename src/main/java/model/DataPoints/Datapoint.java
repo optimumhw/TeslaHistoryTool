@@ -49,7 +49,7 @@ public class Datapoint {
     
     @JsonIgnore
     private Object liveDataValue;
-
+    
     public String getId() {
         return id;
     }
@@ -118,5 +118,5 @@ public class Datapoint {
     public Object getLiveDataValue() {
         return liveDataValue;
     }
-
+    
 }

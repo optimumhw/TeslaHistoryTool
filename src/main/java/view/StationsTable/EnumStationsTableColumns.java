@@ -5,8 +5,8 @@ import java.util.List;
 
 public enum EnumStationsTableColumns {
 
-    ID(0, "ID", 300),
-    Name(1, "Name", 120),
+    Name(0, "Name", 120),
+    ID(1, "ID", 300),
     TimeZone(2, "TimeZone", 100),
     ActivationCode(3, "ActivationCode", 275),
     ActivatedAt(4, "ActivatedAt", 100),

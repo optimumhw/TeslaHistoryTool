@@ -91,6 +91,8 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
     private HistoryFrame(Controller controller, StationInfo selectedStation) {
         initComponents();
+        
+        this.setTitle( selectedStation.getName() + " History");
 
         this.controller = controller;
         this.selectedStation = selectedStation;

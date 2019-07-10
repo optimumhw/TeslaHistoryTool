@@ -235,7 +235,7 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
         jButtonClose = new javax.swing.JButton();
         jLabelStatus = new javax.swing.JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Push Data From Tesla");
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), "From / To"));
