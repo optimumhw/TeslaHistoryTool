@@ -129,16 +129,25 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
 
     private void createMappingsTable() {
 
+        final String rawString = "raw";
+
         mappingTable = new ArrayList<>();
         for (DatapointListItem pt : toStationDatapointList) {
-               TTTTableRow tempRow = new TTTTableRow();
+            if (pt.getPointType().contentEquals(rawString)) {
+                TTTTableRow tempRow = new TTTTableRow();
                 tempRow.setTo(pt);
                 mappingTable.add(tempRow);
+            }
         }
 
         for (DatapointListItem pt : fromStationDatapointList) {
+            if (!pt.getPointType().contentEquals(rawString)) {
+                continue;
+            }
+
             boolean foundIt = false;
             for (TTTTableRow mappingTableRow : mappingTable) {
+
                 if (mappingTableRow.getToName().equalsIgnoreCase(pt.getShortName())) {
                     mappingTableRow.setMapStatus(TTTMapStatus.Mapped);
                     mappingTableRow.setFromName(pt.getShortName());
@@ -146,6 +155,7 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
                     mappingTableRow.setFromID(pt.getId());
                     foundIt = true;
                 }
+
             }
             if (!foundIt) {
                 TTTTableRow tempRow = new TTTTableRow();

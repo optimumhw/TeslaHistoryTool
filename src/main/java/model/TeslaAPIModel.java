@@ -795,6 +795,25 @@ public class TeslaAPIModel extends java.util.Observable {
             HistoryRequest historyRequest = new HistoryRequest(fromIDs, pushStartTime, pushEndTime, fiveMinuteString, stationTimeZone);
             OEResponse results = stationClient.getHistory(historyRequest);
 
+            if (results.responseCode == 401) {
+                System.out.println("getting a new token. was:");
+                System.out.println(api.getOAuthToken());
+
+                OEResponse resp = loginClient.login(this.baseURL);
+
+                if (resp.responseCode == 200) {
+                    LoginResponse loginResponse = (LoginResponse) resp.responseObject;
+                    String newToken = loginResponse.getAccessToken();
+                    api.setOauthToken(newToken);
+
+                    System.out.println("new token is:");
+                    System.out.println(api.getOAuthToken());
+
+                    results = stationClient.getHistory(historyRequest);
+                }
+            }
+            
+            
             if (results.responseCode != 200) {
                 return results;
             }

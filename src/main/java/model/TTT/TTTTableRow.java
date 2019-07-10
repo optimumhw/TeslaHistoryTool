@@ -65,7 +65,7 @@ public class TTTTableRow {
     }
 
     public String getFromType() {
-        return fromName;
+        return fromType;
     }
 
     public void setFromID(String fromID) {

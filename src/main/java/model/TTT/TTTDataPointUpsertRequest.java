@@ -31,6 +31,11 @@ public class TTTDataPointUpsertRequest {
 
                 Object val = historyPoint.getValues().get(timeStampIndex);
 
+                if (val instanceof Boolean) {
+                    Boolean tempBool = (Boolean) val;
+                    val = (tempBool) ? 1.0 : 0.0;
+                }
+
                 TeslaDataPointUpsert dpUpsert = new TeslaDataPointUpsert(
                         fromIDToToIDMap.get(historyPoint.getId()),
                         val,
