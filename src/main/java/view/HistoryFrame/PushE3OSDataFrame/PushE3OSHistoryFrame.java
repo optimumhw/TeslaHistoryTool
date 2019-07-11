@@ -2,6 +2,7 @@ package view.HistoryFrame.PushE3OSDataFrame;
 
 import controller.Controller;
 import java.awt.Color;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -20,6 +21,7 @@ import model.LoadFromE3OS.E3OSStationRecord;
 import model.LoadFromE3OS.EnumMapStatus;
 import model.LoadFromE3OS.MappingTableRow;
 import model.PropertyChangeNames;
+import model.TTT.TTTTableRow;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Hours;
@@ -49,6 +51,7 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
     private int completedBatches = 0;
     private int totalBatchesToPush = 0;
 
+    private String mappingFilter = "";
     private List<MappingTableRow> mappingTable;
 
     private final DateTimeFormatter zzFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
@@ -85,6 +88,19 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
         this.jTextFieldMaxHoursPush.setText("12");
         this.jTextFieldMaxPointsPush.setText("50");
         this.jTextFieldSitesFilter.setText("");
+        this.jTextFieldMappingFilter.setText("");
+        
+        lapsedTimeUpdater = new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                DateTime tempTeslaPushTimerEndTime = DateTime.now();
+                Period period = new Period(teslaPushTimerStartTime, tempTeslaPushTimerEndTime);
+                String lapsedTimeString = String.format("%03d %02d:%02d:%02d", period.getDays(), period.getHours(), period.getMinutes(), period.getSeconds());
+                jLabelStatus.setText(lapsedTimeString);
+                lapsedTimeTimer.restart();
+            }
+        };
         
         controller.getE3OSSites();
 
@@ -188,10 +204,44 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
 
     }
 
-    private void fillMappingsTable() {
+    private void fillMappingsTable( String filter ) {
+        
+        List<MappingTableRow> filteredList = new ArrayList<>();
+
+        String[] pointNamesInFilter = filter.split(" ");
+
+        for (MappingTableRow mappingTableRow : mappingTable) {
+
+            if (filter.length() == 0) {
+                filteredList.add(mappingTableRow);
+                continue;
+            }
+
+            for (String pointNameFilter : Arrays.asList(pointNamesInFilter)) {
+                if (!this.jCheckBoxMappingRexEx.isSelected() && ( mappingTableRow.getE3osName().contains(pointNameFilter) || mappingTableRow.getTeslaName().contains(pointNameFilter) )) {
+                    if (!filteredList.contains(mappingTableRow)) {
+                        filteredList.add(mappingTableRow);
+                    }
+                } else if (this.jCheckBoxMappingRexEx.isSelected()) {
+                    Pattern r = Pattern.compile(pointNameFilter);
+                    Matcher m1 = r.matcher(mappingTableRow.getE3osName());
+                    if (m1.find()) {
+                        if (!filteredList.contains(mappingTableRow)) {
+                            filteredList.add(mappingTableRow);
+                        }
+                    }
+                    Matcher m2 = r.matcher(mappingTableRow.getTeslaName());
+                    if (m2.find()) {
+                        if (!filteredList.contains(mappingTableRow)) {
+                            filteredList.add(mappingTableRow);
+                        }
+                    }
+                }
+            }
+        }
 
         this.jTableMapping.setDefaultRenderer(Object.class, new MappingTableCellRenderer());
-        this.jTableMapping.setModel(new MappingTableModel(mappingTable));
+        this.jTableMapping.setModel(new MappingTableModel(filteredList));
         this.jTableMapping.setAutoCreateRowSorter(true);
         fixTableDataPointsListColumns(jTableMapping);
 
@@ -236,6 +286,9 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTableMapping = new javax.swing.JTable();
+        jLabel7 = new javax.swing.JLabel();
+        jTextFieldMappingFilter = new javax.swing.JTextField();
+        jCheckBoxMappingRexEx = new javax.swing.JCheckBox();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTableE3OSSites = new javax.swing.JTable();
@@ -401,17 +454,40 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
         });
         jScrollPane1.setViewportView(jTableMapping);
 
+        jLabel7.setText("Filter:");
+
+        jTextFieldMappingFilter.setText("jTextField1");
+        jTextFieldMappingFilter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextFieldMappingFilterActionPerformed(evt);
+            }
+        });
+
+        jCheckBoxMappingRexEx.setText("Use RegEx");
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1026, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel7)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jTextFieldMappingFilter)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jCheckBoxMappingRexEx)
+                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(jTextFieldMappingFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jCheckBoxMappingRexEx))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 172, Short.MAX_VALUE))
         );
 
         jSplitPane1.setBottomComponent(jPanel2);
@@ -559,10 +635,16 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
         fillSitesTable(filter);
     }//GEN-LAST:event_jTextFieldSitesFilterActionPerformed
 
+    private void jTextFieldMappingFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldMappingFilterActionPerformed
+        this.mappingFilter = jTextFieldMappingFilter.getText();
+        fillMappingsTable(this.mappingFilter);
+    }//GEN-LAST:event_jTextFieldMappingFilterActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonClose;
     private javax.swing.JButton jButtonPushData;
+    private javax.swing.JCheckBox jCheckBoxMappingRexEx;
     private javax.swing.JCheckBox jCheckBoxRegEx;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -570,6 +652,7 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabelStatus;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
@@ -582,6 +665,7 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
     private javax.swing.JTable jTableE3OSSites;
     private javax.swing.JTable jTableMapping;
     private javax.swing.JTextField jTextFieldEndDate;
+    private javax.swing.JTextField jTextFieldMappingFilter;
     private javax.swing.JTextField jTextFieldMaxHoursPush;
     private javax.swing.JTextField jTextFieldMaxPointsPush;
     private javax.swing.JTextField jTextFieldSitesFilter;
@@ -599,7 +683,7 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
         } else if (propName.equals(PropertyChangeNames.E3OSPointsReturned.getName())) {
             List<DataPointFromSql> e3osPoints = (List<DataPointFromSql>) evt.getNewValue();
             createMappingsTable(e3osPoints);
-            fillMappingsTable();
+            fillMappingsTable( this.mappingFilter);
 
         } else if (propName.equals(PropertyChangeNames.TeslaBucketPushed.getName())) {
             completedBatches += 1;
