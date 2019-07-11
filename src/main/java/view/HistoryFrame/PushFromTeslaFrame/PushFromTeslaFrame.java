@@ -2,11 +2,15 @@ package view.HistoryFrame.PushFromTeslaFrame;
 
 import controller.Controller;
 import java.awt.Color;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.Timer;
@@ -51,6 +55,7 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
     private int completedBatches = 0;
     private int totalBatchesToPush = 0;
 
+    private String filter = "";
     private List<TTTTableRow> mappingTable;
 
     private final DateTimeFormatter zzFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
@@ -88,10 +93,23 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
         this.jTextFieldStartDate.setText(startDate.toString(zzFormat));
         this.jTextFieldEndDate.setText(endDate.toString(zzFormat));
 
-        this.jTextFieldFromStation.setText("TBD");
-        this.jTextFieldToStation.setText(toStationInfo.getName());
+        this.jLabelFromStationName.setText("TBD");
+        this.jLabelToStationName.setText(toStationInfo.getName());
         this.jTextFieldMaxHoursPush.setText("12");
         this.jTextFieldMaxPointsPush.setText("50");
+        this.jTextFieldFilter.setText("");
+        
+        lapsedTimeUpdater = new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                DateTime tempTeslaPushTimerEndTime = DateTime.now();
+                Period period = new Period(teslaPushTimerStartTime, tempTeslaPushTimerEndTime);
+                String lapsedTimeString = String.format("%03d %02d:%02d:%02d", period.getDays(), period.getHours(), period.getMinutes(), period.getSeconds());
+                jLabelStatus.setText(lapsedTimeString);
+                lapsedTimeTimer.restart();
+            }
+        };
 
         controller.getStations();
 
@@ -171,10 +189,44 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
         this.jTableMappings.setModel(new DefaultTableModel());
     }
 
-    private void fillMappingsTable() {
+    private void fillMappingsTable( String filter ) {
+        
+        List<TTTTableRow> filteredList = new ArrayList<>();
+
+        String[] pointNamesInFilter = filter.split(" ");
+
+        for (TTTTableRow mappingTableRow : mappingTable) {
+
+            if (filter.length() == 0) {
+                filteredList.add(mappingTableRow);
+                continue;
+            }
+
+            for (String pointNameFilter : Arrays.asList(pointNamesInFilter)) {
+                if (!this.jCheckBoxRegEx.isSelected() && ( mappingTableRow.getFromName().contains(pointNameFilter) || mappingTableRow.getToName().contains(pointNameFilter) )) {
+                    if (!filteredList.contains(mappingTableRow)) {
+                        filteredList.add(mappingTableRow);
+                    }
+                } else if (this.jCheckBoxRegEx.isSelected()) {
+                    Pattern r = Pattern.compile(pointNameFilter);
+                    Matcher m1 = r.matcher(mappingTableRow.getFromName());
+                    if (m1.find()) {
+                        if (!filteredList.contains(mappingTableRow)) {
+                            filteredList.add(mappingTableRow);
+                        }
+                    }
+                    Matcher m2 = r.matcher(mappingTableRow.getToName());
+                    if (m2.find()) {
+                        if (!filteredList.contains(mappingTableRow)) {
+                            filteredList.add(mappingTableRow);
+                        }
+                    }
+                }
+            }
+        }
 
         this.jTableMappings.setDefaultRenderer(Object.class, new TTTMappingTableCellRenderer());
-        this.jTableMappings.setModel(new TTTMappingTableModel(mappingTable));
+        this.jTableMappings.setModel(new TTTMappingTableModel(filteredList));
         this.jTableMappings.setAutoCreateRowSorter(true);
         fixMappintTableColumns(jTableMappings);
 
@@ -219,8 +271,8 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
         jTextFieldMaxHoursPush = new javax.swing.JTextField();
         jLabel10 = new javax.swing.JLabel();
         jTextFieldMaxPointsPush = new javax.swing.JTextField();
-        jTextFieldFromStation = new javax.swing.JTextField();
-        jTextFieldToStation = new javax.swing.JTextField();
+        jLabelFromStationName = new javax.swing.JLabel();
+        jLabelToStationName = new javax.swing.JLabel();
         jSplitPane1 = new javax.swing.JSplitPane();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -228,6 +280,9 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
         jPanel3 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTableMappings = new javax.swing.JTable();
+        jLabel2 = new javax.swing.JLabel();
+        jTextFieldFilter = new javax.swing.JTextField();
+        jCheckBoxRegEx = new javax.swing.JCheckBox();
         jPanel4 = new javax.swing.JPanel();
         jButtonPushData = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
@@ -240,7 +295,7 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), "From / To"));
 
-        jLabel3.setText("From:");
+        jLabel3.setText("Push data from: ");
 
         jLabel5.setText("To:");
 
@@ -260,9 +315,9 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
 
         jTextFieldMaxPointsPush.setText("jTextField4");
 
-        jTextFieldFromStation.setText("jTextField1");
+        jLabelFromStationName.setText("*from*");
 
-        jTextFieldToStation.setText("jTextField2");
+        jLabelToStationName.setText("*to*");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -274,11 +329,11 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextFieldFromStation, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabelFromStationName)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextFieldToStation, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jLabelToStationName))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel7)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -300,12 +355,12 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(11, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(jLabel5)
-                    .addComponent(jTextFieldFromStation, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextFieldToStation, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabelFromStationName)
+                    .addComponent(jLabelToStationName))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
@@ -382,17 +437,40 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
         });
         jScrollPane2.setViewportView(jTableMappings);
 
+        jLabel2.setText("Filter:");
+
+        jTextFieldFilter.setText("jTextField1");
+        jTextFieldFilter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextFieldFilterActionPerformed(evt);
+            }
+        });
+
+        jCheckBoxRegEx.setText("Use RegEx");
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 859, Short.MAX_VALUE)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jTextFieldFilter)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jCheckBoxRegEx)
+                .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 225, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jTextFieldFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2)
+                    .addComponent(jCheckBoxRegEx))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 204, Short.MAX_VALUE))
         );
 
         jSplitPane1.setRightComponent(jPanel3);
@@ -529,7 +607,7 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
         StationsTableModel mod = (StationsTableModel) jTableStationsFrom.getModel();
         this.fromStationInfo = mod.getRow(modelIndex);
 
-        this.jTextFieldFromStation.setText(fromStationInfo.getName());
+        this.jLabelFromStationName.setText(fromStationInfo.getName());
 
         controller.getDatapoints(fromStationInfo.getId());
 
@@ -545,18 +623,27 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
         }        // TODO add your handling code here:
     }//GEN-LAST:event_jTableMappingsMousePressed
 
+    private void jTextFieldFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldFilterActionPerformed
+        this.filter = jTextFieldFilter.getText();
+        fillMappingsTable(this.filter);
+    }//GEN-LAST:event_jTextFieldFilterActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonClose;
     private javax.swing.JButton jButtonPushData;
+    private javax.swing.JCheckBox jCheckBoxRegEx;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JLabel jLabelFromStationName;
     private javax.swing.JLabel jLabelStatus;
+    private javax.swing.JLabel jLabelToStationName;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -568,11 +655,10 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
     private javax.swing.JTable jTableMappings;
     private javax.swing.JTable jTableStationsFrom;
     private javax.swing.JTextField jTextFieldEndDate;
-    private javax.swing.JTextField jTextFieldFromStation;
+    private javax.swing.JTextField jTextFieldFilter;
     private javax.swing.JTextField jTextFieldMaxHoursPush;
     private javax.swing.JTextField jTextFieldMaxPointsPush;
     private javax.swing.JTextField jTextFieldStartDate;
-    private javax.swing.JTextField jTextFieldToStation;
     // End of variables declaration//GEN-END:variables
 
     @Override
@@ -586,7 +672,7 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
         } else if (propName.equals(PropertyChangeNames.DatapointsReturned.getName())) {
             fromStationDatapointList = (List<DatapointListItem>) evt.getNewValue();
             createMappingsTable();
-            fillMappingsTable();
+            fillMappingsTable(this.filter);
 
         } else if (propName.equals(PropertyChangeNames.TeslaBucketPushed.getName())) {
             completedBatches += 1;
