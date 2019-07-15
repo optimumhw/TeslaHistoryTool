@@ -21,7 +21,6 @@ import model.LoadFromE3OS.E3OSStationRecord;
 import model.LoadFromE3OS.EnumMapStatus;
 import model.LoadFromE3OS.MappingTableRow;
 import model.PropertyChangeNames;
-import model.TTT.TTTTableRow;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Hours;
@@ -46,7 +45,7 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
     private final List<DatapointListItem> datapointsList;
 
     private Timer lapsedTimeTimer;
-    private ActionListener lapsedTimeUpdater;
+    private final ActionListener lapsedTimeUpdater;
     private DateTime teslaPushTimerStartTime;
     private int completedBatches = 0;
     private int totalBatchesToPush = 0;

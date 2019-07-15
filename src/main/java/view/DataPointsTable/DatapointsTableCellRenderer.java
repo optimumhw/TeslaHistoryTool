@@ -10,11 +10,12 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 public class DatapointsTableCellRenderer extends DefaultTableCellRenderer {
 
-    final Color limeGreen;
+    private final Color limeGreen = new Color(204, 255, 204);
+    private final Color lightBlue = new Color(204,255,255);
+    private final Color lightYellow = new Color(255,255,229);
 
     public DatapointsTableCellRenderer() {
 
-        limeGreen = new Color(204, 255, 204);
 
     }
 
@@ -57,12 +58,13 @@ public class DatapointsTableCellRenderer extends DefaultTableCellRenderer {
                 value = "oops";
             }
         } else if (value instanceof Boolean) {
+            
+            boolean b = (Boolean)value;
             if( colEnum == EnumDatpointsTableColumns.Sub ){
-                boolean b = (Boolean)value;
                 color = (b)? limeGreen : Color.lightGray;
             }
             else{
-                color = limeGreen;
+                color = (b)? lightBlue : lightYellow;
             }
         }
 

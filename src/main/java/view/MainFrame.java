@@ -217,12 +217,26 @@ public class MainFrame extends javax.swing.JFrame {
 
         clearDatapointsTable();
         this.jTableDatapointsTable.setDefaultRenderer(Object.class, new DatapointsTableCellRenderer());
-        this.jTableDatapointsTable.setModel(new DatapointsTableModel(selectedStationInfo, name));
+        this.jTableDatapointsTable.setModel(new DatapointsTableModel(selectedStationInfo, name, getOtherUIPointNames()));
         this.jTableDatapointsTable.setAutoCreateRowSorter(true);
         fixDatapointsTableColumnWidths(jTableDatapointsTable);
 
     }
 
+    
+    private List<String> getOtherUIPointNames(){
+        List<String> uiOtherPointNames = new ArrayList<>();
+        
+        uiOtherPointNames.add("TotalTon");
+        uiOtherPointNames.add("TotalkW");
+        uiOtherPointNames.add("PlantEfficiency");
+        uiOtherPointNames.add("ChillerEfficiency");
+        uiOtherPointNames.add("ChillersRunning");
+        
+        return uiOtherPointNames;
+    }
+    
+    
     private void fixDatapointsTableColumnWidths(JTable t) {
 
         for (int i = 0; i < t.getColumnCount(); i++) {

@@ -16,7 +16,7 @@ public class DatapointsTableModel extends AbstractTableModel {
     private Map<String, Datapoint> idToDatapointMap;
     private List<String> subscribedPoints;
 
-    public DatapointsTableModel(StationInfo stationInfo, String name) {
+    public DatapointsTableModel(StationInfo stationInfo, String name, List<String> otherUIPointNames ) {
         super();
 
         datapointList = new ArrayList<>();
@@ -43,7 +43,7 @@ public class DatapointsTableModel extends AbstractTableModel {
 
         subscribedPoints = new ArrayList<>();
         for (Datapoint dp : datapointList) {
-            if (dp.getSubscribedFlag()) {
+            if (dp.getSubscribedFlag() || otherUIPointNames.contains(dp.getShortName())) {
                 subscribedPoints.add(dp.getId());
             }
         }
@@ -140,10 +140,8 @@ public class DatapointsTableModel extends AbstractTableModel {
                 Datapoint dpInTable = idToDatapointMap.get(livePoint.getId());
                 if (livePoint.getValues() != null) {
                     dpInTable.setLiveDataValue(livePoint.getValues().get(0));
-
                 }
             }
-
             fireTableDataChanged();
         }
 

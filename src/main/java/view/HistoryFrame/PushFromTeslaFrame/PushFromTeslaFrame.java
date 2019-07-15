@@ -50,7 +50,7 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
     private List<DatapointListItem> fromStationDatapointList;
 
     private Timer lapsedTimeTimer;
-    private ActionListener lapsedTimeUpdater;
+    private final ActionListener lapsedTimeUpdater;
     private DateTime teslaPushTimerStartTime;
     private int completedBatches = 0;
     private int totalBatchesToPush = 0;
