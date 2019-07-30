@@ -7,6 +7,10 @@ public class TeslaUsersInfo {
 
     public TeslaUsersInfo(EnumBaseURLs url) {
         switch (url) {
+            case LocalHost:
+                tesla_user = System.getenv(EnumConnProperties.TESLA_LOCAL_USER.getPropertyName());
+                tesla_password = System.getenv(EnumConnProperties.TESLA_LOCAL_PASSWORD.getPropertyName());
+                break;
             case Ninja:
                 tesla_user = System.getenv(EnumConnProperties.TESLA_DEV_USER.getPropertyName());
                 tesla_password = System.getenv(EnumConnProperties.TESLA_DEV_PASSWORD.getPropertyName());
