@@ -29,8 +29,11 @@ public class StationInfo {
     @JsonProperty("commissionedAt")
     private String commissionedAt;
 
-    @JsonProperty("shortName")
+    @JsonProperty("siteName")
     private String shortName;
+    
+    @JsonProperty("customerName")
+    private String customerName;
 
     @JsonProperty("plantId")
     private String plantId;
@@ -105,6 +108,10 @@ public class StationInfo {
 
     public String getShortName() {
         return shortName;
+    }
+    
+    public String getCustomerName() {
+        return customerName;
     }
 
     public String getPlantID() {
