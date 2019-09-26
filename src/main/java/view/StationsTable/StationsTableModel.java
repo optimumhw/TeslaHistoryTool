@@ -43,6 +43,9 @@ public class StationsTableModel extends AbstractTableModel {
         StationInfo stationInfo = stations.get(rowIndex);
 
         switch (enumCol) {
+            case CustName:
+                val = stationInfo.getCustomerName();
+                break;
             case ID:
                 val = stationInfo.getId();
                 break;

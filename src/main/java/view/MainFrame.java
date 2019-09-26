@@ -188,8 +188,10 @@ public class MainFrame extends javax.swing.JFrame {
         this.jComboBoxEquipment.setModel(comboBoxModel);
         jComboBoxEquipment.addItem("Station");
 
-        for (Equipment eq : selectedStationInfo.getequipments()) {
-            jComboBoxEquipment.addItem(eq.getShortName());
+        if (selectedStationInfo != null) {
+            for (Equipment eq : selectedStationInfo.getequipments()) {
+                jComboBoxEquipment.addItem(eq.getShortName());
+            }
         }
 
         this.jComboBoxEquipment.addActionListener(new ActionListener() {
@@ -220,20 +222,18 @@ public class MainFrame extends javax.swing.JFrame {
 
     }
 
-    
-    private List<String> getOtherUIPointNames(){
+    private List<String> getOtherUIPointNames() {
         List<String> uiOtherPointNames = new ArrayList<>();
-        
+
         uiOtherPointNames.add("TotalTon");
         uiOtherPointNames.add("TotalkW");
         uiOtherPointNames.add("PlantEfficiency");
         uiOtherPointNames.add("ChillerEfficiency");
         uiOtherPointNames.add("ChillersRunning");
-        
+
         return uiOtherPointNames;
     }
-    
-    
+
     private void fixDatapointsTableColumnWidths(JTable t) {
 
         for (int i = 0; i < t.getColumnCount(); i++) {
@@ -577,7 +577,7 @@ public class MainFrame extends javax.swing.JFrame {
         if (evt.isPopupTrigger()) {
             PopupMenuForDataPointsTable popup = new PopupMenuForDataPointsTable(evt, jTableDatapointsTable);
         }
-        
+
         int row = jTableDatapointsTable.rowAtPoint(evt.getPoint());
         int modelIndex = jTableDatapointsTable.convertRowIndexToModel(row);
         DatapointsTableModel mod = (DatapointsTableModel) jTableDatapointsTable.getModel();

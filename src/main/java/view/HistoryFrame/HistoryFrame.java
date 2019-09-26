@@ -31,6 +31,7 @@ import model.DataPoints.HistoryRequest;
 import model.DataPoints.LiveDatapoint;
 import model.DataPoints.StationInfo;
 import model.DatapointList.DatapointListItem;
+import model.EnumTimeZones;
 import model.PropertyChangeNames;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -62,7 +63,6 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
     private HistoryQueryResults history;
     private Statistics historyStats;
 
-    //private final String timeZone = "UTC";
     private final DateTimeFormatter zzFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
     private final DateTimeFormatter utcFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
@@ -71,6 +71,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
     private DateTime siteLocalStartDate;
     private DateTime siteLocalEndDate;
+    private String selectedQueryTimezone;
 
     private EnumQueryPeriods queryPeriod;
     private EnumMonths selectedMonth;
@@ -106,8 +107,10 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         fillQueryPeriodsDropDown(queryPeriod);
         fillMonthsDropDown(selectedMonth);
         fillReportYearDropDown();
+        
+        selectedQueryTimezone = selectedStation.getTimeZone();
 
-        this.jLabelTimeZone.setText(selectedStation.getTimeZone());
+        fillQueryTimeZonesDropDown();
 
         setPrecSpinner();
         fillHistoryResolutionDropdown();
@@ -134,6 +137,24 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                     fillHistoryTable(prec);
                     fillHistoryStatsTable(prec);
                 }
+            }
+        });
+    }
+    
+    private void fillQueryTimeZonesDropDown() {
+
+        ComboBoxModel comboBoxModel = new DefaultComboBoxModel(EnumTimeZones.getTimeZoneNames().toArray());
+        this.jComboBoxQueryTimeZones.setModel(comboBoxModel);
+        this.jComboBoxQueryTimeZones.setSelectedItem(selectedQueryTimezone);
+        this.jComboBoxQueryTimeZones.setEnabled(true);
+
+        this.jComboBoxQueryTimeZones.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                JComboBox<String> combo = (JComboBox<String>) event.getSource();
+                String name = (String) combo.getSelectedItem();
+                selectedQueryTimezone = EnumTimeZones.getTimeZoneFromName(name).getTimeZoneName();
             }
         });
     }
@@ -220,7 +241,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         cal.set(Calendar.YEAR, year.getYearNumber());
         int numOfDaysInMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
 
-        DateTimeZone zone = DateTimeZone.forID(selectedStation.getTimeZone());
+        DateTimeZone zone = DateTimeZone.forID(selectedQueryTimezone);
 
         siteLocalStartDate = new DateTime(year.getYearNumber(), month.getMonthNumber() + 1, 1, 0, 0, zone);
         siteLocalEndDate = siteLocalStartDate.plusDays(numOfDaysInMonth).minusSeconds(1);
@@ -236,7 +257,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
         DateTime utcToday = DateTime.now().withZone(DateTimeZone.UTC);
 
-        DateTimeZone zone = DateTimeZone.forID(selectedStation.getTimeZone());
+        DateTimeZone zone = DateTimeZone.forID(selectedQueryTimezone);
         DateTime siteLocalToday = new DateTime(utcToday).withZone(zone);
 
         switch (queryPeriod) {
@@ -446,12 +467,13 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         jTextFieldEndDate = new javax.swing.JTextField();
         jComboBoxQueryPeriods = new javax.swing.JComboBox<>();
         jLabel6 = new javax.swing.JLabel();
-        jLabelTimeZone = new javax.swing.JLabel();
         jLabelutcStart = new javax.swing.JLabel();
         jLabelutcEnd = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jComboBoxMonthPicker = new javax.swing.JComboBox<>();
         jComboBoxYears = new javax.swing.JComboBox<>();
+        jLabel8 = new javax.swing.JLabel();
+        jComboBoxQueryTimeZones = new javax.swing.JComboBox<>();
         jPanel2 = new javax.swing.JPanel();
         jSpinnerPrec = new javax.swing.JSpinner();
         jLabel5 = new javax.swing.JLabel();
@@ -538,8 +560,6 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
         jLabel6.setText("Query Period:");
 
-        jLabelTimeZone.setText("*timezone*");
-
         jLabelutcStart.setText("2019-05-15T06:00:00.000Z");
 
         jLabelutcEnd.setText("2019-05-15T06:00:00.000Z");
@@ -549,6 +569,10 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         jComboBoxMonthPicker.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         jComboBoxYears.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        jLabel8.setText("Query TZ:");
+
+        jComboBoxQueryTimeZones.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -580,10 +604,12 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jComboBoxMonthPicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jComboBoxYears, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jComboBoxYears, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel8)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabelTimeZone)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
+                        .addComponent(jComboBoxQueryTimeZones, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 42, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jButtonRunQuery)
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -609,21 +635,23 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                     .addComponent(jLabel2)
                     .addComponent(jTextFieldEndDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabelutcEnd))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
-                        .addComponent(jButtonRunQuery)
-                        .addContainerGap())
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jButtonRunQuery))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jComboBoxQueryPeriods, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel6)
-                            .addComponent(jLabelTimeZone)
                             .addComponent(jLabel7)
                             .addComponent(jComboBoxMonthPicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jComboBoxYears, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel8)
+                            .addComponent(jComboBoxQueryTimeZones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap())
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), "Query Results"));
@@ -670,7 +698,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 518, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 502, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -991,12 +1019,12 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
             String resolution = (String) (this.jComboBoxResolutions.getSelectedItem());
 
-            DateTimeZone zone = DateTimeZone.forID(selectedStation.getTimeZone());
+            DateTimeZone zone = DateTimeZone.forID(selectedQueryTimezone);
             DateTime queryStart = DateTime.parse(jTextFieldStartDate.getText(), zzFormat).withZone(zone);
             DateTime queryEnd = DateTime.parse(jTextFieldEndDate.getText(), zzFormat).withZone(zone);
 
             if (!resolution.contentEquals(fiveMinuteString)) {
-                HistoryRequest hr = new HistoryRequest(listOfTeslaPointIDs, queryStart, queryEnd, resolution, selectedStation.getTimeZone());
+                HistoryRequest hr = new HistoryRequest(listOfTeslaPointIDs, queryStart, queryEnd, resolution, selectedQueryTimezone);
                 controller.getHistory(hr);
                 return;
 
@@ -1014,8 +1042,8 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                 }
             }
 
-            HistoryRequest generalRequest = new HistoryRequest(listOfFiveMinutePointIDs, queryStart, queryEnd, resolution, selectedStation.getTimeZone());
-            HistoryRequest secondaryHourlyRequest = new HistoryRequest(listOfHourlyPointIDs, queryStart, queryEnd, "hour", selectedStation.getTimeZone());
+            HistoryRequest generalRequest = new HistoryRequest(listOfFiveMinutePointIDs, queryStart, queryEnd, resolution, selectedQueryTimezone);
+            HistoryRequest secondaryHourlyRequest = new HistoryRequest(listOfHourlyPointIDs, queryStart, queryEnd, "hour", selectedQueryTimezone);
             controller.getComboHistory(generalRequest, secondaryHourlyRequest);
         }
 
@@ -1184,6 +1212,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
     private javax.swing.JCheckBox jCheckBoxRegEx;
     private javax.swing.JComboBox<String> jComboBoxMonthPicker;
     private javax.swing.JComboBox<String> jComboBoxQueryPeriods;
+    private javax.swing.JComboBox<String> jComboBoxQueryTimeZones;
     private javax.swing.JComboBox<String> jComboBoxResolutions;
     private javax.swing.JComboBox<String> jComboBoxYears;
     private javax.swing.JLabel jLabel1;
@@ -1193,7 +1222,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabelTimeZone;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabelutcEnd;
     private javax.swing.JLabel jLabelutcStart;
     private javax.swing.JPanel jPanel1;

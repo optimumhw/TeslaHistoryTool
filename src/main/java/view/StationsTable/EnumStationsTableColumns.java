@@ -5,25 +5,26 @@ import java.util.List;
 
 public enum EnumStationsTableColumns {
 
-    Name(0, "Name", 120),
-    ID(1, "ID", 300),
-    TimeZone(2, "TimeZone", 100),
-    ActivationCode(3, "ActivationCode", 275),
-    ActivatedAt(4, "ActivatedAt", 100),
-    ExpiresAt(5, "ExpiresAt", 100),
-    SiteID(6, "SiteID", 300),
-    CommissionedAt(7, "CommissionedAt", 100),
-    ShortName(8, "ShortName", 100),
-    PlantID(9, "PlantID", 100),
-    BaselineEnabled(10, "BaselineEnabled", 100),
-    RegenertationAllowed(11, "RegenertationAllowed", 100),
-    AtomEnabled(12, "AtomEnabled", 100),
-    ProductType(13, "ProductType", 100),
-    CreatedAt(14, "CreatedAt", 200),
-    UpdatedAt(15, "UpdatedAt", 200),
-    Address(16, "Address", 100),
-    Latitude(17, "Latitude", 100),
-    Longitude(18, "Longitude", 100);
+    CustName(0, "Cust", 120),
+    Name(1, "Name", 120),
+    ID(2, "ID", 300),
+    TimeZone(3, "TimeZone", 100),
+    ActivationCode(4, "ActivationCode", 275),
+    ActivatedAt(5, "ActivatedAt", 100),
+    ExpiresAt(6, "ExpiresAt", 100),
+    SiteID(7, "SiteID", 300),
+    CommissionedAt(8, "CommissionedAt", 100),
+    ShortName(9, "ShortName", 100),
+    PlantID(10, "PlantID", 100),
+    BaselineEnabled(11, "BaselineEnabled", 100),
+    RegenertationAllowed(12, "RegenertationAllowed", 100),
+    AtomEnabled(13, "AtomEnabled", 100),
+    ProductType(14, "ProductType", 100),
+    CreatedAt(15, "CreatedAt", 200),
+    UpdatedAt(16, "UpdatedAt", 200),
+    Address(17, "Address", 100),
+    Latitude(18, "Latitude", 100),
+    Longitude(19, "Longitude", 100);
 
     private final String friendlyName;
     private final int columnNumber;
