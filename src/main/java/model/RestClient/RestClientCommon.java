@@ -46,7 +46,6 @@ public class RestClientCommon {
     protected OEResponse getResponse(String url, boolean addToken) throws IOException {
         List<NameValuePair> nvps = new ArrayList<>();
         nvps.add(new BasicNameValuePair("content-type", "application/json"));
-        nvps.add(new BasicNameValuePair("Authorization", "Bearer " + oauthToken));
         return getResponse(url, nvps, addToken);
     }
 

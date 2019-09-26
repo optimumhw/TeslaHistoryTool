@@ -42,14 +42,16 @@ import org.slf4j.LoggerFactory;
 
 public class TeslaAPIModel extends java.util.Observable {
 
-    private RestClientCommon api;
+    private RestClientCommon primaryRestClient;
+    private RestClientCommon secondaryRestClient;
     private RequestsResponses rrs;
 
-    private LoginClient loginClient;
-    private StationClient stationClient;
-    private StationClient fromStationClient;
-    private EnumBaseURLs baseURL;
-    private EnumBaseURLs fromBaseURL;
+    private LoginClient primaryLoginClient;
+    private LoginClient secondaryLoginClient;
+    private StationClient primaryStationClient;
+    private StationClient secondaryStationClient;
+    private EnumBaseURLs primaryBaseURL;
+    private EnumBaseURLs secondaryBaseURL;
 
     final private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
@@ -65,12 +67,19 @@ public class TeslaAPIModel extends java.util.Observable {
 
     public void initModel() {
         rrs = new RequestsResponses();
-        api = new RestClientCommon(rrs);
-        loginClient = new LoginClient(api);
+        primaryRestClient = new RestClientCommon(rrs);
+        primaryLoginClient = new LoginClient(primaryRestClient);
+        secondaryRestClient = new RestClientCommon(rrs);
+        secondaryLoginClient = new LoginClient(secondaryRestClient);
+
     }
 
-    public RestClientCommon getRestClient() {
-        return api;
+    public RestClientCommon getPrimaryRestClient() {
+        return primaryRestClient;
+    }
+
+    public RestClientCommon getSecondaryRestClient() {
+        return secondaryRestClient;
     }
 
     public RequestsResponses getRRS() {
@@ -83,19 +92,19 @@ public class TeslaAPIModel extends java.util.Observable {
     }
 
     // === LOGIN ==========
-    public void login(final EnumBaseURLs baseUrl) {
+    public void primaryLogin(final EnumBaseURLs primaryBaseURL) {
 
-        if (baseUrl == null) {
+        if (primaryBaseURL == null) {
             return;
         }
 
-        this.baseURL = baseUrl;
+        this.primaryBaseURL = primaryBaseURL;
 
         SwingWorker worker = new SwingWorker< OEResponse, Void>() {
 
             @Override
             public OEResponse doInBackground() throws IOException {
-                OEResponse results = loginClient.login(baseUrl);
+                OEResponse results = primaryLoginClient.login(primaryBaseURL);
                 return results;
             }
 
@@ -109,14 +118,14 @@ public class TeslaAPIModel extends java.util.Observable {
                     if (resp.responseCode == 200) {
                         loginResponse = (LoginResponse) resp.responseObject;
 
-                        stationClient = new StationClient(baseUrl, api);
-                        stationClient.setServiceURLAndToken(baseUrl, loginResponse.getAccessToken());
+                        primaryStationClient = new StationClient(primaryBaseURL, primaryRestClient);
+                        primaryStationClient.setServiceURLAndToken(primaryBaseURL, loginResponse.getAccessToken());
 
                     } else {
                         loginResponse = new LoginResponse();
                         pcs.firePropertyChange(PropertyChangeNames.ErrorResponse.getName(), null, resp);
                     }
-                    pcs.firePropertyChange(PropertyChangeNames.LoginResponseReturned.getName(), null, loginResponse);
+                    pcs.firePropertyChange(PropertyChangeNames.PrimaryLoginResponseReturned.getName(), null, loginResponse);
                     pcs.firePropertyChange(PropertyChangeNames.RequestResponseChanged.getName(), null, getRRS());
 
                 } catch (Exception ex) {
@@ -128,19 +137,19 @@ public class TeslaAPIModel extends java.util.Observable {
         worker.execute();
     }
 
-    public void fromLogin(final EnumBaseURLs baseUrl) {
+    public void secondaryLogin(final EnumBaseURLs secondaryBaseURL) {
 
-        if (baseUrl == null) {
+        if (secondaryBaseURL == null) {
             return;
         }
 
-        this.fromBaseURL = baseUrl;
+        this.secondaryBaseURL = secondaryBaseURL;
 
         SwingWorker worker = new SwingWorker< OEResponse, Void>() {
 
             @Override
             public OEResponse doInBackground() throws IOException {
-                OEResponse results = loginClient.login(baseUrl);
+                OEResponse results = secondaryLoginClient.login(secondaryBaseURL);
                 return results;
             }
 
@@ -154,14 +163,14 @@ public class TeslaAPIModel extends java.util.Observable {
                     if (resp.responseCode == 200) {
                         loginResponse = (LoginResponse) resp.responseObject;
 
-                        fromStationClient = new StationClient(baseUrl, api);
-                        fromStationClient.setServiceURLAndToken(baseUrl, loginResponse.getAccessToken());
+                        secondaryStationClient = new StationClient(secondaryBaseURL, secondaryRestClient);
+                        secondaryStationClient.setServiceURLAndToken(secondaryBaseURL, loginResponse.getAccessToken());
 
                     } else {
                         loginResponse = new LoginResponse();
                         pcs.firePropertyChange(PropertyChangeNames.ErrorResponse.getName(), null, resp);
                     }
-                    pcs.firePropertyChange(PropertyChangeNames.LoginResponseReturned.getName(), null, loginResponse);
+                    pcs.firePropertyChange(PropertyChangeNames.SecondaryLoginResponseReturned.getName(), null, loginResponse);
                     pcs.firePropertyChange(PropertyChangeNames.RequestResponseChanged.getName(), null, getRRS());
 
                 } catch (Exception ex) {
@@ -174,7 +183,7 @@ public class TeslaAPIModel extends java.util.Observable {
     }
 
     // === STATIONS  ======================
-    public void getStations(final EnumFromTo fromTo) {
+    public void getStations(final EnumPrimarySecodaryClient primaryOrSecondaryClient) {
 
         SwingWorker worker = new SwingWorker< OEResponse, Void>() {
 
@@ -182,38 +191,45 @@ public class TeslaAPIModel extends java.util.Observable {
             public OEResponse doInBackground() throws IOException {
 
                 OEResponse getStationsRequest;
-                if (fromTo == EnumFromTo.TO) {
-                    getStationsRequest = stationClient.getStations();
-                } else {
-                    getStationsRequest = fromStationClient.getStations();
-                }
+                if (primaryOrSecondaryClient == EnumPrimarySecodaryClient.Primary) {
+                    getStationsRequest = primaryStationClient.getStations();
 
-                if (getStationsRequest.responseCode == 401) {
-                    System.out.println("getting a new token. was:");
-                    System.out.println(api.getOAuthToken());
+                    if (getStationsRequest.responseCode == 401) {
+                        System.out.println("getting a new primary token. was:");
+                        System.out.println(primaryRestClient.getOAuthToken());
+                        OEResponse resp = primaryLoginClient.login(primaryBaseURL);
 
-                    OEResponse resp;
-                    if (fromTo == EnumFromTo.TO) {
-                        resp = loginClient.login(baseURL);
-                    } else {
-                        resp = loginClient.login(fromBaseURL);
+                        if (resp.responseCode == 200) {
+                            LoginResponse loginResponse = (LoginResponse) resp.responseObject;
+                            String newToken = loginResponse.getAccessToken();
+                            primaryRestClient.setOauthToken(newToken);
+                            System.out.println("new primary token is:");
+                            System.out.println(primaryRestClient.getOAuthToken());
+                            getStationsRequest = primaryStationClient.getStations();
+
+                        }
                     }
 
-                    if (resp.responseCode == 200) {
-                        LoginResponse loginResponse = (LoginResponse) resp.responseObject;
-                        String newToken = loginResponse.getAccessToken();
-                        api.setOauthToken(newToken);
+                } else {
+                    getStationsRequest = secondaryStationClient.getStations();
 
-                        System.out.println("new token is:");
-                        System.out.println(api.getOAuthToken());
+                    if (getStationsRequest.responseCode == 401) {
+                        System.out.println("getting a new secondary token. was:");
+                        System.out.println(secondaryRestClient.getOAuthToken());
+                        OEResponse resp = secondaryLoginClient.login(secondaryBaseURL);
 
-                        if (fromTo == EnumFromTo.TO) {
-                            getStationsRequest = stationClient.getStations();
-                        } else {
-                            getStationsRequest = fromStationClient.getStations();
+                        if (resp.responseCode == 200) {
+                            LoginResponse loginResponse = (LoginResponse) resp.responseObject;
+                            String newToken = loginResponse.getAccessToken();
+                            secondaryRestClient.setOauthToken(newToken);
+                            System.out.println("new secondary token is:");
+                            System.out.println(secondaryRestClient.getOAuthToken());
+                            getStationsRequest = secondaryStationClient.getStations();
+
                         }
                     }
                 }
+
                 return getStationsRequest;
             }
 
@@ -225,7 +241,12 @@ public class TeslaAPIModel extends java.util.Observable {
                     if (resp.responseCode == 200) {
                         List<StationInfo> stations = (List<StationInfo>) resp.responseObject;
 
+                        if (primaryOrSecondaryClient == EnumPrimarySecodaryClient.Primary){
                         pcs.firePropertyChange(PropertyChangeNames.StationsListReturned.getName(), null, stations);
+                        }
+                        else{
+                           pcs.firePropertyChange(PropertyChangeNames.SecondaryStationsListReturned.getName(), null, stations); 
+                        }
                     } else {
                         pcs.firePropertyChange(PropertyChangeNames.ErrorResponse.getName(), null, resp);
                     }
@@ -246,23 +267,23 @@ public class TeslaAPIModel extends java.util.Observable {
 
             @Override
             public OEResponse doInBackground() throws IOException {
-                OEResponse getStationInfoRequest = stationClient.getStationInfo(stationID);
+                OEResponse getStationInfoRequest = primaryStationClient.getStationInfo(stationID);
 
                 if (getStationInfoRequest.responseCode == 401) {
                     System.out.println("getting a new token. was:");
-                    System.out.println(api.getOAuthToken());
+                    System.out.println(primaryRestClient.getOAuthToken());
 
-                    OEResponse resp = loginClient.login(baseURL);
+                    OEResponse resp = primaryLoginClient.login(primaryBaseURL);
 
                     if (resp.responseCode == 200) {
                         LoginResponse loginResponse = (LoginResponse) resp.responseObject;
                         String newToken = loginResponse.getAccessToken();
-                        api.setOauthToken(newToken);
+                        primaryRestClient.setOauthToken(newToken);
 
                         System.out.println("new token is:");
-                        System.out.println(api.getOAuthToken());
+                        System.out.println(primaryRestClient.getOAuthToken());
 
-                        getStationInfoRequest = stationClient.getStationInfo(stationID);
+                        getStationInfoRequest = primaryStationClient.getStationInfo(stationID);
                     }
                 }
 
@@ -291,32 +312,52 @@ public class TeslaAPIModel extends java.util.Observable {
         worker.execute();
     }
 
-    public void getDatapoints(final String stationID) {
+    public void getDatapoints(final EnumPrimarySecodaryClient primaryOrSecondaryClient, final String stationID) {
 
         SwingWorker worker = new SwingWorker< OEResponse, Void>() {
 
             @Override
             public OEResponse doInBackground() throws IOException {
-                OEResponse getDataPointsRequest = stationClient.getDatapoints(stationID);
 
-                if (getDataPointsRequest.responseCode == 401) {
-                    System.out.println("getting a new token. was:");
-                    System.out.println(api.getOAuthToken());
+                OEResponse getDataPointsRequest;
 
-                    OEResponse resp = loginClient.login(baseURL);
+                if (primaryOrSecondaryClient == EnumPrimarySecodaryClient.Primary) {
+                    getDataPointsRequest = primaryStationClient.getDatapoints(stationID);
 
-                    if (resp.responseCode == 200) {
-                        LoginResponse loginResponse = (LoginResponse) resp.responseObject;
-                        String newToken = loginResponse.getAccessToken();
-                        api.setOauthToken(newToken);
+                    if (getDataPointsRequest.responseCode == 401) {
+                        System.out.println("getting a new primary token. was:");
+                        System.out.println(primaryRestClient.getOAuthToken());
 
-                        System.out.println("new token is:");
-                        System.out.println(api.getOAuthToken());
+                        OEResponse resp = primaryLoginClient.login(primaryBaseURL);
 
-                        getDataPointsRequest = stationClient.getDatapoints(stationID);
+                        if (resp.responseCode == 200) {
+                            LoginResponse loginResponse = (LoginResponse) resp.responseObject;
+                            String newToken = loginResponse.getAccessToken();
+                            primaryRestClient.setOauthToken(newToken);
+                            System.out.println("new primary token is:");
+                            System.out.println(primaryRestClient.getOAuthToken());
+                            getDataPointsRequest = primaryStationClient.getDatapoints(stationID);
+                        }
+                    }
+
+                } else {
+                    getDataPointsRequest = secondaryStationClient.getDatapoints(stationID);
+
+                    if (getDataPointsRequest.responseCode == 401) {
+                        System.out.println("getting a new secondary token. was:");
+                        System.out.println(secondaryRestClient.getOAuthToken());
+                        OEResponse resp = secondaryLoginClient.login(secondaryBaseURL);
+
+                        if (resp.responseCode == 200) {
+                            LoginResponse loginResponse = (LoginResponse) resp.responseObject;
+                            String newToken = loginResponse.getAccessToken();
+                            secondaryRestClient.setOauthToken(newToken);
+                            System.out.println("new token is:");
+                            System.out.println(secondaryRestClient.getOAuthToken());
+                            getDataPointsRequest = secondaryStationClient.getDatapoints(stationID);
+                        }
                     }
                 }
-
                 return getDataPointsRequest;
             }
 
@@ -349,8 +390,8 @@ public class TeslaAPIModel extends java.util.Observable {
 
             @Override
             public OEResponse doInBackground() throws IOException {
-                OEResponse resultA = stationClient.getStationInfo(stationID);
-                OEResponse resultB = stationClient.getSubscribed(stationID);
+                OEResponse resultA = primaryStationClient.getStationInfo(stationID);
+                OEResponse resultB = primaryStationClient.getSubscribed(stationID);
 
                 StationInfo stationInfo = (StationInfo) resultA.responseObject;
                 setSubscribedFlag(stationInfo, (List<String>) resultB.responseObject);
@@ -408,23 +449,23 @@ public class TeslaAPIModel extends java.util.Observable {
 
             @Override
             public OEResponse doInBackground() throws IOException {
-                OEResponse getLiveDataRequest = stationClient.getLiveData(dataPointIDs);
+                OEResponse getLiveDataRequest = primaryStationClient.getLiveData(dataPointIDs);
 
                 if (getLiveDataRequest.responseCode == 401) {
                     System.out.println("getting a new token. was:");
-                    System.out.println(api.getOAuthToken());
+                    System.out.println(primaryRestClient.getOAuthToken());
 
-                    OEResponse resp = loginClient.login(baseURL);
+                    OEResponse resp = primaryLoginClient.login(primaryBaseURL);
 
                     if (resp.responseCode == 200) {
                         LoginResponse loginResponse = (LoginResponse) resp.responseObject;
                         String newToken = loginResponse.getAccessToken();
-                        api.setOauthToken(newToken);
+                        primaryRestClient.setOauthToken(newToken);
 
                         System.out.println("new token is:");
-                        System.out.println(api.getOAuthToken());
+                        System.out.println(primaryRestClient.getOAuthToken());
 
-                        getLiveDataRequest = stationClient.getLiveData(dataPointIDs);
+                        getLiveDataRequest = primaryStationClient.getLiveData(dataPointIDs);
                     }
 
                 }
@@ -461,23 +502,23 @@ public class TeslaAPIModel extends java.util.Observable {
 
             @Override
             public OEResponse doInBackground() throws IOException {
-                OEResponse historyQueryResponse = stationClient.getHistory(historyRequest);
+                OEResponse historyQueryResponse = primaryStationClient.getHistory(historyRequest);
 
                 if (historyQueryResponse.responseCode == 401) {
                     System.out.println("getting a new token. was:");
-                    System.out.println(api.getOAuthToken());
+                    System.out.println(primaryRestClient.getOAuthToken());
 
-                    OEResponse resp = loginClient.login(baseURL);
+                    OEResponse resp = primaryLoginClient.login(primaryBaseURL);
 
                     if (resp.responseCode == 200) {
                         LoginResponse loginResponse = (LoginResponse) resp.responseObject;
                         String newToken = loginResponse.getAccessToken();
-                        api.setOauthToken(newToken);
+                        primaryRestClient.setOauthToken(newToken);
 
                         System.out.println("new token is:");
-                        System.out.println(api.getOAuthToken());
+                        System.out.println(primaryRestClient.getOAuthToken());
 
-                        historyQueryResponse = stationClient.getHistory(historyRequest);
+                        historyQueryResponse = primaryStationClient.getHistory(historyRequest);
                     }
 
                 }
@@ -531,23 +572,23 @@ public class TeslaAPIModel extends java.util.Observable {
                 HistoryQueryResults hourHistory = null;
 
                 if (fiveMinuteRequest.getIds().size() > 0) {
-                    OEResponse fiveMinResponse = stationClient.getHistory(fiveMinuteRequest);
+                    OEResponse fiveMinResponse = primaryStationClient.getHistory(fiveMinuteRequest);
 
                     if (fiveMinResponse.responseCode == 401) {
                         System.out.println("getting a new token. was:");
-                        System.out.println(api.getOAuthToken());
+                        System.out.println(primaryRestClient.getOAuthToken());
 
-                        OEResponse resp = loginClient.login(baseURL);
+                        OEResponse resp = primaryLoginClient.login(primaryBaseURL);
 
                         if (resp.responseCode == 200) {
                             LoginResponse loginResponse = (LoginResponse) resp.responseObject;
                             String newToken = loginResponse.getAccessToken();
-                            api.setOauthToken(newToken);
+                            primaryRestClient.setOauthToken(newToken);
 
                             System.out.println("new token is:");
-                            System.out.println(api.getOAuthToken());
+                            System.out.println(primaryRestClient.getOAuthToken());
 
-                            fiveMinResponse = stationClient.getHistory(fiveMinuteRequest);
+                            fiveMinResponse = primaryStationClient.getHistory(fiveMinuteRequest);
                         }
 
                     }
@@ -558,23 +599,23 @@ public class TeslaAPIModel extends java.util.Observable {
                 }
 
                 if (hourRequest.getIds().size() > 0) {
-                    OEResponse hourResponse = stationClient.getHistory(hourRequest);
+                    OEResponse hourResponse = primaryStationClient.getHistory(hourRequest);
 
                     if (hourResponse.responseCode == 401) {
                         System.out.println("getting a new token. was:");
-                        System.out.println(api.getOAuthToken());
+                        System.out.println(primaryRestClient.getOAuthToken());
 
-                        OEResponse resp = loginClient.login(baseURL);
+                        OEResponse resp = primaryLoginClient.login(primaryBaseURL);
 
                         if (resp.responseCode == 200) {
                             LoginResponse loginResponse = (LoginResponse) resp.responseObject;
                             String newToken = loginResponse.getAccessToken();
-                            api.setOauthToken(newToken);
+                            primaryRestClient.setOauthToken(newToken);
 
                             System.out.println("new token is:");
-                            System.out.println(api.getOAuthToken());
+                            System.out.println(primaryRestClient.getOAuthToken());
 
-                            hourResponse = stationClient.getHistory(hourRequest);
+                            hourResponse = primaryStationClient.getHistory(hourRequest);
                         }
 
                     }
@@ -842,7 +883,7 @@ public class TeslaAPIModel extends java.util.Observable {
             }
 
             TeslaDataPointUpsertRequest tdpu = new TeslaDataPointUpsertRequest(e3osHistory, e3osNameToMappingTableRowMap);
-            OEResponse teslaPutResponse = stationClient.putHistory(tdpu);
+            OEResponse teslaPutResponse = primaryStationClient.putHistory(tdpu);
 
             if (teslaPutResponse.responseCode == 422) {
                 System.out.println("unprocessable entity");
@@ -851,23 +892,23 @@ public class TeslaAPIModel extends java.util.Observable {
 
             if (teslaPutResponse.responseCode >= 500) {
                 System.out.println("retrying...");
-                teslaPutResponse = stationClient.putHistory(tdpu);
+                teslaPutResponse = primaryStationClient.putHistory(tdpu);
 
             } else if (teslaPutResponse.responseCode == 401) {
                 System.out.println("getting a new token. was:");
-                System.out.println(api.getOAuthToken());
+                System.out.println(primaryRestClient.getOAuthToken());
 
-                OEResponse resp = loginClient.login(this.baseURL);
+                OEResponse resp = primaryLoginClient.login(this.primaryBaseURL);
 
                 if (resp.responseCode == 200) {
                     LoginResponse loginResponse = (LoginResponse) resp.responseObject;
                     String newToken = loginResponse.getAccessToken();
-                    api.setOauthToken(newToken);
+                    primaryRestClient.setOauthToken(newToken);
 
                     System.out.println("new token is:");
-                    System.out.println(api.getOAuthToken());
+                    System.out.println(primaryRestClient.getOAuthToken());
 
-                    teslaPutResponse = stationClient.putHistory(tdpu);
+                    teslaPutResponse = primaryStationClient.putHistory(tdpu);
                 }
             }
 
@@ -883,7 +924,7 @@ public class TeslaAPIModel extends java.util.Observable {
     }
 
     public void pullFromTeslsPushToTesla(
-            final EnumFromTo fromTo,
+            final EnumPrimarySecodaryClient usePrimaryOrSecondaryClientForHistoryPull,
             final DateTime pushStartTime,
             final DateTime pushEndTime,
             final List<TTTTableRow> mappedRows,
@@ -923,7 +964,7 @@ public class TeslaAPIModel extends java.util.Observable {
                         int endIndex = Math.min(startPushIndex + maxPointsPerPush, mappedRows.size());
 
                         List<TTTTableRow> pointsToPush = mappedRows.subList(startPushIndex, endIndex);
-                        pullFromTeslsPushToTeslaInterval(fromTo, intervalStart, intervalEnd, pointsToPush, stationTimeZone);
+                        pullFromTeslsPushToTeslaInterval(usePrimaryOrSecondaryClientForHistoryPull, intervalStart, intervalEnd, pointsToPush, stationTimeZone);
                         pcs.firePropertyChange(PropertyChangeNames.TeslaBucketPushed.getName(), null, 1);
                         startPushIndex += maxPointsPerPush;
                     }
@@ -961,7 +1002,7 @@ public class TeslaAPIModel extends java.util.Observable {
         worker.execute();
     }
 
-    private OEResponse pullFromTeslsPushToTeslaInterval(EnumFromTo fromTo, DateTime pushStartTime, DateTime pushEndTime, List<TTTTableRow> mappedRows, String stationTimeZone) {
+    private OEResponse pullFromTeslsPushToTeslaInterval(EnumPrimarySecodaryClient usePrimaryOrSecondaryClientForHistoryPull, DateTime pushStartTime, DateTime pushEndTime, List<TTTTableRow> mappedRows, String stationTimeZone) {
 
         final String fiveMinuteString = "fiveMinute";
         List<String> fromIDs = new ArrayList<>();
@@ -975,35 +1016,45 @@ public class TeslaAPIModel extends java.util.Observable {
         try {
 
             HistoryRequest historyRequest = new HistoryRequest(fromIDs, pushStartTime, pushEndTime, fiveMinuteString, stationTimeZone);
-            OEResponse results = stationClient.getHistory(historyRequest);
+            OEResponse results;
+            
+            if( usePrimaryOrSecondaryClientForHistoryPull == EnumPrimarySecodaryClient.Primary ){
+                results = primaryStationClient.getHistory(historyRequest);
 
-            if (results.responseCode == 401) {
-                System.out.println("getting a new token. was:");
-                System.out.println(api.getOAuthToken());
+                if (results.responseCode == 401) {
+                    System.out.println("getting a new primary token. was:");
+                    System.out.println(primaryRestClient.getOAuthToken());
+                    OEResponse resp = primaryLoginClient.login(primaryBaseURL);
 
-                OEResponse resp;
-                if (fromTo == EnumFromTo.TO) {
-                    resp = loginClient.login(baseURL);
-                } else {
-                    resp = loginClient.login(fromBaseURL);
-                }
-
-                if (resp.responseCode == 200) {
-                    LoginResponse loginResponse = (LoginResponse) resp.responseObject;
-                    String newToken = loginResponse.getAccessToken();
-                    api.setOauthToken(newToken);
-
-                    System.out.println("new token is:");
-                    System.out.println(api.getOAuthToken());
-
-                    if (fromTo == EnumFromTo.TO) {
-                        results = stationClient.getHistory(historyRequest);
-
-                    } else {
-                        results = fromStationClient.getHistory(historyRequest);
-
+                    if (resp.responseCode == 200) {
+                        LoginResponse loginResponse = (LoginResponse) resp.responseObject;
+                        String newToken = loginResponse.getAccessToken();
+                        primaryRestClient.setOauthToken(newToken);
+                        System.out.println("new token is:");
+                        System.out.println(primaryRestClient.getOAuthToken());
+                        results = primaryStationClient.getHistory(historyRequest);
                     }
                 }
+            }
+            else{
+                
+                results = secondaryStationClient.getHistory(historyRequest);
+
+                if (results.responseCode == 401) {
+                    System.out.println("getting a new primary token. was:");
+                    System.out.println(secondaryRestClient.getOAuthToken());
+                    OEResponse resp = secondaryLoginClient.login(secondaryBaseURL);
+                    
+                    if (resp.responseCode == 200) {
+                        LoginResponse loginResponse = (LoginResponse) resp.responseObject;
+                        String newToken = loginResponse.getAccessToken();
+                        secondaryRestClient.setOauthToken(newToken);
+                        System.out.println("new secodary token is:");
+                        System.out.println(secondaryRestClient.getOAuthToken());
+                        results = secondaryStationClient.getHistory(historyRequest);
+                    }
+                }
+                
             }
 
             if (results.responseCode != 200) {
@@ -1013,15 +1064,7 @@ public class TeslaAPIModel extends java.util.Observable {
             List<LiveDatapoint> history = (List<LiveDatapoint>) results.responseObject;
 
             TTTDataPointUpsertRequest tdpu = new TTTDataPointUpsertRequest(history, fromIDtoIDMap);
-            //OEResponse teslaPutResponse = stationClient.putHistory(tdpu);
-            OEResponse teslaPutResponse;
-            if (fromTo == EnumFromTo.TO) {
-                teslaPutResponse = stationClient.putHistory(tdpu);
-
-            } else {
-                teslaPutResponse = fromStationClient.putHistory(tdpu);
-
-            }
+            OEResponse teslaPutResponse = primaryStationClient.putHistory(tdpu);
 
             if (teslaPutResponse.responseCode == 422) {
                 System.out.println("unprocessable entity");
@@ -1030,36 +1073,25 @@ public class TeslaAPIModel extends java.util.Observable {
 
             if (teslaPutResponse.responseCode >= 500) {
                 System.out.println("retrying...");
-                teslaPutResponse = stationClient.putHistory(tdpu);
+                teslaPutResponse = primaryStationClient.putHistory(tdpu);
 
             } else if (teslaPutResponse.responseCode == 401) {
-                System.out.println("getting a new token. was:");
-                System.out.println(api.getOAuthToken());
+                System.out.println("getting a new primary token. was:");
+                System.out.println(primaryRestClient.getOAuthToken());
 
                 //OEResponse resp = loginClient.login(this.baseURL);
-                OEResponse resp;
-                if (fromTo == EnumFromTo.TO) {
-                    resp = loginClient.login(baseURL);
-                } else {
-                    resp = loginClient.login(fromBaseURL);
-                }
-
+                OEResponse resp = primaryLoginClient.login(secondaryBaseURL);
+                
                 if (resp.responseCode == 200) {
                     LoginResponse loginResponse = (LoginResponse) resp.responseObject;
                     String newToken = loginResponse.getAccessToken();
-                    api.setOauthToken(newToken);
+                    primaryRestClient.setOauthToken(newToken);
 
                     System.out.println("new token is:");
-                    System.out.println(api.getOAuthToken());
+                    System.out.println(primaryRestClient.getOAuthToken());
 
-                    //teslaPutResponse = stationClient.putHistory(tdpu);
-                    if (fromTo == EnumFromTo.TO) {
-                        teslaPutResponse = stationClient.putHistory(tdpu);
+                    teslaPutResponse = primaryStationClient.putHistory(tdpu);
 
-                    } else {
-                        teslaPutResponse = fromStationClient.putHistory(tdpu);
-
-                    }
                 }
 
             }

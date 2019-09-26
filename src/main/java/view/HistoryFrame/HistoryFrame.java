@@ -31,6 +31,7 @@ import model.DataPoints.HistoryRequest;
 import model.DataPoints.LiveDatapoint;
 import model.DataPoints.StationInfo;
 import model.DatapointList.DatapointListItem;
+import model.EnumPrimarySecodaryClient;
 import model.PropertyChangeNames;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -111,7 +112,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
         setPrecSpinner();
         fillHistoryResolutionDropdown();
-        controller.getDatapoints(selectedStation.getId());
+        controller.getDatapoints(EnumPrimarySecodaryClient.Primary, selectedStation.getId());
 
     }
 

@@ -11,7 +11,7 @@ import model.DataPoints.HistoryRequest;
 import model.DataPoints.LiveDatapoint;
 import model.DataPoints.StationInfo;
 import model.EnumBaseURLs;
-import model.EnumFromTo;
+import model.EnumPrimarySecodaryClient;
 import model.LoadFromE3OS.MappingTableRow;
 import model.PropertyChangeNames;
 import model.RestClient.OEResponse;
@@ -64,14 +64,14 @@ public class Controller implements java.awt.event.ActionListener, PropertyChange
     }
     
     public void login(EnumBaseURLs baseUrl ){
-        model.login(baseUrl);
+        model.primaryLogin(baseUrl);
     }
     
     public void fromLogin( EnumBaseURLs baseUrl){
-        model.fromLogin(baseUrl);
+        model.secondaryLogin(baseUrl);
     }
 
-    public void getStations(EnumFromTo fromTo) {
+    public void getStations(EnumPrimarySecodaryClient fromTo) {
         model.getStations(fromTo);
     }
 
@@ -79,8 +79,8 @@ public class Controller implements java.awt.event.ActionListener, PropertyChange
         model.getStationInfo(stationID);
     }
 
-    public void getDatapoints(String stationID) {
-        model.getDatapoints(stationID);
+    public void getDatapoints(final EnumPrimarySecodaryClient fromTo, String stationID) {
+        model.getDatapoints(fromTo, stationID);
     }
 
     public void getStationInfoAndSubscribedFlag(String stationID) {
@@ -118,7 +118,7 @@ public class Controller implements java.awt.event.ActionListener, PropertyChange
     
     
     public void pullFromTeslsPushToTesla(
-            EnumFromTo fromTo,
+            EnumPrimarySecodaryClient fromTo,
             DateTime pushStartTime,
             DateTime pushEndTime,
             List<TTTTableRow> mappedRows,
@@ -146,10 +146,10 @@ public class Controller implements java.awt.event.ActionListener, PropertyChange
         if (propName.equals(PropertyChangeNames.ErrorResponse.getName())) {
             view.showError((OEResponse) evt.getNewValue());
 
-        } else if (propName.equals(PropertyChangeNames.LoginResponseReturned.getName())) {
+        } else if (propName.equals(PropertyChangeNames.PrimaryLoginResponseReturned.getName())) {
             LoginResponse loginResponse = (LoginResponse) evt.getNewValue();
             view.setLoggedInInfo(true, loginResponse);
-            model.getStations( EnumFromTo.TO);
+            model.getStations(EnumPrimarySecodaryClient.Primary);
 
         } else if (propName.equals(PropertyChangeNames.StationsListReturned.getName())) {
             List<StationInfo> stations = (List<StationInfo>) evt.getNewValue();

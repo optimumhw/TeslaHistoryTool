@@ -720,7 +720,7 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
 
             this.dispose();
 
-        } else if (propName.equals(PropertyChangeNames.LoginResponseReturned.getName())) {
+        } else if (propName.equals(PropertyChangeNames.PrimaryLoginResponseReturned.getName())) {
             this.dispose();
         }
 

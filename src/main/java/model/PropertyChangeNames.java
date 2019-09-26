@@ -2,10 +2,12 @@ package model;
 
 public enum PropertyChangeNames {
 
-    LoginResponseReturned("LoginResponseReturned"),
+    PrimaryLoginResponseReturned("LoginResponseReturned"),
+    SecondaryLoginResponseReturned("FromLoginResponseReturned"),
     ErrorResponse("ErrorResponse"),
     RequestResponseChanged("RequestResponseChanged"),
     StationsListReturned("StationsListReturned"),
+    SecondaryStationsListReturned("SecondaryStationsListReturned"),
     StationInfoRetrieved("StationInfoRetrieved"),
     DatapointsReturned("DatapointsReturned"),
     StationInfoAndSubFlagRetrieved("DatapointsAndSubFlagRetrieved"),

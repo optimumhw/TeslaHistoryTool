@@ -24,7 +24,7 @@ import javax.swing.table.TableColumn;
 import model.DataPoints.StationInfo;
 import model.DatapointList.DatapointListItem;
 import model.EnumBaseURLs;
-import model.EnumFromTo;
+import model.EnumPrimarySecodaryClient;
 import model.PropertyChangeNames;
 import model.TTT.TTTMapStatus;
 import model.TTT.TTTTableRow;
@@ -44,15 +44,14 @@ import view.StationsTable.EnumStationsTableColumns;
 import view.StationsTable.StationsTableCellRenderer;
 import view.StationsTable.StationsTableModel;
 
-public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyChangeListener {
+public final class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyChangeListener {
 
     private static PushFromTeslaFrame thisInstance;
     private final Controller controller;
     private final StationInfo toStationInfo;
     private final List<DatapointListItem> toStationDatapointList;
 
-    private EnumFromTo fromTo;
-    private EnumBaseURLs selectedFromBaseURL;
+    private EnumBaseURLs secondaryBaseURL;
     private StationInfo fromStationInfo;
     private List<StationInfo> fromStationInfoList;
     private List<DatapointListItem> fromStationDatapointList;
@@ -101,7 +100,7 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
         this.jTextFieldStartDate.setText(startDate.toString(zzFormat));
         this.jTextFieldEndDate.setText(endDate.toString(zzFormat));
 
-        selectedFromBaseURL = EnumBaseURLs.Ninja;
+        secondaryBaseURL = EnumBaseURLs.Ninja;
         this.jLabelFromStationName.setText("TBD");
         this.jLabelToStationName.setText(toStationInfo.getName());
         this.jTextFieldMaxHoursPush.setText("12");
@@ -119,10 +118,8 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
                 lapsedTimeTimer.restart();
             }
         };
-
-        controller.fromLogin(selectedFromBaseURL);
-
-        controller.getStations(EnumFromTo.FROM);
+        
+        fillAPIHosts();
 
     }
 
@@ -130,7 +127,7 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
         ComboBoxModel comboBoxModel = new DefaultComboBoxModel(EnumBaseURLs.getURLs().toArray());
         this.jComboBoxFromHost.setModel(comboBoxModel);
 
-        this.jComboBoxFromHost.setSelectedItem(selectedFromBaseURL.getURL());
+        this.jComboBoxFromHost.setSelectedItem(secondaryBaseURL.getURL());
 
         this.jComboBoxFromHost.addActionListener(new ActionListener() {
 
@@ -138,9 +135,10 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
             public void actionPerformed(ActionEvent event) {
                 JComboBox<String> combo = (JComboBox<String>) event.getSource();
                 String name = (String) combo.getSelectedItem();
-                selectedFromBaseURL = EnumBaseURLs.getHostFromName(name);
+                secondaryBaseURL = EnumBaseURLs.getHostFromName(name);
 
                 SwingUtilities.invokeLater(new Runnable() {
+                    @Override
                     public void run() {
                         clearStationsTable();
                     }
@@ -655,7 +653,7 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
             lapsedTimeTimer = new Timer(1000, lapsedTimeUpdater);
             lapsedTimeTimer.start();
 
-            controller.pullFromTeslsPushToTesla(fromTo, pushStartTime, pushEndTime, pushRows, maxHoursPerPush, maxPointsPerPush, toStationInfo.getTimeZone());
+            controller.pullFromTeslsPushToTesla(EnumPrimarySecodaryClient.Secondary, pushStartTime, pushEndTime, pushRows, maxHoursPerPush, maxPointsPerPush, toStationInfo.getTimeZone());
 
         }
 
@@ -671,7 +669,7 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
 
         this.jLabelFromStationName.setText(fromStationInfo.getName());
 
-        controller.getDatapoints(fromStationInfo.getId());
+        controller.getDatapoints(EnumPrimarySecodaryClient.Secondary, fromStationInfo.getId());
 
     }//GEN-LAST:event_jTableStationsFromMousePressed
 
@@ -691,8 +689,7 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
     }//GEN-LAST:event_jTextFieldFilterActionPerformed
 
     private void jButtonFromHostLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonFromHostLoginActionPerformed
-        controller.fromLogin(selectedFromBaseURL);
-        controller.getStations(EnumFromTo.FROM);
+        controller.fromLogin(secondaryBaseURL);
     }//GEN-LAST:event_jButtonFromHostLoginActionPerformed
 
 
@@ -734,8 +731,12 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         String propName = evt.getPropertyName();
+        
+        //
+        if (propName.equals(PropertyChangeNames.SecondaryLoginResponseReturned.getName())) {
+            controller.getStations(EnumPrimarySecodaryClient.Secondary);
 
-        if (propName.equals(PropertyChangeNames.StationsListReturned.getName())) {
+        } else if (propName.equals(PropertyChangeNames.SecondaryStationsListReturned.getName())) {
             fromStationInfoList = (List<StationInfo>) evt.getNewValue();
             fillStationsTable();
 
@@ -780,7 +781,7 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
 
             this.dispose();
 
-        } else if (propName.equals(PropertyChangeNames.LoginResponseReturned.getName())) {
+        } else if (propName.equals(PropertyChangeNames.PrimaryLoginResponseReturned.getName())) {
             this.dispose();
         }
     }

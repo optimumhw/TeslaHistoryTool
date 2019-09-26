@@ -144,7 +144,7 @@ public class HistoryChartFrame extends javax.swing.JFrame implements PropertyCha
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         String propName = evt.getPropertyName();
-        if (propName.equals(PropertyChangeNames.LoginResponseReturned.getName())) {
+        if (propName.equals(PropertyChangeNames.PrimaryLoginResponseReturned.getName())) {
             dispose();
         }
     }
