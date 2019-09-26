@@ -11,6 +11,7 @@ import model.DataPoints.HistoryRequest;
 import model.DataPoints.LiveDatapoint;
 import model.DataPoints.StationInfo;
 import model.EnumBaseURLs;
+import model.EnumFromTo;
 import model.LoadFromE3OS.MappingTableRow;
 import model.PropertyChangeNames;
 import model.RestClient.OEResponse;
@@ -65,9 +66,13 @@ public class Controller implements java.awt.event.ActionListener, PropertyChange
     public void login(EnumBaseURLs baseUrl ){
         model.login(baseUrl);
     }
+    
+    public void fromLogin( EnumBaseURLs baseUrl){
+        model.fromLogin(baseUrl);
+    }
 
-    public void getStations() {
-        model.getStations();
+    public void getStations(EnumFromTo fromTo) {
+        model.getStations(fromTo);
     }
 
     public void getStationInfo(String stationID) {
@@ -113,13 +118,14 @@ public class Controller implements java.awt.event.ActionListener, PropertyChange
     
     
     public void pullFromTeslsPushToTesla(
-            final DateTime pushStartTime,
-            final DateTime pushEndTime,
-            final List<TTTTableRow> mappedRows,
-            final int maxHoursPerPush,
-            final int maxPointsPerPush,
-            final String stationTimeZone){
-        model.pullFromTeslsPushToTesla(pushStartTime, pushEndTime, mappedRows, maxHoursPerPush, maxPointsPerPush, stationTimeZone);
+            EnumFromTo fromTo,
+            DateTime pushStartTime,
+            DateTime pushEndTime,
+            List<TTTTableRow> mappedRows,
+            int maxHoursPerPush,
+            int maxPointsPerPush,
+            String stationTimeZone){
+        model.pullFromTeslsPushToTesla(fromTo, pushStartTime, pushEndTime, mappedRows, maxHoursPerPush, maxPointsPerPush, stationTimeZone);
     }
     
     public void createCSV( String filePath,  HistoryQueryResults history){
@@ -143,7 +149,7 @@ public class Controller implements java.awt.event.ActionListener, PropertyChange
         } else if (propName.equals(PropertyChangeNames.LoginResponseReturned.getName())) {
             LoginResponse loginResponse = (LoginResponse) evt.getNewValue();
             view.setLoggedInInfo(true, loginResponse);
-            model.getStations();
+            model.getStations( EnumFromTo.TO);
 
         } else if (propName.equals(PropertyChangeNames.StationsListReturned.getName())) {
             List<StationInfo> stations = (List<StationInfo>) evt.getNewValue();

@@ -24,6 +24,7 @@ import javax.swing.table.TableColumn;
 import model.DataPoints.StationInfo;
 import model.DatapointList.DatapointListItem;
 import model.EnumBaseURLs;
+import model.EnumFromTo;
 import model.PropertyChangeNames;
 import model.TTT.TTTMapStatus;
 import model.TTT.TTTTableRow;
@@ -50,6 +51,7 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
     private final StationInfo toStationInfo;
     private final List<DatapointListItem> toStationDatapointList;
 
+    private EnumFromTo fromTo;
     private EnumBaseURLs selectedFromBaseURL;
     private StationInfo fromStationInfo;
     private List<StationInfo> fromStationInfoList;
@@ -105,7 +107,7 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
         this.jTextFieldMaxHoursPush.setText("12");
         this.jTextFieldMaxPointsPush.setText("50");
         this.jTextFieldFilter.setText("");
-        
+
         lapsedTimeUpdater = new ActionListener() {
 
             @Override
@@ -117,13 +119,13 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
                 lapsedTimeTimer.restart();
             }
         };
-        
-        controller.login(selectedFromBaseURL);
 
-        controller.getStations();
+        controller.fromLogin(selectedFromBaseURL);
+
+        controller.getStations(EnumFromTo.FROM);
 
     }
-    
+
     public void fillAPIHosts() {
         ComboBoxModel comboBoxModel = new DefaultComboBoxModel(EnumBaseURLs.getURLs().toArray());
         this.jComboBoxFromHost.setModel(comboBoxModel);
@@ -222,8 +224,8 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
         this.jTableMappings.setModel(new DefaultTableModel());
     }
 
-    private void fillMappingsTable( String filter ) {
-        
+    private void fillMappingsTable(String filter) {
+
         List<TTTTableRow> filteredList = new ArrayList<>();
 
         String[] pointNamesInFilter = filter.split(" ");
@@ -236,7 +238,7 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
             }
 
             for (String pointNameFilter : Arrays.asList(pointNamesInFilter)) {
-                if (!this.jCheckBoxRegEx.isSelected() && ( mappingTableRow.getFromName().contains(pointNameFilter) || mappingTableRow.getToName().contains(pointNameFilter) )) {
+                if (!this.jCheckBoxRegEx.isSelected() && (mappingTableRow.getFromName().contains(pointNameFilter) || mappingTableRow.getToName().contains(pointNameFilter))) {
                     if (!filteredList.contains(mappingTableRow)) {
                         filteredList.add(mappingTableRow);
                     }
@@ -653,7 +655,7 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
             lapsedTimeTimer = new Timer(1000, lapsedTimeUpdater);
             lapsedTimeTimer.start();
 
-            controller.pullFromTeslsPushToTesla(pushStartTime, pushEndTime, pushRows, maxHoursPerPush, maxPointsPerPush, toStationInfo.getTimeZone());
+            controller.pullFromTeslsPushToTesla(fromTo, pushStartTime, pushEndTime, pushRows, maxHoursPerPush, maxPointsPerPush, toStationInfo.getTimeZone());
 
         }
 
@@ -689,7 +691,8 @@ public class PushFromTeslaFrame extends javax.swing.JFrame implements PropertyCh
     }//GEN-LAST:event_jTextFieldFilterActionPerformed
 
     private void jButtonFromHostLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonFromHostLoginActionPerformed
-        // TODO add your handling code here:
+        controller.fromLogin(selectedFromBaseURL);
+        controller.getStations(EnumFromTo.FROM);
     }//GEN-LAST:event_jButtonFromHostLoginActionPerformed
 
 

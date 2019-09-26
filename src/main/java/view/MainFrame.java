@@ -24,6 +24,7 @@ import model.DataPoints.Equipment;
 import model.DataPoints.LiveDatapoint;
 import model.DataPoints.StationInfo;
 import model.EnumBaseURLs;
+import model.EnumFromTo;
 import model.RestClient.ErrorResponse;
 import model.RestClient.OEResponse;
 import org.jfree.ui.DateCellRenderer;
@@ -569,7 +570,7 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonQuitActionPerformed
 
     private void jButtonGetStationsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonGetStationsActionPerformed
-        controller.getStations();
+        controller.getStations( EnumFromTo.TO);
     }//GEN-LAST:event_jButtonGetStationsActionPerformed
 
     private void jTableDatapointsTableMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTableDatapointsTableMousePressed

@@ -883,6 +883,7 @@ public class TeslaAPIModel extends java.util.Observable {
     }
 
     public void pullFromTeslsPushToTesla(
+            final EnumFromTo fromTo,
             final DateTime pushStartTime,
             final DateTime pushEndTime,
             final List<TTTTableRow> mappedRows,
@@ -922,7 +923,7 @@ public class TeslaAPIModel extends java.util.Observable {
                         int endIndex = Math.min(startPushIndex + maxPointsPerPush, mappedRows.size());
 
                         List<TTTTableRow> pointsToPush = mappedRows.subList(startPushIndex, endIndex);
-                        pullFromTeslsPushToTeslaInterval(intervalStart, intervalEnd, pointsToPush, stationTimeZone);
+                        pullFromTeslsPushToTeslaInterval(fromTo, intervalStart, intervalEnd, pointsToPush, stationTimeZone);
                         pcs.firePropertyChange(PropertyChangeNames.TeslaBucketPushed.getName(), null, 1);
                         startPushIndex += maxPointsPerPush;
                     }
@@ -960,7 +961,7 @@ public class TeslaAPIModel extends java.util.Observable {
         worker.execute();
     }
 
-    private OEResponse pullFromTeslsPushToTeslaInterval(DateTime pushStartTime, DateTime pushEndTime, List<TTTTableRow> mappedRows, String stationTimeZone) {
+    private OEResponse pullFromTeslsPushToTeslaInterval(EnumFromTo fromTo, DateTime pushStartTime, DateTime pushEndTime, List<TTTTableRow> mappedRows, String stationTimeZone) {
 
         final String fiveMinuteString = "fiveMinute";
         List<String> fromIDs = new ArrayList<>();
@@ -980,7 +981,12 @@ public class TeslaAPIModel extends java.util.Observable {
                 System.out.println("getting a new token. was:");
                 System.out.println(api.getOAuthToken());
 
-                OEResponse resp = loginClient.login(this.baseURL);
+                OEResponse resp;
+                if (fromTo == EnumFromTo.TO) {
+                    resp = loginClient.login(baseURL);
+                } else {
+                    resp = loginClient.login(fromBaseURL);
+                }
 
                 if (resp.responseCode == 200) {
                     LoginResponse loginResponse = (LoginResponse) resp.responseObject;
@@ -990,7 +996,13 @@ public class TeslaAPIModel extends java.util.Observable {
                     System.out.println("new token is:");
                     System.out.println(api.getOAuthToken());
 
-                    results = stationClient.getHistory(historyRequest);
+                    if (fromTo == EnumFromTo.TO) {
+                        results = stationClient.getHistory(historyRequest);
+
+                    } else {
+                        results = fromStationClient.getHistory(historyRequest);
+
+                    }
                 }
             }
 
@@ -1001,7 +1013,15 @@ public class TeslaAPIModel extends java.util.Observable {
             List<LiveDatapoint> history = (List<LiveDatapoint>) results.responseObject;
 
             TTTDataPointUpsertRequest tdpu = new TTTDataPointUpsertRequest(history, fromIDtoIDMap);
-            OEResponse teslaPutResponse = stationClient.putHistory(tdpu);
+            //OEResponse teslaPutResponse = stationClient.putHistory(tdpu);
+            OEResponse teslaPutResponse;
+            if (fromTo == EnumFromTo.TO) {
+                teslaPutResponse = stationClient.putHistory(tdpu);
+
+            } else {
+                teslaPutResponse = fromStationClient.putHistory(tdpu);
+
+            }
 
             if (teslaPutResponse.responseCode == 422) {
                 System.out.println("unprocessable entity");
@@ -1016,7 +1036,13 @@ public class TeslaAPIModel extends java.util.Observable {
                 System.out.println("getting a new token. was:");
                 System.out.println(api.getOAuthToken());
 
-                OEResponse resp = loginClient.login(this.baseURL);
+                //OEResponse resp = loginClient.login(this.baseURL);
+                OEResponse resp;
+                if (fromTo == EnumFromTo.TO) {
+                    resp = loginClient.login(baseURL);
+                } else {
+                    resp = loginClient.login(fromBaseURL);
+                }
 
                 if (resp.responseCode == 200) {
                     LoginResponse loginResponse = (LoginResponse) resp.responseObject;
@@ -1026,7 +1052,14 @@ public class TeslaAPIModel extends java.util.Observable {
                     System.out.println("new token is:");
                     System.out.println(api.getOAuthToken());
 
-                    teslaPutResponse = stationClient.putHistory(tdpu);
+                    //teslaPutResponse = stationClient.putHistory(tdpu);
+                    if (fromTo == EnumFromTo.TO) {
+                        teslaPutResponse = stationClient.putHistory(tdpu);
+
+                    } else {
+                        teslaPutResponse = fromStationClient.putHistory(tdpu);
+
+                    }
                 }
 
             }
