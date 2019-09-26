@@ -47,7 +47,9 @@ public class TeslaAPIModel extends java.util.Observable {
 
     private LoginClient loginClient;
     private StationClient stationClient;
+    private StationClient fromStationClient;
     private EnumBaseURLs baseURL;
+    private EnumBaseURLs fromBaseURL;
 
     final private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
@@ -126,20 +128,76 @@ public class TeslaAPIModel extends java.util.Observable {
         worker.execute();
     }
 
-    // === STATIONS  ======================
-    public void getStations() {
+    public void fromLogin(final EnumBaseURLs baseUrl) {
+
+        if (baseUrl == null) {
+            return;
+        }
+
+        this.fromBaseURL = baseUrl;
 
         SwingWorker worker = new SwingWorker< OEResponse, Void>() {
 
             @Override
             public OEResponse doInBackground() throws IOException {
-                OEResponse getStationsRequest = stationClient.getStations();
-                
+                OEResponse results = loginClient.login(baseUrl);
+                return results;
+            }
+
+            @Override
+            public void done() {
+                try {
+                    OEResponse resp = get();
+
+                    LoginResponse loginResponse;
+
+                    if (resp.responseCode == 200) {
+                        loginResponse = (LoginResponse) resp.responseObject;
+
+                        fromStationClient = new StationClient(baseUrl, api);
+                        fromStationClient.setServiceURLAndToken(baseUrl, loginResponse.getAccessToken());
+
+                    } else {
+                        loginResponse = new LoginResponse();
+                        pcs.firePropertyChange(PropertyChangeNames.ErrorResponse.getName(), null, resp);
+                    }
+                    pcs.firePropertyChange(PropertyChangeNames.LoginResponseReturned.getName(), null, loginResponse);
+                    pcs.firePropertyChange(PropertyChangeNames.RequestResponseChanged.getName(), null, getRRS());
+
+                } catch (Exception ex) {
+                    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+                    logger.error(this.getClass().getName(), ex);
+                }
+            }
+        };
+        worker.execute();
+    }
+
+    // === STATIONS  ======================
+    public void getStations(final EnumFromTo fromTo) {
+
+        SwingWorker worker = new SwingWorker< OEResponse, Void>() {
+
+            @Override
+            public OEResponse doInBackground() throws IOException {
+
+                OEResponse getStationsRequest;
+                if (fromTo == EnumFromTo.TO) {
+                    getStationsRequest = stationClient.getStations();
+                } else {
+                    getStationsRequest = fromStationClient.getStations();
+                }
+
                 if (getStationsRequest.responseCode == 401) {
                     System.out.println("getting a new token. was:");
                     System.out.println(api.getOAuthToken());
 
-                    OEResponse resp = loginClient.login(baseURL);
+                    OEResponse resp;
+                    if (fromTo == EnumFromTo.TO) {
+                        resp = loginClient.login(baseURL);
+                    } else {
+                        resp = loginClient.login(fromBaseURL);
+                    }
 
                     if (resp.responseCode == 200) {
                         LoginResponse loginResponse = (LoginResponse) resp.responseObject;
@@ -149,7 +207,11 @@ public class TeslaAPIModel extends java.util.Observable {
                         System.out.println("new token is:");
                         System.out.println(api.getOAuthToken());
 
-                        getStationsRequest = stationClient.getStations();
+                        if (fromTo == EnumFromTo.TO) {
+                            getStationsRequest = stationClient.getStations();
+                        } else {
+                            getStationsRequest = fromStationClient.getStations();
+                        }
                     }
                 }
                 return getStationsRequest;
@@ -185,7 +247,7 @@ public class TeslaAPIModel extends java.util.Observable {
             @Override
             public OEResponse doInBackground() throws IOException {
                 OEResponse getStationInfoRequest = stationClient.getStationInfo(stationID);
-                
+
                 if (getStationInfoRequest.responseCode == 401) {
                     System.out.println("getting a new token. was:");
                     System.out.println(api.getOAuthToken());
@@ -203,7 +265,7 @@ public class TeslaAPIModel extends java.util.Observable {
                         getStationInfoRequest = stationClient.getStationInfo(stationID);
                     }
                 }
-                 
+
                 return getStationInfoRequest;
             }
 
@@ -254,7 +316,7 @@ public class TeslaAPIModel extends java.util.Observable {
                         getDataPointsRequest = stationClient.getDatapoints(stationID);
                     }
                 }
-                
+
                 return getDataPointsRequest;
             }
 
