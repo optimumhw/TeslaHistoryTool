@@ -241,11 +241,10 @@ public class TeslaAPIModel extends java.util.Observable {
                     if (resp.responseCode == 200) {
                         List<StationInfo> stations = (List<StationInfo>) resp.responseObject;
 
-                        if (primaryOrSecondaryClient == EnumPrimarySecodaryClient.Primary){
-                        pcs.firePropertyChange(PropertyChangeNames.StationsListReturned.getName(), null, stations);
-                        }
-                        else{
-                           pcs.firePropertyChange(PropertyChangeNames.SecondaryStationsListReturned.getName(), null, stations); 
+                        if (primaryOrSecondaryClient == EnumPrimarySecodaryClient.Primary) {
+                            pcs.firePropertyChange(PropertyChangeNames.StationsListReturned.getName(), null, stations);
+                        } else {
+                            pcs.firePropertyChange(PropertyChangeNames.SecondaryStationsListReturned.getName(), null, stations);
                         }
                     } else {
                         pcs.firePropertyChange(PropertyChangeNames.ErrorResponse.getName(), null, resp);
@@ -369,7 +368,12 @@ public class TeslaAPIModel extends java.util.Observable {
                     if (resp.responseCode == 200) {
                         List<DatapointListItem> pointsList = (List<DatapointListItem>) resp.responseObject;
 
-                        pcs.firePropertyChange(PropertyChangeNames.DatapointsReturned.getName(), null, pointsList);
+                        if (primaryOrSecondaryClient == EnumPrimarySecodaryClient.Primary) {
+
+                            pcs.firePropertyChange(PropertyChangeNames.DatapointsReturned.getName(), null, pointsList);
+                        } else {
+                            pcs.firePropertyChange(PropertyChangeNames.SecondaryDatapointsReturned.getName(), null, pointsList);
+                        }
                     } else {
                         pcs.firePropertyChange(PropertyChangeNames.ErrorResponse.getName(), null, resp);
                     }
@@ -1017,8 +1021,8 @@ public class TeslaAPIModel extends java.util.Observable {
 
             HistoryRequest historyRequest = new HistoryRequest(fromIDs, pushStartTime, pushEndTime, fiveMinuteString, stationTimeZone);
             OEResponse results;
-            
-            if( usePrimaryOrSecondaryClientForHistoryPull == EnumPrimarySecodaryClient.Primary ){
+
+            if (usePrimaryOrSecondaryClientForHistoryPull == EnumPrimarySecodaryClient.Primary) {
                 results = primaryStationClient.getHistory(historyRequest);
 
                 if (results.responseCode == 401) {
@@ -1035,16 +1039,15 @@ public class TeslaAPIModel extends java.util.Observable {
                         results = primaryStationClient.getHistory(historyRequest);
                     }
                 }
-            }
-            else{
-                
+            } else {
+
                 results = secondaryStationClient.getHistory(historyRequest);
 
                 if (results.responseCode == 401) {
                     System.out.println("getting a new primary token. was:");
                     System.out.println(secondaryRestClient.getOAuthToken());
                     OEResponse resp = secondaryLoginClient.login(secondaryBaseURL);
-                    
+
                     if (resp.responseCode == 200) {
                         LoginResponse loginResponse = (LoginResponse) resp.responseObject;
                         String newToken = loginResponse.getAccessToken();
@@ -1054,7 +1057,7 @@ public class TeslaAPIModel extends java.util.Observable {
                         results = secondaryStationClient.getHistory(historyRequest);
                     }
                 }
-                
+
             }
 
             if (results.responseCode != 200) {
@@ -1081,7 +1084,7 @@ public class TeslaAPIModel extends java.util.Observable {
 
                 //OEResponse resp = loginClient.login(this.baseURL);
                 OEResponse resp = primaryLoginClient.login(secondaryBaseURL);
-                
+
                 if (resp.responseCode == 200) {
                     LoginResponse loginResponse = (LoginResponse) resp.responseObject;
                     String newToken = loginResponse.getAccessToken();

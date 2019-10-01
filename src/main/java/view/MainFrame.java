@@ -38,7 +38,7 @@ import view.StationsTable.EnumStationsTableColumns;
 import view.StationsTable.StationsTableCellRenderer;
 import view.StationsTable.StationsTableModel;
 
-public class MainFrame extends javax.swing.JFrame {
+public final class MainFrame extends javax.swing.JFrame {
 
     private Controller controller;
 
@@ -54,15 +54,10 @@ public class MainFrame extends javax.swing.JFrame {
 
         SpinnerNumberModel spinModel = new SpinnerNumberModel(5, 5, 20, 1);
         this.jSpinnerPollInterval.setModel(spinModel);
-
         selectedStation = null;
         selectedStationInfo = null;
-
         selectedBaseURL = EnumBaseURLs.Prod;
-
         setLoggedInInfo(false, null);
-        //subscribedPoints = new ArrayList<>();
-        //current_datapointList = new ArrayList<>();
     }
 
     public void setController(Controller controller) {
@@ -117,9 +112,7 @@ public class MainFrame extends javax.swing.JFrame {
     public void fillAPIHosts() {
         ComboBoxModel comboBoxModel = new DefaultComboBoxModel(EnumBaseURLs.getURLs().toArray());
         this.jComboBoxBaseURLs.setModel(comboBoxModel);
-
         this.jComboBoxBaseURLs.setSelectedItem(selectedBaseURL.getURL());
-
         this.jComboBoxBaseURLs.addActionListener(new ActionListener() {
 
             @Override
@@ -655,7 +648,7 @@ public class MainFrame extends javax.swing.JFrame {
             killLivePollingTimer();
             this.jTogglePollForLiveData.setSelected(false);
 
-            HistoryFrame frame = HistoryFrame.getInstance(controller, selectedStation);
+            HistoryFrame frame = HistoryFrame.getInstance(controller, selectedStationInfo);
             controller.addModelListener(frame);
             frame.pack();
             frame.setLocationRelativeTo(this);

@@ -35,6 +35,9 @@ public class TTTDataPointUpsertRequest {
                     Boolean tempBool = (Boolean) val;
                     val = (tempBool) ? 1.0 : 0.0;
                 }
+                else if (val instanceof String ){
+                    System.out.println( "value is string: " + (String)val);
+                }
 
                 TeslaDataPointUpsert dpUpsert = new TeslaDataPointUpsert(
                         fromIDToToIDMap.get(historyPoint.getId()),

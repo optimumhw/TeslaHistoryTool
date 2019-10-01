@@ -9,7 +9,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,7 +27,9 @@ import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
+import model.DataPoints.Datapoint;
 import model.DataPoints.EnumResolutions;
+import model.DataPoints.Equipment;
 import model.DataPoints.HistoryQueryResults;
 import model.DataPoints.HistoryRequest;
 import model.DataPoints.LiveDatapoint;
@@ -33,6 +37,7 @@ import model.DataPoints.StationInfo;
 import model.DatapointList.DatapointListItem;
 import model.EnumPrimarySecodaryClient;
 import model.PropertyChangeNames;
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -59,6 +64,8 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
     private final Controller controller;
     private final StationInfo selectedStation;
     private List<DatapointListItem> datapointsList;
+    private final Map<String, String> dpNameToCalcMap;
+    private DatapointListItem selectedDataPoint;
 
     private HistoryQueryResults history;
     private Statistics historyStats;
@@ -92,11 +99,13 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
     private HistoryFrame(Controller controller, StationInfo selectedStation) {
         initComponents();
-        
-        this.setTitle( selectedStation.getName() + " History");
+
+        this.setTitle(selectedStation.getName() + " History");
 
         this.controller = controller;
         this.selectedStation = selectedStation;
+
+        this.dpNameToCalcMap = getCalculationMap();
 
         queryPeriod = EnumQueryPeriods.LAST_30_DAYS;
         selectedMonth = EnumMonths.Jan;
@@ -314,6 +323,53 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
     }
 
+    public Map<String, String> getCalculationMap() {
+
+        Map<String, String> idToDatapointMap = new HashMap<>();
+
+        for (Datapoint dp : selectedStation.getDatapoints()) {
+            idToDatapointMap.put(dp.getId(), dp.getCalculation());
+        }
+
+        for (Equipment eq : selectedStation.getequipments()) {
+            for (Datapoint dp : eq.getDatapoints()) {
+                idToDatapointMap.put(dp.getId(), dp.getCalculation());
+            }
+        }
+
+        return idToDatapointMap;
+    }
+
+    public List<String> getPointNamesFromCalc(String calc) {
+        List<String> depPointNames = new ArrayList<>();
+
+        String[] pointNames = StringUtils.split(calc, "[ <>()+/-*:?]");
+        
+        
+        
+        for (String pn : pointNames) {
+            if (pn.contentEquals("avg")) {
+                continue;
+            }
+            if (pn.contentEquals("and")) {
+                continue;
+            }
+            if (pn.contentEquals("not")) {
+                continue;
+            }
+            if (pn.contentEquals("or")) {
+                continue;
+            }
+            if (pn.contentEquals("avg")) {
+                continue;
+            }
+
+            depPointNames.add(pn);
+        }
+
+        return depPointNames;
+    }
+
     public void fillDataPointsListTable(String filter) {
 
         List<DatapointListItem> filteredList = new ArrayList<>();
@@ -478,6 +534,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         jPanel6 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         jTextAreaCalculation = new javax.swing.JTextArea();
+        jButtonSelectDepPoints = new javax.swing.JButton();
 
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
         jPanel9.setLayout(jPanel9Layout);
@@ -888,17 +945,29 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         jTextAreaCalculation.setRows(5);
         jScrollPane3.setViewportView(jTextAreaCalculation);
 
+        jButtonSelectDepPoints.setText("Select Points");
+        jButtonSelectDepPoints.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonSelectDepPointsActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 465, Short.MAX_VALUE)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 465, Short.MAX_VALUE)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jButtonSelectDepPoints))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 171, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButtonSelectDepPoints)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -920,7 +989,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                 .addContainerGap()
                 .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 630, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 604, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -967,9 +1036,13 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         int row = jTableDataPointsList.rowAtPoint(evt.getPoint());
         int modelIndex = jTableDataPointsList.convertRowIndexToModel(row);
         DataPointsListTableModel mod = (DataPointsListTableModel) jTableDataPointsList.getModel();
-        DatapointListItem dataPoint = mod.getRow(modelIndex);
+        selectedDataPoint = mod.getRow(modelIndex);
 
-        this.jTextAreaCalculation.setText(dataPoint.getCalculation());
+        //this.jTextAreaCalculation.setText(dataPoint.getCalculation());
+        String calc = dpNameToCalcMap.get(selectedDataPoint.getId());
+        this.jTextAreaCalculation.setText(calc);
+        this.jButtonSelectDepPoints.setEnabled(calc.length() > 0);
+
 
     }//GEN-LAST:event_jTableDataPointsListMousePressed
 
@@ -1140,6 +1213,25 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         setUTCLabels();
     }//GEN-LAST:event_jTextFieldEndDateActionPerformed
 
+    private void jButtonSelectDepPointsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSelectDepPointsActionPerformed
+        String calc = dpNameToCalcMap.get(selectedDataPoint.getId());
+        if (calc.length() > 0) {
+            List<String> depPoints = getPointNamesFromCalc(calc);
+            DataPointsListTableModel tableModel = (DataPointsListTableModel) (jTableDataPointsList.getModel());
+            int rowCount = jTableDataPointsList.getRowCount();
+            for (int i = 0; i < rowCount; i++) {
+                int modelRowNumber = jTableDataPointsList.convertRowIndexToModel(i);
+                DatapointListItem teslaPoint = tableModel.getRow(modelRowNumber);
+
+                for (String name : depPoints) {
+                    if (teslaPoint.getShortName().contentEquals(name)) {
+                        jTableDataPointsList.addRowSelectionInterval(i, i);
+                    }
+                }
+            }
+        }
+    }//GEN-LAST:event_jButtonSelectDepPointsActionPerformed
+
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         String propName = evt.getPropertyName();
@@ -1181,6 +1273,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
     private javax.swing.JButton jButtonPushE3OSData;
     private javax.swing.JButton jButtonPushFromTesla;
     private javax.swing.JButton jButtonRunQuery;
+    private javax.swing.JButton jButtonSelectDepPoints;
     private javax.swing.JButton jButtonSpecialSelect;
     private javax.swing.JCheckBox jCheckBoxRegEx;
     private javax.swing.JComboBox<String> jComboBoxMonthPicker;

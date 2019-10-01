@@ -740,7 +740,7 @@ public final class PushFromTeslaFrame extends javax.swing.JFrame implements Prop
             fromStationInfoList = (List<StationInfo>) evt.getNewValue();
             fillStationsTable();
 
-        } else if (propName.equals(PropertyChangeNames.DatapointsReturned.getName())) {
+        } else if (propName.equals(PropertyChangeNames.SecondaryDatapointsReturned.getName())) {
             fromStationDatapointList = (List<DatapointListItem>) evt.getNewValue();
             createMappingsTable();
             fillMappingsTable(this.filter);

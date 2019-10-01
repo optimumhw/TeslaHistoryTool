@@ -10,6 +10,7 @@ public enum PropertyChangeNames {
     SecondaryStationsListReturned("SecondaryStationsListReturned"),
     StationInfoRetrieved("StationInfoRetrieved"),
     DatapointsReturned("DatapointsReturned"),
+    SecondaryDatapointsReturned("SecondaryDatapointsReturned"),
     StationInfoAndSubFlagRetrieved("DatapointsAndSubFlagRetrieved"),
     LiveDataReturned("LiveDataReturned"),
     HistoryReturned("HistoryReturned"),
