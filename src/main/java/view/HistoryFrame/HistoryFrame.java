@@ -344,9 +344,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         List<String> depPointNames = new ArrayList<>();
 
         String[] pointNames = StringUtils.split(calc, "[ <>()+/-*:?]");
-        
-        
-        
+
         for (String pn : pointNames) {
             if (pn.contentEquals("avg")) {
                 continue;
@@ -509,6 +507,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         jLabel7 = new javax.swing.JLabel();
         jComboBoxMonthPicker = new javax.swing.JComboBox<>();
         jComboBoxYears = new javax.swing.JComboBox<>();
+        jButtonSplitQuery = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jSpinnerPrec = new javax.swing.JSpinner();
         jLabel5 = new javax.swing.JLabel();
@@ -608,6 +607,13 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
         jComboBoxYears.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
+        jButtonSplitQuery.setText("Split Query");
+        jButtonSplitQuery.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonSplitQueryActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -616,38 +622,42 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel1)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addComponent(jLabel1)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jTextFieldStartDate, javax.swing.GroupLayout.PREFERRED_SIZE, 267, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addComponent(jLabel2)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jTextFieldEndDate)))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jTextFieldStartDate, javax.swing.GroupLayout.PREFERRED_SIZE, 267, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jLabelutcStart, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jLabelutcEnd, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel2)
+                                .addComponent(jLabel6)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jTextFieldEndDate)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabelutcStart, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabelutcEnd, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel6)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jComboBoxQueryPeriods, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel7)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jComboBoxMonthPicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jComboBoxYears, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabelTimeZone)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jButtonRunQuery)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jComboBoxQueryPeriods, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel7)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jComboBoxMonthPicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jComboBoxYears, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabelTimeZone)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jComboBoxResolutions, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jComboBoxResolutions, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jButtonRunQuery)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonSplitQuery)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -670,7 +680,9 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
-                        .addComponent(jButtonRunQuery)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jButtonRunQuery)
+                            .addComponent(jButtonSplitQuery))
                         .addContainerGap())
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1070,6 +1082,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
             DateTime queryEnd = DateTime.parse(jTextFieldEndDate.getText(), zzFormat).withZone(zone);
 
             if (!resolution.contentEquals(fiveMinuteString)) {
+
                 HistoryRequest hr = new HistoryRequest(listOfTeslaPointIDs, queryStart, queryEnd, resolution, selectedStation.getTimeZone());
                 controller.getHistory(hr);
                 return;
@@ -1232,6 +1245,41 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         }
     }//GEN-LAST:event_jButtonSelectDepPointsActionPerformed
 
+    private void jButtonSplitQueryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSplitQueryActionPerformed
+
+        clearHistoryTable();
+        clearHistoryStatsTable();
+
+        if (jTableDataPointsList.getSelectedRowCount() > 0) {
+            List<String> listOfTeslaPointIDs = new ArrayList<>();
+            List<DatapointListItem> listOfTeslaPoints = new ArrayList<>();
+            DataPointsListTableModel tableModel = (DataPointsListTableModel) (jTableDataPointsList.getModel());
+            int[] selectedRowNumbers = jTableDataPointsList.getSelectedRows();
+            for (int selectedRowNumber : selectedRowNumbers) {
+                int modelRowNumber = jTableDataPointsList.convertRowIndexToModel(selectedRowNumber);
+                DatapointListItem teslaPoint = tableModel.getRow(modelRowNumber);
+                listOfTeslaPoints.add(teslaPoint);
+                listOfTeslaPointIDs.add(teslaPoint.getId());
+            }
+
+            String resolution = (String) (this.jComboBoxResolutions.getSelectedItem());
+
+            DateTimeZone zone = DateTimeZone.forID(selectedStation.getTimeZone());
+            DateTime queryStart = DateTime.parse(jTextFieldStartDate.getText(), zzFormat).withZone(zone);
+            DateTime queryEnd = DateTime.parse(jTextFieldEndDate.getText(), zzFormat).withZone(zone);
+
+            controller.getHistoryInFrames(
+                    listOfTeslaPoints,
+                    queryStart,
+                    queryEnd,
+                    resolution,
+                    selectedStation.getTimeZone(),
+                    24 * 30,
+                    50);
+
+        }
+    }//GEN-LAST:event_jButtonSplitQueryActionPerformed
+
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         String propName = evt.getPropertyName();
@@ -1275,6 +1323,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
     private javax.swing.JButton jButtonRunQuery;
     private javax.swing.JButton jButtonSelectDepPoints;
     private javax.swing.JButton jButtonSpecialSelect;
+    private javax.swing.JButton jButtonSplitQuery;
     private javax.swing.JCheckBox jCheckBoxRegEx;
     private javax.swing.JComboBox<String> jComboBoxMonthPicker;
     private javax.swing.JComboBox<String> jComboBoxQueryPeriods;

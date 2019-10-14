@@ -500,6 +500,106 @@ public class TeslaAPIModel extends java.util.Observable {
         worker.execute();
     }
 
+    public void getHistoryInFrames(
+            final List<DatapointListItem> listOfTeslaPoints,
+            final DateTime startAt,
+            final DateTime endAt,
+            final String resolution,
+            final String timeZone,
+            final int maxHours,
+            final int maxPoints) {
+
+        SwingWorker worker = new SwingWorker< OEResponse, Void>() {
+
+            @Override
+            public OEResponse doInBackground() throws IOException {
+
+                HistoryQueryResults masterResults = new HistoryQueryResults(true, listOfTeslaPoints);
+
+                DateTime frameStart = startAt;
+
+                while (frameStart.isBefore(endAt)) {
+
+                    DateTime frameEnd = frameStart.plusHours(maxHours);
+                    if (frameEnd.isAfter(endAt)) {
+                        frameEnd = endAt;
+                    }
+
+                    for (int pointIndexStart = 0; pointIndexStart < listOfTeslaPoints.size(); pointIndexStart += maxPoints) {
+                        int pointIndexEnd = Math.min(pointIndexStart + maxPoints, listOfTeslaPoints.size());
+                        List<DatapointListItem> framePoints = listOfTeslaPoints.subList(pointIndexStart, pointIndexEnd);
+
+                        List<String> framePointIDs = new ArrayList<>();
+                        for (DatapointListItem tdp : framePoints) {
+                            framePointIDs.add(tdp.getId());
+                        }
+
+                        HistoryRequest hr = new HistoryRequest(framePointIDs, frameStart, frameEnd, resolution, timeZone);
+
+                        OEResponse historyQueryResponse = primaryStationClient.getHistory(hr);
+
+                        if (historyQueryResponse.responseCode == 401) {
+                            System.out.println("getting a new token. was:");
+                            System.out.println(primaryRestClient.getOAuthToken());
+
+                            OEResponse resp = primaryLoginClient.login(primaryBaseURL);
+
+                            if (resp.responseCode == 200) {
+                                LoginResponse loginResponse = (LoginResponse) resp.responseObject;
+                                String newToken = loginResponse.getAccessToken();
+                                primaryRestClient.setOauthToken(newToken);
+
+                                System.out.println("new token is:");
+                                System.out.println(primaryRestClient.getOAuthToken());
+
+                                historyQueryResponse = primaryStationClient.getHistory(hr);
+                            }
+
+                        }
+
+                        if (historyQueryResponse.responseCode == 200) {
+                            HistoryQueryResults history = new HistoryQueryResults((List<LiveDatapoint>) historyQueryResponse.responseObject);
+                            masterResults.appendFrame(history);
+                        }
+
+                    }
+
+                    frameStart = frameStart.plusHours(24);
+
+                }
+
+                OEResponse historyInFramesResp = new OEResponse();
+
+                historyInFramesResp.responseCode = 200;
+                historyInFramesResp.responseObject = masterResults;
+
+                return historyInFramesResp;
+
+            }
+
+            @Override
+            public void done() {
+                try {
+                    OEResponse resp = get();
+
+                    if (resp.responseCode == 200) {
+                        HistoryQueryResults historyResults = (HistoryQueryResults) resp.responseObject;
+
+                        pcs.firePropertyChange(PropertyChangeNames.HistoryReturned.getName(), null, historyResults);
+                    } else {
+                        pcs.firePropertyChange(PropertyChangeNames.ErrorResponse.getName(), null, resp);
+                    }
+                    pcs.firePropertyChange(PropertyChangeNames.RequestResponseChanged.getName(), null, getRRS());
+
+                } catch (Exception ex) {
+                    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+                    logger.error(this.getClass().getName(), ex);
+                }
+            }
+        };
+        worker.execute();
+    }
+
     public void getHistory(final HistoryRequest historyRequest) {
 
         SwingWorker worker = new SwingWorker< OEResponse, Void>() {

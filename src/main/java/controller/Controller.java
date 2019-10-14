@@ -10,6 +10,7 @@ import model.DataPoints.HistoryQueryResults;
 import model.DataPoints.HistoryRequest;
 import model.DataPoints.LiveDatapoint;
 import model.DataPoints.StationInfo;
+import model.DatapointList.DatapointListItem;
 import model.EnumBaseURLs;
 import model.EnumPrimarySecodaryClient;
 import model.LoadFromE3OS.MappingTableRow;
@@ -59,15 +60,15 @@ public class Controller implements java.awt.event.ActionListener, PropertyChange
         this.view = view;
     }
 
-    public void initModel(){
+    public void initModel() {
         model.initModel();
     }
-    
-    public void login(EnumBaseURLs baseUrl ){
+
+    public void login(EnumBaseURLs baseUrl) {
         model.primaryLogin(baseUrl);
     }
-    
-    public void fromLogin( EnumBaseURLs baseUrl){
+
+    public void fromLogin(EnumBaseURLs baseUrl) {
         model.secondaryLogin(baseUrl);
     }
 
@@ -94,18 +95,29 @@ public class Controller implements java.awt.event.ActionListener, PropertyChange
     public void getHistory(final HistoryRequest historyRequest) {
         model.getHistory(historyRequest);
     }
-    
+
+    public void getHistoryInFrames(
+            List<DatapointListItem> listOfTeslaPoints,
+            DateTime startAt,
+            DateTime endAt,
+            String resolution,
+            String timeZone,
+            int maxHours,
+            int maxPoints) {
+        model.getHistoryInFrames(listOfTeslaPoints, startAt, endAt, resolution, timeZone, maxHours, maxPoints);
+    }
+
     public void getComboHistory(final HistoryRequest fiveMinuteRequest, final HistoryRequest hourRequest) {
         model.getComboHistory(fiveMinuteRequest, hourRequest);
     }
-    
+
     public void getE3OSSites() {
         model.getE3OSSites();
     }
-    
-     public void getE3OSDatapoints(final String stationID) {
-         model.getE3OSDatapoints(stationID);
-     }
+
+    public void getE3OSDatapoints(final String stationID) {
+        model.getE3OSDatapoints(stationID);
+    }
 
     public void pullFromE3OSPushToTesla(
             final DateTime pushStartTime,
@@ -115,8 +127,7 @@ public class Controller implements java.awt.event.ActionListener, PropertyChange
             final int maxPointsPerPush) {
         model.pullFromE3OSPushToTesla(pushStartTime, pushEndTime, mappedRows, maxHoursPerPush, maxPointsPerPush);
     }
-    
-    
+
     public void pullFromTeslsPushToTesla(
             EnumPrimarySecodaryClient fromTo,
             DateTime pushStartTime,
@@ -124,11 +135,11 @@ public class Controller implements java.awt.event.ActionListener, PropertyChange
             List<TTTTableRow> mappedRows,
             int maxHoursPerPush,
             int maxPointsPerPush,
-            String stationTimeZone){
+            String stationTimeZone) {
         model.pullFromTeslsPushToTesla(fromTo, pushStartTime, pushEndTime, mappedRows, maxHoursPerPush, maxPointsPerPush, stationTimeZone);
     }
-    
-    public void createCSV( String filePath,  HistoryQueryResults history){
+
+    public void createCSV(String filePath, HistoryQueryResults history) {
         model.createCSV(filePath, history);
     }
 
