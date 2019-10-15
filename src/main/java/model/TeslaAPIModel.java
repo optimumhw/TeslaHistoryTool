@@ -517,6 +517,8 @@ public class TeslaAPIModel extends java.util.Observable {
                 HistoryQueryResults masterResults = new HistoryQueryResults(true, listOfTeslaPoints);
 
                 DateTime frameStart = startAt;
+                
+                int countOfFramesProcessed = 0;
 
                 while (frameStart.isBefore(endAt)) {
 
@@ -558,13 +560,18 @@ public class TeslaAPIModel extends java.util.Observable {
                         }
 
                         if (historyQueryResponse.responseCode == 200) {
+                            countOfFramesProcessed++;
+                            pcs.firePropertyChange(PropertyChangeNames.FrameProcessed.getName(), null, countOfFramesProcessed);
                             HistoryQueryResults history = new HistoryQueryResults((List<LiveDatapoint>) historyQueryResponse.responseObject);
                             masterResults.appendFrame(history);
                         }
-
+                        else {
+                            pcs.firePropertyChange(PropertyChangeNames.FrameError.getName(), null, historyQueryResponse.responseCode);
+                            return historyQueryResponse;
+                        }
                     }
 
-                    frameStart = frameStart.plusHours(24);
+                    frameStart = frameStart.plusHours(maxHours);
 
                 }
 
@@ -584,8 +591,7 @@ public class TeslaAPIModel extends java.util.Observable {
 
                     if (resp.responseCode == 200) {
                         HistoryQueryResults historyResults = (HistoryQueryResults) resp.responseObject;
-
-                        pcs.firePropertyChange(PropertyChangeNames.HistoryReturned.getName(), null, historyResults);
+                        pcs.firePropertyChange(PropertyChangeNames.FramesCompleted.getName(), null, historyResults);
                     } else {
                         pcs.firePropertyChange(PropertyChangeNames.ErrorResponse.getName(), null, resp);
                     }
