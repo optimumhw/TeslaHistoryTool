@@ -1,6 +1,7 @@
 package view.HistoryFrame;
 
 import controller.Controller;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -87,7 +88,9 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
     private String filter = "";
 
-    private Timer timer = null;
+    private Timer lapsedTimeTimer = null;
+    private int totalFramesToPush = 0;
+    private int completedFrames = 0;
 
     private final String fiveMinuteString = "fiveMinute";
 
@@ -489,7 +492,6 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
     private void initComponents() {
 
         jPanel9 = new javax.swing.JPanel();
-        jButtonClose = new javax.swing.JButton();
         jSplitPane1 = new javax.swing.JSplitPane();
         jPanel3 = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
@@ -539,6 +541,11 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         jScrollPane3 = new javax.swing.JScrollPane();
         jTextAreaCalculation = new javax.swing.JTextArea();
         jButtonSelectDepPoints = new javax.swing.JButton();
+        jPanel11 = new javax.swing.JPanel();
+        jButtonClose = new javax.swing.JButton();
+        jProgressBar = new javax.swing.JProgressBar();
+        jLabelQueryStatus = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
 
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
         jPanel9.setLayout(jPanel9Layout);
@@ -553,13 +560,6 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("History");
-
-        jButtonClose.setText("Close");
-        jButtonClose.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonCloseActionPerformed(evt);
-            }
-        });
 
         jSplitPane1.setDividerLocation(800);
 
@@ -668,14 +668,14 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                         .addComponent(jComboBoxResolutions, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addComponent(jButtonRunQuery)
-                        .addGap(346, 346, 346)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel9)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextFieldNumDays)
+                        .addComponent(jTextFieldNumDays, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel8)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextFieldNumPoints, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jTextFieldNumPoints, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButtonSplitQuery)))
                 .addContainerGap())
@@ -760,7 +760,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 501, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -988,7 +988,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 465, Short.MAX_VALUE)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 450, Short.MAX_VALUE)
             .addGroup(jPanel6Layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
                 .addComponent(jButtonSelectDepPoints))
@@ -1021,7 +1021,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                 .addContainerGap()
                 .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 604, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 431, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -1029,16 +1029,56 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
         jSplitPane1.setRightComponent(jPanel4);
 
+        jPanel11.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+
+        jButtonClose.setText("Close");
+        jButtonClose.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonCloseActionPerformed(evt);
+            }
+        });
+
+        jLabelQueryStatus.setText("Status");
+
+        jLabel11.setText("Query Progress:");
+
+        javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
+        jPanel11.setLayout(jPanel11Layout);
+        jPanel11Layout.setHorizontalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel11)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabelQueryStatus)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButtonClose)
+                .addContainerGap())
+        );
+        jPanel11Layout.setVerticalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel11)
+                    .addComponent(jProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabelQueryStatus)
+                        .addComponent(jButtonClose))))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jSplitPane1)
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButtonClose))
-                    .addComponent(jSplitPane1))
+                        .addContainerGap()
+                        .addComponent(jPanel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -1047,8 +1087,8 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                 .addContainerGap()
                 .addComponent(jSplitPane1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButtonClose)
-                .addContainerGap())
+                .addComponent(jPanel11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12))
         );
 
         pack();
@@ -1271,6 +1311,13 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
         clearHistoryTable();
         clearHistoryStatsTable();
+        
+        jProgressBar.setMaximum(100);
+        jProgressBar.setValue(0);
+        jProgressBar.setStringPainted(true);
+        
+        totalFramesToPush = 0;
+        completedFrames = 0;
 
         if (jTableDataPointsList.getSelectedRowCount() > 0) {
             List<String> listOfTeslaPointIDs = new ArrayList<>();
@@ -1303,7 +1350,10 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                 numFrameColumns++;
             }
             
-            int numFrames = numFrameRows * numFrameColumns;
+            totalFramesToPush = numFrameRows * numFrameColumns;
+            
+            
+            
 
             controller.getHistoryInFrames(
                     listOfTeslaPoints,
@@ -1339,6 +1389,13 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         if (propName.equals(PropertyChangeNames.FrameProcessed.getName())) {
             int count = (int) evt.getNewValue();
             System.out.println("frame " + count + " processed ");
+            
+            double percComplete = (double) count / (double) totalFramesToPush;
+            percComplete *= 100;
+
+            int frameCompletePerc = (int) percComplete;
+
+            jProgressBar.setValue(Math.min(frameCompletePerc, jProgressBar.getMaximum()));
         }
 
         if (propName.equals(PropertyChangeNames.FramesCompleted.getName())) {
@@ -1348,6 +1405,10 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
             fillHistoryTable(prec);
             historyStats = new Statistics(history);
             fillHistoryStatsTable(prec);
+            
+            jProgressBar.setBackground(Color.GREEN);
+            jProgressBar.invalidate();
+            jProgressBar.repaint();
         }
 
         if (propName.equals(PropertyChangeNames.CSVCreated.getName())) {
@@ -1382,6 +1443,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
     private javax.swing.JComboBox<String> jComboBoxResolutions;
     private javax.swing.JComboBox<String> jComboBoxYears;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -1390,11 +1452,13 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JLabel jLabelQueryStatus;
     private javax.swing.JLabel jLabelTimeZone;
     private javax.swing.JLabel jLabelutcEnd;
     private javax.swing.JLabel jLabelutcStart;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
+    private javax.swing.JPanel jPanel11;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -1403,6 +1467,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
+    private javax.swing.JProgressBar jProgressBar;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
