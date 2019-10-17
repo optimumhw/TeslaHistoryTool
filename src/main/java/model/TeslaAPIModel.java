@@ -514,10 +514,12 @@ public class TeslaAPIModel extends java.util.Observable {
             @Override
             public OEResponse doInBackground() throws IOException {
 
+                final String fiveMinuteString = "fiveMinute";
+
                 HistoryQueryResults masterResults = new HistoryQueryResults(true, listOfTeslaPoints);
 
                 DateTime frameStart = startAt;
-                
+
                 int countOfFramesProcessed = 0;
 
                 while (frameStart.isBefore(endAt)) {
@@ -526,21 +528,25 @@ public class TeslaAPIModel extends java.util.Observable {
                     if (frameEnd.isAfter(endAt)) {
                         frameEnd = endAt;
                     }
+                    
+                    
+                    OEResponse historyQueryResponse = null;
 
                     for (int pointIndexStart = 0; pointIndexStart < listOfTeslaPoints.size(); pointIndexStart += maxPoints) {
                         int pointIndexEnd = Math.min(pointIndexStart + maxPoints, listOfTeslaPoints.size());
                         List<DatapointListItem> framePoints = listOfTeslaPoints.subList(pointIndexStart, pointIndexEnd);
 
-                        List<String> framePointIDs = new ArrayList<>();
-                        for (DatapointListItem tdp : framePoints) {
-                            framePointIDs.add(tdp.getId());
-                        }
+                        if (!resolution.contentEquals(fiveMinuteString)) {
 
-                        HistoryRequest hr = new HistoryRequest(framePointIDs, frameStart, frameEnd, resolution, timeZone);
+                            List<String> framePointIDs = new ArrayList<>();
+                            for (DatapointListItem tdp : framePoints) {
+                                framePointIDs.add(tdp.getId());
+                            }
 
-                        OEResponse historyQueryResponse = primaryStationClient.getHistory(hr);
-
-                        if (historyQueryResponse.responseCode == 401) {
+                            HistoryRequest hr = new HistoryRequest(framePointIDs, frameStart, frameEnd, resolution, timeZone);
+                            historyQueryResponse = primaryStationClient.getHistory(hr);
+                            
+                            if (historyQueryResponse.responseCode == 401) {
                             System.out.println("getting a new token. was:");
                             System.out.println(primaryRestClient.getOAuthToken());
 
@@ -559,13 +565,99 @@ public class TeslaAPIModel extends java.util.Observable {
 
                         }
 
+                        } else {
+
+                            List<String> listOfFiveMinutePointIDs = new ArrayList<>();
+                            List<String> listOfHourlyPointIDs = new ArrayList<>();
+
+                            for (DatapointListItem teslaPoint : framePoints) {
+                                String minRes = teslaPoint.getMinimumResolution();
+                                if (minRes.contentEquals(fiveMinuteString)) {
+                                    listOfFiveMinutePointIDs.add(teslaPoint.getId());
+                                } else {
+                                    listOfHourlyPointIDs.add(teslaPoint.getId());
+                                }
+                            }
+
+                            HistoryRequest fiveMinuteRequest = new HistoryRequest(listOfFiveMinutePointIDs, frameStart, frameEnd, resolution, timeZone);
+                            HistoryRequest hourRequest = new HistoryRequest(listOfHourlyPointIDs, frameStart, frameEnd, "hour", timeZone);
+
+                            OEResponse fiveMinResponse  = null;
+                            OEResponse hourResponse  = null;
+                            
+                            HistoryQueryResults fiveMinuteResults = null;
+                            HistoryQueryResults hourResults = null;
+
+                            if (fiveMinuteRequest.getIds().size() > 0) {
+                                fiveMinResponse = primaryStationClient.getHistory(fiveMinuteRequest);
+
+                                if (fiveMinResponse.responseCode == 401) {
+                                    System.out.println("getting a new token. was:");
+                                    System.out.println(primaryRestClient.getOAuthToken());
+
+                                    OEResponse resp = primaryLoginClient.login(primaryBaseURL);
+
+                                    if (resp.responseCode == 200) {
+                                        LoginResponse loginResponse = (LoginResponse) resp.responseObject;
+                                        String newToken = loginResponse.getAccessToken();
+                                        primaryRestClient.setOauthToken(newToken);
+
+                                        System.out.println("new token is:");
+                                        System.out.println(primaryRestClient.getOAuthToken());
+
+                                        fiveMinResponse = primaryStationClient.getHistory(fiveMinuteRequest);
+                                    }
+
+                                }
+
+                                if (fiveMinResponse.responseCode == 200) {
+                                    fiveMinuteResults = new HistoryQueryResults((List<LiveDatapoint>) fiveMinResponse.responseObject);
+                                }
+                            }
+
+                            if (hourRequest.getIds().size() > 0) {
+                                hourResponse = primaryStationClient.getHistory(hourRequest);
+
+                                if (hourResponse.responseCode == 401) {
+                                    System.out.println("getting a new token. was:");
+                                    System.out.println(primaryRestClient.getOAuthToken());
+
+                                    OEResponse resp = primaryLoginClient.login(primaryBaseURL);
+
+                                    if (resp.responseCode == 200) {
+                                        LoginResponse loginResponse = (LoginResponse) resp.responseObject;
+                                        String newToken = loginResponse.getAccessToken();
+                                        primaryRestClient.setOauthToken(newToken);
+
+                                        System.out.println("new token is:");
+                                        System.out.println(primaryRestClient.getOAuthToken());
+
+                                        hourResponse = primaryStationClient.getHistory(hourRequest);
+                                    }
+
+                                }
+
+                                if (hourResponse.responseCode == 200) {
+                                    hourResults = new HistoryQueryResults((List<LiveDatapoint>) hourResponse.responseObject);
+                                }
+                            }
+
+                            ComboHistories comboHistories = new ComboHistories(fiveMinuteResults, hourResults);
+                            HistoryQueryResults historyResults = new HistoryQueryResults(comboHistories);
+                            
+                            historyQueryResponse = new OEResponse();
+                            historyQueryResponse.responseCode = 200;
+                            historyQueryResponse.responseObject = historyResults;
+                            
+                        }
+
+
                         if (historyQueryResponse.responseCode == 200) {
                             countOfFramesProcessed++;
                             pcs.firePropertyChange(PropertyChangeNames.FrameProcessed.getName(), null, countOfFramesProcessed);
-                            HistoryQueryResults history = new HistoryQueryResults((List<LiveDatapoint>) historyQueryResponse.responseObject);
+                            HistoryQueryResults history = (HistoryQueryResults) historyQueryResponse.responseObject;
                             masterResults.appendFrame(history);
-                        }
-                        else {
+                        } else {
                             pcs.firePropertyChange(PropertyChangeNames.FrameError.getName(), null, historyQueryResponse.responseCode);
                             return historyQueryResponse;
                         }

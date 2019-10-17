@@ -1409,6 +1409,10 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
             jProgressBar.setBackground(Color.GREEN);
             jProgressBar.invalidate();
             jProgressBar.repaint();
+            
+            jProgressBar.setMaximum(100);
+            jProgressBar.setValue(0);
+            jProgressBar.setStringPainted(true);
         }
 
         if (propName.equals(PropertyChangeNames.CSVCreated.getName())) {
