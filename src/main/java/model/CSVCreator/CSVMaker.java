@@ -7,11 +7,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.DataPoints.HistoryQueryResults;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 public class CSVMaker {
 
     private final String filePath;
     private final HistoryQueryResults history;
+    
+    private final DateTimeFormatter xlsFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
 
     public CSVMaker(String filePath, HistoryQueryResults history) {
         this.filePath = filePath;
@@ -30,8 +34,10 @@ public class CSVMaker {
             writer.newLine();
 
             for (DateTime timeStamp : history.getTimestamps()) {
+                
+                String tsForSpreadheet = timeStamp.toString( xlsFormat );
 
-                writer.write(timeStamp.toString());
+                writer.write( tsForSpreadheet);
 
                 List<Object> values = history.getTimeStampToValuesArray().get(timeStamp);
 

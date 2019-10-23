@@ -483,7 +483,13 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
             "OAT",
             "OAWB",
             "TotalkW",
-            "TotalTon"
+            "TotalTon",
+            "PercentBASCommunicationFailure",
+            "PercentNotFollowing",
+            "PercentNotOptimized",
+            "PercentOptimized",
+            "PercentPlantOff",
+            "EDGEMODE"
         });
     }
 
