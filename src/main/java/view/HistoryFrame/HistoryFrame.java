@@ -489,7 +489,9 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
             "PercentNotOptimized",
             "PercentOptimized",
             "PercentPlantOff",
-            "EDGEMODE"
+            "EDGEMODE",
+            "ChillersRunning",
+            "FreeCooling"
         });
     }
 
