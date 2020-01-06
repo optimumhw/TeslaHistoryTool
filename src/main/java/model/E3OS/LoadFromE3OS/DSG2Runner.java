@@ -1,5 +1,5 @@
 
-package model.LoadFromE3OS;
+package model.E3OS.LoadFromE3OS;
 
 import com.microsoft.sqlserver.jdbc.SQLServerCallableStatement;
 import com.microsoft.sqlserver.jdbc.SQLServerDataTable;

@@ -4,8 +4,8 @@ package view.HistoryFrame.PushE3OSDataFrame.MappingTable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
-import model.LoadFromE3OS.EnumMapStatus;
-import model.LoadFromE3OS.MappingTableRow;
+import model.E3OS.LoadFromE3OS.EnumMapStatus;
+import model.E3OS.LoadFromE3OS.MappingTableRow;
 
 public class MappingTableModel extends AbstractTableModel {
 

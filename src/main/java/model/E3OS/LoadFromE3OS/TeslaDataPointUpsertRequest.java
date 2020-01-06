@@ -1,4 +1,4 @@
-package model.LoadFromE3OS;
+package model.E3OS.LoadFromE3OS;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;

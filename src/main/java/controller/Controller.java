@@ -13,7 +13,7 @@ import model.DataPoints.StationInfo;
 import model.DatapointList.DatapointListItem;
 import model.EnumBaseURLs;
 import model.EnumPrimarySecodaryClient;
-import model.LoadFromE3OS.MappingTableRow;
+import model.E3OS.LoadFromE3OS.MappingTableRow;
 import model.PropertyChangeNames;
 import model.RestClient.OEResponse;
 import model.RestClient.RequestsResponses;
@@ -141,6 +141,10 @@ public class Controller implements java.awt.event.ActionListener, PropertyChange
 
     public void createCSV(String filePath, HistoryQueryResults history) {
         model.createCSV(filePath, history);
+    }
+    
+    public void e3osLiveAuthenticate(){
+        model.e3osLiveAuthenticate();
     }
 
     @Override

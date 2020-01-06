@@ -1,4 +1,4 @@
-package model.LoadFromE3OS;
+package model.E3OS.LoadFromE3OS;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -2,7 +2,7 @@ package view.HistoryFrame.PushE3OSDataFrame.SitesTable;
 
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
-import model.LoadFromE3OS.E3OSStationRecord;
+import model.E3OS.LoadFromE3OS.E3OSStationRecord;
 
 public class E3OSSitesTableModel extends AbstractTableModel {
 

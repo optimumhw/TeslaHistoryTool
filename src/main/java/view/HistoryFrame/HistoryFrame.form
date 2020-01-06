@@ -177,6 +177,8 @@
                               </Group>
                               <Group type="102" alignment="1" attributes="0">
                                   <Component id="jButtonRunQuery" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="jButtonE3OSLiveAuth" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="32767" attributes="0"/>
                                   <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
@@ -231,6 +233,7 @@
                               <Component id="jButtonSplitQuery" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="jLabel8" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="jLabel9" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="jButtonE3OSLiveAuth" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="32767" attributes="0"/>
                       </Group>
@@ -389,6 +392,14 @@
                   <Properties>
                     <Property name="text" type="java.lang.String" value="#Days:"/>
                   </Properties>
+                </Component>
+                <Component class="javax.swing.JButton" name="jButtonE3OSLiveAuth">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="e3os Live"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonE3OSLiveAuthActionPerformed"/>
+                  </Events>
                 </Component>
               </SubComponents>
             </Container>

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import model.DataPoints.LiveDatapoint;
-import model.LoadFromE3OS.TeslaDataPointUpsert;
+import model.E3OS.LoadFromE3OS.TeslaDataPointUpsert;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 

@@ -523,6 +523,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         jTextFieldNumPoints = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
+        jButtonE3OSLiveAuth = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jSpinnerPrec = new javax.swing.JSpinner();
         jLabel5 = new javax.swing.JLabel();
@@ -635,6 +636,13 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
         jLabel9.setText("#Days:");
 
+        jButtonE3OSLiveAuth.setText("e3os Live");
+        jButtonE3OSLiveAuth.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonE3OSLiveAuthActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -676,6 +684,8 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                         .addComponent(jComboBoxResolutions, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addComponent(jButtonRunQuery)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonE3OSLiveAuth)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel9)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -720,7 +730,8 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                     .addComponent(jTextFieldNumPoints, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonSplitQuery)
                     .addComponent(jLabel8)
-                    .addComponent(jLabel9))
+                    .addComponent(jLabel9)
+                    .addComponent(jButtonE3OSLiveAuth))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -1375,6 +1386,10 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         }
     }//GEN-LAST:event_jButtonSplitQueryActionPerformed
 
+    private void jButtonE3OSLiveAuthActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonE3OSLiveAuthActionPerformed
+        controller.e3osLiveAuthenticate();
+    }//GEN-LAST:event_jButtonE3OSLiveAuthActionPerformed
+
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         String propName = evt.getPropertyName();
@@ -1442,6 +1457,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonChart;
     private javax.swing.JButton jButtonClose;
+    private javax.swing.JButton jButtonE3OSLiveAuth;
     private javax.swing.JButton jButtonMakeCSV;
     private javax.swing.JButton jButtonPushE3OSData;
     private javax.swing.JButton jButtonPushFromTesla;

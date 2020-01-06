@@ -19,15 +19,16 @@ import model.DataPoints.HistoryRequest;
 import model.DataPoints.LiveDatapoint;
 import model.DataPoints.StationInfo;
 import model.DatapointList.DatapointListItem;
-import model.LoadFromE3OS.DSG2QueryResultRecord;
-import model.LoadFromE3OS.DSG2Runner;
-import model.LoadFromE3OS.DataPointFromSql;
-import model.LoadFromE3OS.E3OSConnProperties;
-import model.LoadFromE3OS.E3OSStationRecord;
-import model.LoadFromE3OS.MappingTableRow;
-import model.LoadFromE3OS.PointsListQueryRunner;
-import model.LoadFromE3OS.SiteQuery;
-import model.LoadFromE3OS.TeslaDataPointUpsertRequest;
+import model.E3OS.LoadFromE3OS.DSG2QueryResultRecord;
+import model.E3OS.LoadFromE3OS.DSG2Runner;
+import model.E3OS.LoadFromE3OS.DataPointFromSql;
+import model.E3OS.LoadFromE3OS.E3OSConnProperties;
+import model.E3OS.LoadFromE3OS.E3OSStationRecord;
+import model.E3OS.LoadFromE3OS.MappingTableRow;
+import model.E3OS.LoadFromE3OS.PointsListQueryRunner;
+import model.E3OS.LoadFromE3OS.SiteQuery;
+import model.E3OS.LoadFromE3OS.TeslaDataPointUpsertRequest;
+import model.E3OS.E3OSClient;
 import model.RestClient.LoginClient;
 import model.RestClient.OEResponse;
 import model.RestClient.RequestsResponses;
@@ -52,6 +53,7 @@ public class TeslaAPIModel extends java.util.Observable {
     private StationClient secondaryStationClient;
     private EnumBaseURLs primaryBaseURL;
     private EnumBaseURLs secondaryBaseURL;
+    private E3OSClient e3osClient;
 
     final private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
@@ -71,6 +73,7 @@ public class TeslaAPIModel extends java.util.Observable {
         primaryLoginClient = new LoginClient(primaryRestClient);
         secondaryRestClient = new RestClientCommon(rrs);
         secondaryLoginClient = new LoginClient(secondaryRestClient);
+        e3osClient = new E3OSClient(rrs);
 
     }
 
@@ -1308,4 +1311,8 @@ public class TeslaAPIModel extends java.util.Observable {
         }
     }
 
+    // === E3OSLive =====
+    public void e3osLiveAuthenticate(){
+        this.e3osClient.authenticate();
+    }
 }

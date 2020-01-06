@@ -10,7 +10,7 @@ import model.DataPoints.HistoryRequest;
 import model.DataPoints.LiveDatapoint;
 import model.DatapointList.DatapointListItem;
 import model.EnumBaseURLs;
-import model.LoadFromE3OS.TeslaDataPointUpsertRequest;
+import model.E3OS.LoadFromE3OS.TeslaDataPointUpsertRequest;
 import model.TTT.TTTDataPointUpsertRequest;
 
 public class StationClient {
