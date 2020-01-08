@@ -33,6 +33,7 @@ import view.DataPointsTable.DatapointsTableModel;
 import view.DataPointsTable.EnumDatpointsTableColumns;
 import view.DataPointsTable.PopupMenuForDataPointsTable;
 import view.HistoryFrame.HistoryFrame;
+import view.LiveDataCompareFrame.LiveDataCompareFrame;
 import view.RequestResponse.RRFrame;
 import view.StationsTable.EnumStationsTableColumns;
 import view.StationsTable.StationsTableCellRenderer;
@@ -214,20 +215,18 @@ public final class MainFrame extends javax.swing.JFrame {
 
     }
 
-    
-    private List<String> getOtherUIPointNames(){
+    private List<String> getOtherUIPointNames() {
         List<String> uiOtherPointNames = new ArrayList<>();
-        
+
         uiOtherPointNames.add("TotalTon");
         uiOtherPointNames.add("TotalkW");
         uiOtherPointNames.add("PlantEfficiency");
         uiOtherPointNames.add("ChillerEfficiency");
         uiOtherPointNames.add("ChillersRunning");
-        
+
         return uiOtherPointNames;
     }
-    
-    
+
     private void fixDatapointsTableColumnWidths(JTable t) {
 
         for (int i = 0; i < t.getColumnCount(); i++) {
@@ -287,6 +286,7 @@ public final class MainFrame extends javax.swing.JFrame {
         jTogglePollForLiveData = new javax.swing.JToggleButton();
         jLabelLoggedIn = new javax.swing.JLabel();
         jButtonLogin = new javax.swing.JButton();
+        jButtonLiveDataCompare = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -500,6 +500,13 @@ public final class MainFrame extends javax.swing.JFrame {
             }
         });
 
+        jButtonLiveDataCompare.setText("LiveDataCompare");
+        jButtonLiveDataCompare.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonLiveDataCompareActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -521,6 +528,8 @@ public final class MainFrame extends javax.swing.JFrame {
                         .addComponent(jButtonRequests))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jButtonHistoryFrame)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonLiveDataCompare)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jTogglePollForLiveData)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -551,7 +560,8 @@ public final class MainFrame extends javax.swing.JFrame {
                     .addComponent(jButtonHistoryFrame)
                     .addComponent(jSpinnerPollInterval, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
-                    .addComponent(jTogglePollForLiveData))
+                    .addComponent(jTogglePollForLiveData)
+                    .addComponent(jButtonLiveDataCompare))
                 .addContainerGap())
         );
 
@@ -571,7 +581,7 @@ public final class MainFrame extends javax.swing.JFrame {
         if (evt.isPopupTrigger()) {
             PopupMenuForDataPointsTable popup = new PopupMenuForDataPointsTable(evt, jTableDatapointsTable);
         }
-        
+
         int row = jTableDatapointsTable.rowAtPoint(evt.getPoint());
         int modelIndex = jTableDatapointsTable.convertRowIndexToModel(row);
         DatapointsTableModel mod = (DatapointsTableModel) jTableDatapointsTable.getModel();
@@ -666,9 +676,24 @@ public final class MainFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jTextAreaCalculationMousePressed
 
+    private void jButtonLiveDataCompareActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonLiveDataCompareActionPerformed
+        if (selectedStation != null) {
+
+            killLivePollingTimer();
+            this.jTogglePollForLiveData.setSelected(false);
+
+            LiveDataCompareFrame frame = LiveDataCompareFrame.getInstance(controller, selectedStationInfo);
+            controller.addModelListener(frame);
+            frame.pack();
+            frame.setLocationRelativeTo(this);
+            frame.setVisible(true);
+        }
+    }//GEN-LAST:event_jButtonLiveDataCompareActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonGetStations;
     private javax.swing.JButton jButtonHistoryFrame;
+    private javax.swing.JButton jButtonLiveDataCompare;
     private javax.swing.JButton jButtonLogin;
     private javax.swing.JButton jButtonQuit;
     private javax.swing.JButton jButtonRequests;

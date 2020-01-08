@@ -29,6 +29,9 @@ import model.E3OS.LoadFromE3OS.PointsListQueryRunner;
 import model.E3OS.LoadFromE3OS.SiteQuery;
 import model.E3OS.LoadFromE3OS.TeslaDataPointUpsertRequest;
 import model.E3OS.E3OSClient;
+import model.E3OS.E3OSLiveData.E3osAuthResponse;
+import model.E3OS.E3OSLiveData.LiveDataRequest;
+import model.E3OS.E3OSLiveData.LiveDataResponse;
 import model.RestClient.LoginClient;
 import model.RestClient.OEResponse;
 import model.RestClient.RequestsResponses;
@@ -1313,6 +1316,71 @@ public class TeslaAPIModel extends java.util.Observable {
 
     // === E3OSLive =====
     public void e3osLiveAuthenticate(){
-        this.e3osClient.authenticate();
+
+        SwingWorker worker = new SwingWorker< OEResponse, Void>() {
+
+            @Override
+            public OEResponse doInBackground() throws IOException {
+
+                OEResponse results = e3osClient.authenticate();
+                return results;
+            }
+
+            @Override
+            public void done() {
+                try {
+                    OEResponse resp = get();
+
+                    if (resp.responseCode == 200) {
+                        E3osAuthResponse e3osAuthResp = (E3osAuthResponse) resp.responseObject;
+                        
+                        pcs.firePropertyChange(PropertyChangeNames.E3OSLiveAuthenticated.getName(), null, e3osAuthResp);
+                    } else {
+                        pcs.firePropertyChange(PropertyChangeNames.ErrorResponse.getName(), null, resp);
+                    }
+                    pcs.firePropertyChange(PropertyChangeNames.RequestResponseChanged.getName(), null, getRRS());
+
+                } catch (Exception ex) {
+                    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+                    logger.error(this.getClass().getName(), ex);
+                }
+            }
+        };
+        worker.execute();
+    }
+    
+    //E3OSLiveDataReturned
+    public void e3osLiveDataRequest( final LiveDataRequest ldr ){
+
+        SwingWorker worker = new SwingWorker< OEResponse, Void>() {
+
+            @Override
+            public OEResponse doInBackground() throws IOException {
+
+                OEResponse results = e3osClient.requestLiveData(ldr);
+                return results;
+            }
+
+            @Override
+            public void done() {
+                try {
+                    OEResponse resp = get();
+
+                    if (resp.responseCode == 200) {
+                        List<LiveDataResponse> liveDataResponse = (List<LiveDataResponse>) resp.responseObject;
+
+                        pcs.firePropertyChange(PropertyChangeNames.E3OSLiveDataReturned.getName(), null, liveDataResponse);
+                    } else {
+                        pcs.firePropertyChange(PropertyChangeNames.ErrorResponse.getName(), null, resp);
+                    }
+                    pcs.firePropertyChange(PropertyChangeNames.RequestResponseChanged.getName(), null, getRRS());
+
+                } catch (Exception ex) {
+                    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+                    logger.error(this.getClass().getName(), ex);
+                }
+            }
+        };
+        worker.execute();
     }
 }
