@@ -1,6 +1,6 @@
 package model.E3OS;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,12 +12,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
-import model.DataPoints.StationInfo;
+import model.E3OS.CustTreeList.E3OSSite;
 import model.E3OS.E3OSLiveData.E3OSWebConnProperties;
 import model.E3OS.E3OSLiveData.E3osAuthResponse;
 import model.E3OS.E3OSLiveData.LiveDataRequest;
 import model.E3OS.E3OSLiveData.LiveDataResponse;
-import model.E3OS.LoadFromE3OS.E3OSConnProperties;
 import model.RestClient.EnumCallType;
 import model.RestClient.EnumRequestType;
 import model.RestClient.OEResponse;
@@ -43,15 +42,17 @@ public class E3OSClient {
     static Logger logger = LoggerFactory.getLogger(E3OSClient.class.getName());
 
     private RequestsResponses rrs;
+    
+    private final E3OSWebConnProperties connProps;
 
     public E3OSClient(RequestsResponses rrs) {
         this.rrs = rrs;
+        
+        this.connProps = new E3OSWebConnProperties();
     }
 
     public OEResponse authenticate() {
 
-        E3OSWebConnProperties connProps = new E3OSWebConnProperties();
-        
         String url = connProps.getHost() + "/services/Auth.ashx?cmd=login";
 
         List<NameValuePair> nvps = new ArrayList<>();
@@ -82,9 +83,41 @@ public class E3OSClient {
 
     }
 
+    public OEResponse getE3OSSiteList() {
+
+        String url = connProps.getHost() + "/services/AdminService.ashx?cmd=site-list";
+
+        OEResponse resp = new OEResponse();
+
+        try {
+
+            ObjectMapper mapper = new ObjectMapper();
+
+            String e3osAccessToken = "12341234-1234-1234-123412341234";
+
+            List<NameValuePair> nvps = new ArrayList<>();
+            nvps.add(new BasicNameValuePair("content-type", "application/json"));
+            nvps.add(new BasicNameValuePair("oauth", "Bearer " + e3osAccessToken));
+
+            String payload = "";
+
+            resp = doPostAndGetBody(url, nvps, payload);
+
+            if (resp.responseCode == 200 ) {
+               resp.responseObject = mapper.readValue((String) resp.responseObject, new TypeReference<List<E3OSSite>>() {});
+            }
+
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(E3OSClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return resp;
+
+    }
+
     public OEResponse requestLiveData(LiveDataRequest ldr) {
 
-        String url = "https://e3os.optimumenergyco.com/services/LiveData.ashx?cmd=command1&request=";
+        String url = connProps.getHost() + "/services/LiveData.ashx?cmd=command1&request=";
 
         OEResponse resp = new OEResponse();
 
@@ -115,7 +148,7 @@ public class E3OSClient {
 
     }
 
-    protected OEResponse doPostAndGetBody(String url, List<NameValuePair> nvps, String payload) throws UnsupportedEncodingException, IOException {
+    private OEResponse doPostAndGetBody(String url, List<NameValuePair> nvps, String payload) throws UnsupportedEncodingException, IOException {
 
         String responseString = "";
 

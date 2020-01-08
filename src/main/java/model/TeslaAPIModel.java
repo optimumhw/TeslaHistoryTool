@@ -19,6 +19,7 @@ import model.DataPoints.HistoryRequest;
 import model.DataPoints.LiveDatapoint;
 import model.DataPoints.StationInfo;
 import model.DatapointList.DatapointListItem;
+import model.E3OS.CustTreeList.E3OSSite;
 import model.E3OS.LoadFromE3OS.DSG2QueryResultRecord;
 import model.E3OS.LoadFromE3OS.DSG2Runner;
 import model.E3OS.LoadFromE3OS.DataPointFromSql;
@@ -1349,7 +1350,44 @@ public class TeslaAPIModel extends java.util.Observable {
         worker.execute();
     }
     
-    //E3OSLiveDataReturned
+    
+    public void getE3OSSiteList(){
+
+        SwingWorker worker = new SwingWorker< OEResponse, Void>() {
+
+            @Override
+            public OEResponse doInBackground() throws IOException {
+
+                OEResponse results = e3osClient.getE3OSSiteList();
+                return results;
+            }
+
+            @Override
+            public void done() {
+                try {
+                    OEResponse resp = get();
+
+                    if (resp.responseCode == 200) {
+                        List<E3OSSite> siteList = (List<E3OSSite>) resp.responseObject;
+
+                        pcs.firePropertyChange(PropertyChangeNames.E3OSSiteListReturned.getName(), null, siteList);
+                    } else {
+                        pcs.firePropertyChange(PropertyChangeNames.ErrorResponse.getName(), null, resp);
+                    }
+                    pcs.firePropertyChange(PropertyChangeNames.RequestResponseChanged.getName(), null, getRRS());
+
+                } catch (Exception ex) {
+                    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+                    logger.error(this.getClass().getName(), ex);
+                }
+            }
+        };
+        worker.execute();
+    }
+    
+   
+    
+
     public void e3osLiveDataRequest( final LiveDataRequest ldr ){
 
         SwingWorker worker = new SwingWorker< OEResponse, Void>() {
