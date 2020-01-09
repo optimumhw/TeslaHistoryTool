@@ -141,6 +141,7 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
         jButtonClose = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Live Data Comparison");
 
         e3osAuth.setText("e3os Authenticate");
         e3osAuth.addActionListener(new java.awt.event.ActionListener() {
@@ -192,6 +193,7 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), "E3OS Site List"));
 
+        jTableE3OSSites.setAutoCreateRowSorter(true);
         jTableE3OSSites.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
