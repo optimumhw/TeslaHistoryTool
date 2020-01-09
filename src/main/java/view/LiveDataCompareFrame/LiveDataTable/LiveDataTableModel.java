@@ -1,4 +1,4 @@
-package view.DataPointsTable;
+package view.LiveDataCompareFrame.LiveDataTable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,14 +9,18 @@ import model.DataPoints.CoreDatapoint;
 import model.DataPoints.Equipment;
 import model.DataPoints.LiveDatapoint;
 import model.DataPoints.StationInfo;
+import model.E3OS.E3OSLiveData.E3OSDataPoint;
 
-public class DatapointsTableModel extends AbstractTableModel {
+public class LiveDataTableModel extends AbstractTableModel {
 
     private List<CoreDatapoint> datapointList;
     private Map<String, CoreDatapoint> idToDatapointMap;
     private List<String> subscribedPoints;
+    private List<E3OSDataPoint> e3osDataPoints;
+    
+    private List<LiveDataMappingTableRow> mappingRows;
 
-    public DatapointsTableModel(StationInfo stationInfo, String name, List<String> otherUIPointNames ) {
+    public LiveDataTableModel(StationInfo stationInfo, String name, List<String> otherUIPointNames, List<E3OSDataPoint> e3osDataPoints) {
         super();
 
         datapointList = new ArrayList<>();
@@ -47,86 +51,91 @@ public class DatapointsTableModel extends AbstractTableModel {
                 subscribedPoints.add(dp.getId());
             }
         }
-
+        
+        
+        mappingRows = new ArrayList<>();
+        
+        for( CoreDatapoint corePoint : datapointList){
+            mappingRows.add( new LiveDataMappingTableRow( corePoint ));
+        }
+        
+        for(E3OSDataPoint e3osPoint : e3osDataPoints){
+            Boolean foundIt = false;
+            for(  LiveDataMappingTableRow mrow : mappingRows){
+                if( e3osPoint.getName().contentEquals( mrow.getCoreName() )){
+                    mrow.setMapStatus(EnumLiveDataMapStatus.Mapped);
+                    mrow.setE3osName(e3osPoint.getName());
+                    mrow.setE3osValue(null);
+                    foundIt = true;
+                }
+            }
+            
+            if( !foundIt ){
+               mappingRows.add( new LiveDataMappingTableRow( e3osPoint )); 
+            }
+          
+        }
+         
     }
 
     public List<String> getSubscribedPoints() {
         return subscribedPoints;
     }
 
-    public CoreDatapoint getRow(int idx) {
-        return datapointList.get(idx);
+    public LiveDataMappingTableRow getRow(int idx) {
+        return mappingRows.get(idx);
     }
 
     @Override
     public int getRowCount() {
-        return datapointList.size();
+        return mappingRows.size();
     }
 
     @Override
     public String getColumnName(int col) {
-        return EnumDatpointsTableColumns.getColumnFromColumnNumber(col).getFriendlyName();
+        return EnumLiveDataTableColumns.getColumnFromColumnNumber(col).getFriendlyName();
     }
 
     @Override
     public int getColumnCount() {
-        return EnumDatpointsTableColumns.getColumnNames().size();
+        return EnumLiveDataTableColumns.getColumnNames().size();
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         Object val = "?";
 
-        EnumDatpointsTableColumns enumCol = EnumDatpointsTableColumns.getColumnFromColumnNumber(columnIndex);
+        EnumLiveDataTableColumns enumCol = EnumLiveDataTableColumns.getColumnFromColumnNumber(columnIndex);
 
-        CoreDatapoint datapoint = datapointList.get(rowIndex);
-
+        LiveDataMappingTableRow mappingTableRow = mappingRows.get(rowIndex);
+        
         switch (enumCol) {
-            case Sub:
-                val = datapoint.getSubscribedFlag();
+            case MapStatus:
+                val = mappingTableRow.getMapStatus().name();
                 break;
-            case LiveValue:
-                val = datapoint.getLiveDataValue();
+             
+            case CoreName:
+                val = mappingTableRow.getCoreName();
                 break;
-            case ID:
-                val = datapoint.getId();
+            case CoreType:
+                val = mappingTableRow.getCoreType();
                 break;
-            case Name:
-                val = datapoint.getName();
+            case CoreID:
+                val = mappingTableRow.getCoreID();
                 break;
-            case ShortName:
-                val = datapoint.getShortName();
+            case CoreValue:
+                val = mappingTableRow.getCoreValue();
                 break;
-            case UOM:
-                val = datapoint.getUnitOfMeasurement();
+            case E3OSName:
+                val = mappingTableRow.getE3osName();
                 break;
-            case OwnerID:
-                val = datapoint.getOwnerId();
+            case E3OSID:
+                val = mappingTableRow.getE3osID();
                 break;
-            case Created:
-                val = datapoint.getCreatedAt();
+            case E3OSvalue:
+                val = mappingTableRow.getE3osValue();
                 break;
-            case Updated:
-                val = datapoint.getUpdatedAt();
-                break;
-            case OwnerType:
-                val = datapoint.getOwnerType();
-                break;
-            case PointType:
-                val = datapoint.getPointType();
-                break;
-            case Calculation:
-                val = datapoint.getCalculation();
-                break;
-            case Editable:
-                val = datapoint.getEditable();
-                break;
-            case Reso:
-                val = datapoint.getMinimumResolution();
-                break;
-            case Rollup:
-                val = datapoint.getRollupAggregation();
-                break;
+
         }
 
         return val;

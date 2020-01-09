@@ -37,7 +37,7 @@ public class Equipment {
     private String model;
     
     @JsonProperty("dataPoints")
-    private List<Datapoint> dataPoints;
+    private List<CoreDatapoint> dataPoints;
 
 
     public String getId() {
@@ -80,7 +80,7 @@ public class Equipment {
         return model;
     }
 
-    public List<Datapoint> getDatapoints() {
+    public List<CoreDatapoint> getDatapoints() {
         return dataPoints;
     }
 

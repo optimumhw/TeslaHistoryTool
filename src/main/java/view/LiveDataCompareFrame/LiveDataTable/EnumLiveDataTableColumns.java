@@ -1,30 +1,34 @@
 
-package view.LiveDataCompareFrame.E3OSSiteTable;
+package view.LiveDataCompareFrame.LiveDataTable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public enum EnumE3OSSitesTableColumns {
 
-    SiteId(0, "SiteId", 100),
-    Name(1, "Name", 300),
-    ShortName(2, "ShortName", 100),
-    CustomerName(3, "CustomerName", 300),
-    CustomerId(4, "CustomerID", 100);
+public enum EnumLiveDataTableColumns {
+
+    MapStatus(0,"MapStatus", 100),
+    CoreName(1,"CoreName", 200),
+    CoreType(2,"CoreType", 100),
+    CoreID(3,"CoreID", 100),
+    CoreValue(4,"CoreValue", 300),
+    E3OSName(5,"E3OSName", 250),
+    E3OSID(6,"E3OSID", 100),
+    E3OSvalue(7,"E3OSvalue", 100);
 
     private final String friendlyName;
     private final int columnNumber;
     private final int width;
 
-    EnumE3OSSitesTableColumns(int columnNumber, String name, int width) {
+    EnumLiveDataTableColumns(int columnNumber, String name, int width) {
         this.friendlyName = name;
         this.columnNumber = columnNumber;
         this.width = width;
     }
 
-    public static EnumE3OSSitesTableColumns getColumnFromColumnNumber(int colNumber) {
+    public static EnumLiveDataTableColumns getColumnFromColumnNumber(int colNumber) {
 
-        for (EnumE3OSSitesTableColumns v : EnumE3OSSitesTableColumns.values()) {
+        for (EnumLiveDataTableColumns v : EnumLiveDataTableColumns.values()) {
             if (v.getColumnNumber() == colNumber) {
                 return v;
             }
@@ -46,7 +50,7 @@ public enum EnumE3OSSitesTableColumns {
 
     public static List<String> getColumnNames() {
         List<String> names = new ArrayList<>();
-        for (EnumE3OSSitesTableColumns v : EnumE3OSSitesTableColumns.values()) {
+        for (EnumLiveDataTableColumns v : EnumLiveDataTableColumns.values()) {
             names.add(v.getFriendlyName());
         }
         return names;

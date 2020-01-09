@@ -19,7 +19,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import model.Auth.LoginResponse;
-import model.DataPoints.Datapoint;
+import model.DataPoints.CoreDatapoint;
 import model.DataPoints.Equipment;
 import model.DataPoints.LiveDatapoint;
 import model.DataPoints.StationInfo;
@@ -585,7 +585,7 @@ public final class MainFrame extends javax.swing.JFrame {
         int row = jTableDatapointsTable.rowAtPoint(evt.getPoint());
         int modelIndex = jTableDatapointsTable.convertRowIndexToModel(row);
         DatapointsTableModel mod = (DatapointsTableModel) jTableDatapointsTable.getModel();
-        Datapoint dataPoint = mod.getRow(modelIndex);
+        CoreDatapoint dataPoint = mod.getRow(modelIndex);
 
         this.jTextAreaCalculation.setText(dataPoint.getCalculation());
 

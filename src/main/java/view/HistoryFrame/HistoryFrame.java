@@ -28,7 +28,7 @@ import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
-import model.DataPoints.Datapoint;
+import model.DataPoints.CoreDatapoint;
 import model.DataPoints.EnumResolutions;
 import model.DataPoints.Equipment;
 import model.DataPoints.HistoryQueryResults;
@@ -331,12 +331,12 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
         Map<String, String> idToDatapointMap = new HashMap<>();
 
-        for (Datapoint dp : selectedStation.getDatapoints()) {
+        for (CoreDatapoint dp : selectedStation.getDatapoints()) {
             idToDatapointMap.put(dp.getId(), dp.getCalculation());
         }
 
         for (Equipment eq : selectedStation.getequipments()) {
-            for (Datapoint dp : eq.getDatapoints()) {
+            for (CoreDatapoint dp : eq.getDatapoints()) {
                 idToDatapointMap.put(dp.getId(), dp.getCalculation());
             }
         }

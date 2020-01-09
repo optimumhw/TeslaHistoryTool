@@ -69,7 +69,7 @@ public class StationInfo {
     private String longitude;
 
     @JsonProperty("dataPoints")
-    private List<Datapoint> datapoints;
+    private List<CoreDatapoint> datapoints;
 
     @JsonProperty("equipments")
     private List<Equipment> equipments;
@@ -158,7 +158,7 @@ public class StationInfo {
         return longitude;
     }
 
-    public List<Datapoint> getDatapoints() {
+    public List<CoreDatapoint> getDatapoints() {
         return datapoints;
     }
 

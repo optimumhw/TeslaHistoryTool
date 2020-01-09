@@ -1,5 +1,9 @@
-
-package view.LiveDataCompareFrame.E3OSSiteTable;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package view.LiveDataCompareFrame.LiveDataTable;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -12,8 +16,11 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-
-public class E3OSSiteTableCellRenderer extends DefaultTableCellRenderer {
+/**
+ *
+ * @author hal
+ */
+public class LiveDataTableCellRenderer extends DefaultTableCellRenderer {
 
     private final Color limeGreen = new Color(204, 255, 204);
     private final Color lightBlue = new Color(204,255,255);
@@ -32,7 +39,7 @@ public class E3OSSiteTableCellRenderer extends DefaultTableCellRenderer {
 
         Color color = Color.WHITE;
         setBackground(isSelected ? color : color);
-        this.setHorizontalAlignment( JLabel.LEFT );
+        this.setHorizontalAlignment( (column == 0 )? JLabel.LEFT : JLabel.RIGHT);
 
         if (value == null) {
             color = Color.lightGray;

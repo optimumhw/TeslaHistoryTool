@@ -3,7 +3,7 @@ package model.DataPoints;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Datapoint {
+public class CoreDatapoint {
 
     @JsonProperty("id")
     private String id;

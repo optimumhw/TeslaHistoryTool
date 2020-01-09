@@ -8,10 +8,10 @@ public class E3OSSiteTableModel extends AbstractTableModel {
 
     private final List<E3OSSite> siteList;
 
-    public E3OSSiteTableModel(List<E3OSSite> siteList) {
+    public E3OSSiteTableModel(List<E3OSSite> e3osSitesTableRow) {
         super();
 
-        this.siteList = siteList;
+        this.siteList = e3osSitesTableRow;
     }
 
     public E3OSSite getRow(int modelIndex) {
@@ -53,6 +53,9 @@ public class E3OSSiteTableModel extends AbstractTableModel {
                 break;
             case CustomerName:
                 val = dataRow.getCustomerName();
+                break;
+            case CustomerId:
+                val = dataRow.getCustomerID();
                 break;
         }
 

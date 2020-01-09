@@ -13,12 +13,8 @@ public class MappingTableModel extends AbstractTableModel {
 
     public MappingTableModel(List<MappingTableRow> mappingTableRows) {
         super();
-        
         this.mappingTableRows = mappingTableRows;
-
-
     }
-
 
     public MappingTableRow getRow(int modelIndex) {
         return mappingTableRows.get(modelIndex);

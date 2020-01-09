@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import model.E3OS.CustTreeList.E3OSSite;
+import model.E3OS.E3OSLiveData.E3OSDataPoint;
 import model.E3OS.E3OSLiveData.E3OSWebConnProperties;
 import model.E3OS.E3OSLiveData.E3osAuthResponse;
 import model.E3OS.E3OSLiveData.LiveDataRequest;
@@ -42,12 +43,12 @@ public class E3OSClient {
     static Logger logger = LoggerFactory.getLogger(E3OSClient.class.getName());
 
     private RequestsResponses rrs;
-    
+
     private final E3OSWebConnProperties connProps;
 
     public E3OSClient(RequestsResponses rrs) {
         this.rrs = rrs;
-        
+
         this.connProps = new E3OSWebConnProperties();
     }
 
@@ -92,19 +93,12 @@ public class E3OSClient {
         try {
 
             ObjectMapper mapper = new ObjectMapper();
-
-            String e3osAccessToken = "12341234-1234-1234-123412341234";
-
-            List<NameValuePair> nvps = new ArrayList<>();
-            nvps.add(new BasicNameValuePair("content-type", "application/json"));
-            nvps.add(new BasicNameValuePair("oauth", "Bearer " + e3osAccessToken));
-
             String payload = "";
+            resp = doPostAndGetBody(url, getHeaders(), payload);
 
-            resp = doPostAndGetBody(url, nvps, payload);
-
-            if (resp.responseCode == 200 ) {
-               resp.responseObject = mapper.readValue((String) resp.responseObject, new TypeReference<List<E3OSSite>>() {});
+            if (resp.responseCode == 200) {
+                resp.responseObject = mapper.readValue((String) resp.responseObject, new TypeReference<List<E3OSSite>>() {
+                });
             }
 
         } catch (Exception ex) {
@@ -114,27 +108,49 @@ public class E3OSClient {
         return resp;
 
     }
+    
+        public OEResponse getE3OSPointsList( int custID, int siteID) {
+            
+         String custAndSite = String.format("custid=%d&siteId=%d", custID, siteID );
 
-    public OEResponse requestLiveData(LiveDataRequest ldr) {
-
-        String url = connProps.getHost() + "/services/LiveData.ashx?cmd=command1&request=";
+        String url = connProps.getHost() + "/services/DataService.ashx?cmd=point-list&" + custAndSite;
 
         OEResponse resp = new OEResponse();
 
         try {
 
             ObjectMapper mapper = new ObjectMapper();
+            String payload = "";
+            resp = doPostAndGetBody(url, getHeaders(), payload);
+
+            if (resp.responseCode == 200) {
+                resp.responseObject = mapper.readValue((String) resp.responseObject, new TypeReference<List<E3OSDataPoint>>() {
+                });
+            }
+
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(E3OSClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return resp;
+
+    }
+    
+    // controller.getE3OSPointsList(selectedSite.getSiteID());
+    
+
+    public OEResponse requestLiveData(LiveDataRequest ldr) {
+
+        String url = connProps.getHost() + "/services/LiveData.ashx?cmd=command1&request=";
+        OEResponse resp = new OEResponse();
+        try {
+
+            ObjectMapper mapper = new ObjectMapper();
             String reqParam = mapper.writeValueAsString(ldr);
-
-            String e3osAccessToken = "12341234-1234-1234-123412341234";
-
-            List<NameValuePair> nvps = new ArrayList<>();
-            nvps.add(new BasicNameValuePair("content-type", "application/json"));
-            nvps.add(new BasicNameValuePair("oauth", "Bearer " + e3osAccessToken));
 
             String payload = "";
 
-            resp = doPostAndGetBody(url, nvps, payload);
+            resp = doPostAndGetBody(url, getHeaders(), payload);
 
             if (resp.responseCode == 200) {
                 resp.responseObject = mapper.readValue((String) resp.responseObject, LiveDataResponse.class);
@@ -145,6 +161,17 @@ public class E3OSClient {
         }
 
         return resp;
+
+    }
+
+    private List<NameValuePair> getHeaders() {
+        String e3osAccessToken = "12341234-1234-1234-123412341234";
+
+        List<NameValuePair> nvps = new ArrayList<>();
+        nvps.add(new BasicNameValuePair("content-type", "application/json"));
+        nvps.add(new BasicNameValuePair("Authorization", "Bearer " + e3osAccessToken));
+
+        return nvps;
 
     }
 

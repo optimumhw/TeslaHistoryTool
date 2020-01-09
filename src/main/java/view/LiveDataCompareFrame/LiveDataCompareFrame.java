@@ -3,16 +3,25 @@ package view.LiveDataCompareFrame;
 import controller.Controller;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import model.DataPoints.StationInfo;
 import model.E3OS.CustTreeList.E3OSSite;
+import model.E3OS.E3OSLiveData.E3OSDataPoint;
 import model.E3OS.E3OSLiveData.E3osAuthResponse;
 import model.PropertyChangeNames;
+import org.jfree.ui.DateCellRenderer;
+import view.DataPointsTable.PopupMenuForDataPointsTable;
 import view.LiveDataCompareFrame.E3OSSiteTable.E3OSSiteTableCellRenderer;
 import view.LiveDataCompareFrame.E3OSSiteTable.E3OSSiteTableModel;
 import view.LiveDataCompareFrame.E3OSSiteTable.EnumE3OSSitesTableColumns;
+import view.LiveDataCompareFrame.LiveDataTable.EnumLiveDataTableColumns;
+import view.LiveDataCompareFrame.LiveDataTable.LiveDataTableCellRenderer;
+import view.LiveDataCompareFrame.LiveDataTable.LiveDataTableModel;
+import view.StationsTable.StationsTableModel;
 
 public class LiveDataCompareFrame extends javax.swing.JFrame implements PropertyChangeListener {
 
@@ -20,6 +29,8 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
 
     private final Controller controller;
     private final StationInfo selectedStation;
+    
+    List<E3OSDataPoint> e3osDataPoints;
 
     public static LiveDataCompareFrame getInstance(final Controller controller, StationInfo selectedStation) {
         if (thisInstance == null) {
@@ -33,6 +44,9 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
 
         this.controller = controller;
         this.selectedStation = selectedStation;
+
+        e3osDataPoints = new ArrayList<>();
+        fillLiveDataTable( );
     }
 
     @Override
@@ -45,23 +59,58 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
     private void ShowE3OSAuthResponse(E3osAuthResponse e3osAuthResp) {
         this.jLabelToken.setText(e3osAuthResp.getToken());
         this.jLabelExpires.setText(e3osAuthResp.getExpires());
-
-        controller.getCustTreeList();
+        controller.getE3OSSiteList();
     }
 
-    private void fillE3OSSiteList(List<E3OSSite> e3osCustList) {
-
+    private void fillE3OSSiteListTable(List<E3OSSite> e3osCustList) {
         this.jTableE3OSSites.setDefaultRenderer(Object.class, new E3OSSiteTableCellRenderer());
         this.jTableE3OSSites.setModel(new E3OSSiteTableModel(e3osCustList));
         this.jTableE3OSSites.setAutoCreateRowSorter(true);
         fixTableDataPointsListColumns(jTableE3OSSites);
-
     }
 
     public void fixTableDataPointsListColumns(JTable t) {
 
         for (int i = 0; i < t.getColumnCount(); i++) {
             EnumE3OSSitesTableColumns colEnum = EnumE3OSSitesTableColumns.getColumnFromColumnNumber(i);
+            TableColumn column = t.getColumnModel().getColumn(i);
+            if (colEnum != null) {
+                column.setPreferredWidth(colEnum.getWidth());
+            } else {
+                column.setPreferredWidth(50);
+            }
+        }
+    }
+
+    private List<String> getOtherUIPointNames() {
+        List<String> uiOtherPointNames = new ArrayList<>();
+
+        uiOtherPointNames.add("TotalTon");
+        uiOtherPointNames.add("TotalkW");
+        uiOtherPointNames.add("PlantEfficiency");
+        uiOtherPointNames.add("ChillerEfficiency");
+        uiOtherPointNames.add("ChillersRunning");
+
+        return uiOtherPointNames;
+    }
+    
+    public void clearLiveDataTable() {
+
+        this.jTableLiveDataCompare.setDefaultRenderer(Object.class, new DateCellRenderer());
+        this.jTableLiveDataCompare.setModel(new DefaultTableModel());
+    }
+
+    private void fillLiveDataTable() {
+        this.jTableLiveDataCompare.setDefaultRenderer(Object.class, new LiveDataTableCellRenderer());
+        this.jTableLiveDataCompare.setModel(new LiveDataTableModel(selectedStation, "Station", getOtherUIPointNames(), e3osDataPoints));
+        this.jTableLiveDataCompare.setAutoCreateRowSorter(true);
+        fixLiveDataTableColumns(jTableLiveDataCompare);
+    }
+
+    public void fixLiveDataTableColumns(JTable t) {
+
+        for (int i = 0; i < t.getColumnCount(); i++) {
+            EnumLiveDataTableColumns colEnum = EnumLiveDataTableColumns.getColumnFromColumnNumber(i);
             TableColumn column = t.getColumnModel().getColumn(i);
             if (colEnum != null) {
                 column.setPreferredWidth(colEnum.getWidth());
@@ -138,7 +187,7 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jSplitPane1.setDividerLocation(300);
+        jSplitPane1.setDividerLocation(200);
         jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), "E3OS Site List"));
@@ -156,6 +205,11 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
         ));
         jTableE3OSSites.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
         jTableE3OSSites.setShowGrid(true);
+        jTableE3OSSites.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jTableE3OSSitesMousePressed(evt);
+            }
+        });
         jScrollPane1.setViewportView(jTableE3OSSites);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -164,14 +218,14 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 844, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1095, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 163, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -179,6 +233,7 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
 
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), "Live Data Compare"));
 
+        jTableLiveDataCompare.setAutoCreateRowSorter(true);
         jTableLiveDataCompare.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -190,6 +245,8 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        jTableLiveDataCompare.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        jTableLiveDataCompare.setShowGrid(true);
         jScrollPane2.setViewportView(jTableLiveDataCompare);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
@@ -198,12 +255,12 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 844, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 1095, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 232, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
         );
 
         jSplitPane1.setRightComponent(jPanel3);
@@ -267,35 +324,42 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
         controller.e3osLiveAuthenticate();
     }//GEN-LAST:event_e3osAuthActionPerformed
 
+    private void jTableE3OSSitesMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTableE3OSSitesMousePressed
+        //killLivePollingTimer();
+        //this.jTogglePollForLiveData.setSelected(false);
+
+        //if (evt.isPopupTrigger()) {
+        //    PopupMenuForDataPointsTable popup = new PopupMenuForDataPointsTable(evt, jTableStationsTable);
+        //}
+
+        clearLiveDataTable();
+
+        int row = jTableE3OSSites.getSelectedRow();
+        int modelIndex = jTableE3OSSites.convertRowIndexToModel(row);
+        E3OSSiteTableModel mod = (E3OSSiteTableModel) jTableE3OSSites.getModel();
+        E3OSSite selectedSite = mod.getRow(modelIndex);
+        controller.getE3OSPointsList(selectedSite.getCustomerID(), selectedSite.getSiteID());
+        
+    }//GEN-LAST:event_jTableE3OSSitesMousePressed
+
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         String propName = evt.getPropertyName();
 
         if (propName.equals(PropertyChangeNames.E3OSLiveAuthenticated.getName())) {
             E3osAuthResponse e3osAuthResp = (E3osAuthResponse) evt.getNewValue();
-
             ShowE3OSAuthResponse(e3osAuthResp);
+            
         } else if (propName.equals(PropertyChangeNames.E3OSSiteListReturned.getName())) {
             List<E3OSSite> siteList = (List<E3OSSite>) evt.getNewValue();
-
-            fillE3OSSiteList(siteList);
-        }
-
-        /*
-        if (propName.equals(PropertyChangeNames.DatapointsReturned.getName())) {
-            datapointsList = (List<DatapointListItem>) evt.getNewValue();
-            fillDataPointsListTable(this.filter);
+            fillE3OSSiteListTable(siteList);
+            
+        } else if (propName.equals(PropertyChangeNames.E3OSPointsListReturned.getName())) {
+            e3osDataPoints = (List<E3OSDataPoint>) evt.getNewValue();
+            fillLiveDataTable();
         }
 
 
-        if (propName.equals(PropertyChangeNames.LiveDataReturned.getName())) {
-            List<LiveDatapoint> dpList = (List<LiveDatapoint>) evt.getNewValue();
-
-            HistoryTableModel model = (HistoryTableModel) this.jTableHistory.getModel();
-            model.appendLiveData(dpList);
-
-        }
-         */
     }
 
 

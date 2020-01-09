@@ -16,7 +16,9 @@ public class E3OSSite {
     @JsonProperty("CustomerName")
     private String customerName;
 
-   
+    @JsonProperty("CustomerID")
+    private int CustomerID;
+
     public int getSiteID() {
         return siteID;
     }
@@ -31,6 +33,10 @@ public class E3OSSite {
 
     public String getCustomerName() {
         return customerName;
+    }
+
+    public int getCustomerID() {
+        return CustomerID;
     }
 
 }

@@ -12,7 +12,7 @@ import javax.swing.SwingWorker;
 import model.Auth.LoginResponse;
 import model.CSVCreator.CSVMaker;
 import model.DataPoints.ComboHistories;
-import model.DataPoints.Datapoint;
+import model.DataPoints.CoreDatapoint;
 import model.DataPoints.Equipment;
 import model.DataPoints.HistoryQueryResults;
 import model.DataPoints.HistoryRequest;
@@ -30,6 +30,7 @@ import model.E3OS.LoadFromE3OS.PointsListQueryRunner;
 import model.E3OS.LoadFromE3OS.SiteQuery;
 import model.E3OS.LoadFromE3OS.TeslaDataPointUpsertRequest;
 import model.E3OS.E3OSClient;
+import model.E3OS.E3OSLiveData.E3OSDataPoint;
 import model.E3OS.E3OSLiveData.E3osAuthResponse;
 import model.E3OS.E3OSLiveData.LiveDataRequest;
 import model.E3OS.E3OSLiveData.LiveDataResponse;
@@ -443,12 +444,12 @@ public class TeslaAPIModel extends java.util.Observable {
             return;
         }
 
-        for (Datapoint dp : stationInfo.getDatapoints()) {
+        for (CoreDatapoint dp : stationInfo.getDatapoints()) {
             dp.setSubScribedFlag(subscribedPoints.contains(dp.getId()));
         }
 
         for (Equipment eq : stationInfo.getequipments()) {
-            for (Datapoint dp : eq.getDatapoints()) {
+            for (CoreDatapoint dp : eq.getDatapoints()) {
                 dp.setSubScribedFlag(subscribedPoints.contains(dp.getId()));
             }
         }
@@ -535,8 +536,7 @@ public class TeslaAPIModel extends java.util.Observable {
                     if (frameEnd.isAfter(endAt)) {
                         frameEnd = endAt;
                     }
-                    
-                    
+
                     OEResponse historyQueryResponse = null;
 
                     for (int pointIndexStart = 0; pointIndexStart < listOfTeslaPoints.size(); pointIndexStart += maxPoints) {
@@ -552,25 +552,25 @@ public class TeslaAPIModel extends java.util.Observable {
 
                             HistoryRequest hr = new HistoryRequest(framePointIDs, frameStart, frameEnd, resolution, timeZone);
                             historyQueryResponse = primaryStationClient.getHistory(hr);
-                            
+
                             if (historyQueryResponse.responseCode == 401) {
-                            System.out.println("getting a new token. was:");
-                            System.out.println(primaryRestClient.getOAuthToken());
-
-                            OEResponse resp = primaryLoginClient.login(primaryBaseURL);
-
-                            if (resp.responseCode == 200) {
-                                LoginResponse loginResponse = (LoginResponse) resp.responseObject;
-                                String newToken = loginResponse.getAccessToken();
-                                primaryRestClient.setOauthToken(newToken);
-
-                                System.out.println("new token is:");
+                                System.out.println("getting a new token. was:");
                                 System.out.println(primaryRestClient.getOAuthToken());
 
-                                historyQueryResponse = primaryStationClient.getHistory(hr);
-                            }
+                                OEResponse resp = primaryLoginClient.login(primaryBaseURL);
 
-                        }
+                                if (resp.responseCode == 200) {
+                                    LoginResponse loginResponse = (LoginResponse) resp.responseObject;
+                                    String newToken = loginResponse.getAccessToken();
+                                    primaryRestClient.setOauthToken(newToken);
+
+                                    System.out.println("new token is:");
+                                    System.out.println(primaryRestClient.getOAuthToken());
+
+                                    historyQueryResponse = primaryStationClient.getHistory(hr);
+                                }
+
+                            }
 
                         } else {
 
@@ -589,9 +589,9 @@ public class TeslaAPIModel extends java.util.Observable {
                             HistoryRequest fiveMinuteRequest = new HistoryRequest(listOfFiveMinutePointIDs, frameStart, frameEnd, resolution, timeZone);
                             HistoryRequest hourRequest = new HistoryRequest(listOfHourlyPointIDs, frameStart, frameEnd, "hour", timeZone);
 
-                            OEResponse fiveMinResponse  = null;
-                            OEResponse hourResponse  = null;
-                            
+                            OEResponse fiveMinResponse = null;
+                            OEResponse hourResponse = null;
+
                             HistoryQueryResults fiveMinuteResults = null;
                             HistoryQueryResults hourResults = null;
 
@@ -651,13 +651,12 @@ public class TeslaAPIModel extends java.util.Observable {
 
                             ComboHistories comboHistories = new ComboHistories(fiveMinuteResults, hourResults);
                             HistoryQueryResults historyResults = new HistoryQueryResults(comboHistories);
-                            
+
                             historyQueryResponse = new OEResponse();
                             historyQueryResponse.responseCode = 200;
                             historyQueryResponse.responseObject = historyResults;
-                            
-                        }
 
+                        }
 
                         if (historyQueryResponse.responseCode == 200) {
                             countOfFramesProcessed++;
@@ -1316,7 +1315,7 @@ public class TeslaAPIModel extends java.util.Observable {
     }
 
     // === E3OSLive =====
-    public void e3osLiveAuthenticate(){
+    public void e3osLiveAuthenticate() {
 
         SwingWorker worker = new SwingWorker< OEResponse, Void>() {
 
@@ -1334,7 +1333,7 @@ public class TeslaAPIModel extends java.util.Observable {
 
                     if (resp.responseCode == 200) {
                         E3osAuthResponse e3osAuthResp = (E3osAuthResponse) resp.responseObject;
-                        
+
                         pcs.firePropertyChange(PropertyChangeNames.E3OSLiveAuthenticated.getName(), null, e3osAuthResp);
                     } else {
                         pcs.firePropertyChange(PropertyChangeNames.ErrorResponse.getName(), null, resp);
@@ -1349,9 +1348,8 @@ public class TeslaAPIModel extends java.util.Observable {
         };
         worker.execute();
     }
-    
-    
-    public void getE3OSSiteList(){
+
+    public void getE3OSSiteList() {
 
         SwingWorker worker = new SwingWorker< OEResponse, Void>() {
 
@@ -1384,11 +1382,42 @@ public class TeslaAPIModel extends java.util.Observable {
         };
         worker.execute();
     }
-    
-   
-    
 
-    public void e3osLiveDataRequest( final LiveDataRequest ldr ){
+    public void getE3OSPointsList(final int custID, final int siteID) {
+
+        SwingWorker worker = new SwingWorker< OEResponse, Void>() {
+
+            @Override
+            public OEResponse doInBackground() throws IOException {
+
+                OEResponse results = e3osClient.getE3OSPointsList(custID, siteID);
+                return results;
+            }
+
+            @Override
+            public void done() {
+                try {
+                    OEResponse resp = get();
+
+                    if (resp.responseCode == 200) {
+                        List<E3OSDataPoint> siteList = (List<E3OSDataPoint>) resp.responseObject;
+
+                        pcs.firePropertyChange(PropertyChangeNames.E3OSPointsListReturned.getName(), null, siteList);
+                    } else {
+                        pcs.firePropertyChange(PropertyChangeNames.ErrorResponse.getName(), null, resp);
+                    }
+                    pcs.firePropertyChange(PropertyChangeNames.RequestResponseChanged.getName(), null, getRRS());
+
+                } catch (Exception ex) {
+                    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+                    logger.error(this.getClass().getName(), ex);
+                }
+            }
+        };
+        worker.execute();
+    }
+
+    public void e3osLiveDataRequest(final LiveDataRequest ldr) {
 
         SwingWorker worker = new SwingWorker< OEResponse, Void>() {
 
