@@ -26,7 +26,7 @@ public enum PropertyChangeNames {
     TeslaBucketPushed("TeslaBucketPushed"),
     TeslaPushComplete("TeslaPushComplete"),
     E3OSLiveAuthenticated("E3OSLiveAuthenticated"),
-    E3OSSiteListReturned("E3OSCustTreeListReturned"),
+    E3OSStationListReturned("E3OSStationListReturned"),
     E3OSPointsListReturned("E3OSPointsListReturned"),
     E3OSLiveDataReturned("E3OSLiveDataReturned");
 

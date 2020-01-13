@@ -1,11 +1,8 @@
-
 package model.E3OS.E3OSLiveData;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-
 public class E3OSStation {
-    
 
     @JsonProperty("StationID")
     private int StationID;
@@ -39,14 +36,13 @@ public class E3OSStation {
 
     @JsonProperty("JobNumber")
     private String JobNumber;
-    
+
     @JsonProperty("CommissionStatusText")
     private String CommissionStatusText;
 
     @JsonProperty("RowVer")
     private String RowVer;
 
-    
     public int getStationID() {
         return StationID;
     }
@@ -67,8 +63,16 @@ public class E3OSStation {
         return SupervisorID;
     }
 
+    public String getSupervisor() {
+        return Supervisor;
+    }
+
     public int getCustomerID() {
         return CustomerID;
+    }
+
+    public String getCustomerName() {
+        return CustomerName;
     }
 
     public int getInstallationID() {

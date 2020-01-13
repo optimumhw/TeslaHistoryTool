@@ -1349,14 +1349,14 @@ public class TeslaAPIModel extends java.util.Observable {
         worker.execute();
     }
 
-    public void getE3OSSiteList() {
+    public void getE3OSStationList() {
 
         SwingWorker worker = new SwingWorker< OEResponse, Void>() {
 
             @Override
             public OEResponse doInBackground() throws IOException {
 
-                OEResponse results = e3osClient.getE3OSSiteList();
+                OEResponse results = e3osClient.getE3OSStationList();
                 return results;
             }
 
@@ -1368,7 +1368,7 @@ public class TeslaAPIModel extends java.util.Observable {
                     if (resp.responseCode == 200) {
                         List<E3OSSite> siteList = (List<E3OSSite>) resp.responseObject;
 
-                        pcs.firePropertyChange(PropertyChangeNames.E3OSSiteListReturned.getName(), null, siteList);
+                        pcs.firePropertyChange(PropertyChangeNames.E3OSStationListReturned.getName(), null, siteList);
                     } else {
                         pcs.firePropertyChange(PropertyChangeNames.ErrorResponse.getName(), null, resp);
                     }
@@ -1383,14 +1383,14 @@ public class TeslaAPIModel extends java.util.Observable {
         worker.execute();
     }
 
-    public void getE3OSPointsList(final int custID, final int siteID) {
+    public void getE3OSPointsList(final int custID, final int stationID) {
 
         SwingWorker worker = new SwingWorker< OEResponse, Void>() {
 
             @Override
             public OEResponse doInBackground() throws IOException {
 
-                OEResponse results = e3osClient.getE3OSPointsList(custID, siteID);
+                OEResponse results = e3osClient.getE3OSPointsList(custID, stationID);
                 return results;
             }
 

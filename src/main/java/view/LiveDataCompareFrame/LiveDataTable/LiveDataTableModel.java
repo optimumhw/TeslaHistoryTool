@@ -17,29 +17,19 @@ public class LiveDataTableModel extends AbstractTableModel {
     private Map<String, CoreDatapoint> idToDatapointMap;
     private List<String> subscribedPoints;
     private List<E3OSDataPoint> e3osDataPoints;
-    
+
     private List<LiveDataMappingTableRow> mappingRows;
 
-    public LiveDataTableModel(StationInfo stationInfo, String name, List<String> otherUIPointNames, List<E3OSDataPoint> e3osDataPoints) {
+    public LiveDataTableModel(StationInfo stationInfo, List<String> otherUIPointNames, List<E3OSDataPoint> e3osDataPoints) {
         super();
 
         datapointList = new ArrayList<>();
-        if (name.contentEquals("Station")) {
-            datapointList = stationInfo.getDatapoints();
-        } else {
-            for (Equipment eq : stationInfo.getequipments()) {
-                if (eq.getShortName().contentEquals(name)) {
-                    datapointList = eq.getDatapoints();
-                    break;
-                }
-            }
+        datapointList = stationInfo.getDatapoints();
+        for (Equipment eq : stationInfo.getequipments()) {
+            datapointList.addAll(eq.getDatapoints());
         }
-
-        idToDatapointMap = new HashMap<>();
-        for (CoreDatapoint dp : datapointList) {
-            idToDatapointMap.put(dp.getId(), dp);
-        }
-
+        
+        
         idToDatapointMap = new HashMap<>();
         for (CoreDatapoint dp : datapointList) {
             idToDatapointMap.put(dp.getId(), dp);
@@ -51,31 +41,33 @@ public class LiveDataTableModel extends AbstractTableModel {
                 subscribedPoints.add(dp.getId());
             }
         }
-        
-        
+
         mappingRows = new ArrayList<>();
-        
-        for( CoreDatapoint corePoint : datapointList){
-            mappingRows.add( new LiveDataMappingTableRow( corePoint ));
+
+        for (CoreDatapoint corePoint : datapointList) {
+            mappingRows.add(new LiveDataMappingTableRow(corePoint));
         }
-        
-        for(E3OSDataPoint e3osPoint : e3osDataPoints){
+
+        for (E3OSDataPoint e3osPoint : e3osDataPoints) {
             Boolean foundIt = false;
-            for(  LiveDataMappingTableRow mrow : mappingRows){
-                if( e3osPoint.getName().contentEquals( mrow.getCoreName() )){
+            
+
+            for (LiveDataMappingTableRow mrow : mappingRows) {
+                if (e3osPoint.getName().contentEquals(mrow.getCoreName())) {
                     mrow.setMapStatus(EnumLiveDataMapStatus.Mapped);
                     mrow.setE3osName(e3osPoint.getName());
+                    mrow.setE3osID(e3osPoint.getId());
                     mrow.setE3osValue(null);
                     foundIt = true;
                 }
             }
-            
-            if( !foundIt ){
-               mappingRows.add( new LiveDataMappingTableRow( e3osPoint )); 
+
+            if (!foundIt) {
+                mappingRows.add(new LiveDataMappingTableRow(e3osPoint));
             }
-          
+
         }
-         
+
     }
 
     public List<String> getSubscribedPoints() {
@@ -108,12 +100,12 @@ public class LiveDataTableModel extends AbstractTableModel {
         EnumLiveDataTableColumns enumCol = EnumLiveDataTableColumns.getColumnFromColumnNumber(columnIndex);
 
         LiveDataMappingTableRow mappingTableRow = mappingRows.get(rowIndex);
-        
+
         switch (enumCol) {
             case MapStatus:
                 val = mappingTableRow.getMapStatus().name();
                 break;
-             
+
             case CoreName:
                 val = mappingTableRow.getCoreName();
                 break;

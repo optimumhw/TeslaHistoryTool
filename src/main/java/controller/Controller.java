@@ -148,12 +148,12 @@ public class Controller implements java.awt.event.ActionListener, PropertyChange
         model.e3osLiveAuthenticate();
     }
 
-    public void getE3OSSiteList() {
-        model.getE3OSSiteList();
+    public void getE3OSStationList() {
+        model.getE3OSStationList();
     }
 
-    public void getE3OSPointsList(int custID, int siteID) {
-        model.getE3OSPointsList(custID, siteID);
+    public void getE3OSPointsList(int custID, int stationID) {
+        model.getE3OSPointsList(custID, stationID);
     }
 
     public void e3osLiveDataRequest(final LiveDataRequest ldr) {

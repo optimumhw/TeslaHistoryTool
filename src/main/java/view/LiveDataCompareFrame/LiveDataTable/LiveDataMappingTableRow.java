@@ -53,6 +53,8 @@ public class LiveDataMappingTableRow {
         
         e3osShortName = e3osPoint.getName();
         e3osID = e3osPoint.getId();
+        
+        
         e3osValue = null;
         
         coreName = "?";

@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import model.E3OS.CustTreeList.E3OSSite;
 import model.E3OS.E3OSLiveData.E3OSDataPoint;
+import model.E3OS.E3OSLiveData.E3OSStation;
 import model.E3OS.E3OSLiveData.E3OSWebConnProperties;
 import model.E3OS.E3OSLiveData.E3osAuthResponse;
 import model.E3OS.E3OSLiveData.LiveDataRequest;
@@ -84,9 +85,9 @@ public class E3OSClient {
 
     }
 
-    public OEResponse getE3OSSiteList() {
+    public OEResponse getE3OSStationList() {
 
-        String url = connProps.getHost() + "/services/AdminService.ashx?cmd=site-list";
+        String url = connProps.getHost() + "/services/AdminService.ashx?cmd=station-query";
 
         OEResponse resp = new OEResponse();
 
@@ -97,7 +98,7 @@ public class E3OSClient {
             resp = doPostAndGetBody(url, getHeaders(), payload);
 
             if (resp.responseCode == 200) {
-                resp.responseObject = mapper.readValue((String) resp.responseObject, new TypeReference<List<E3OSSite>>() {
+                resp.responseObject = mapper.readValue((String) resp.responseObject, new TypeReference<List<E3OSStation>>() {
                 });
             }
 
@@ -109,9 +110,9 @@ public class E3OSClient {
 
     }
     
-        public OEResponse getE3OSPointsList( int custID, int siteID) {
+        public OEResponse getE3OSPointsList( int custID, int stationID) {
             
-         String custAndSite = String.format("custid=%d&siteId=%d", custID, siteID );
+         String custAndSite = String.format("custid=%d&StationId=%d", custID, stationID );
 
         String url = connProps.getHost() + "/services/DataService.ashx?cmd=point-list&" + custAndSite;
 
