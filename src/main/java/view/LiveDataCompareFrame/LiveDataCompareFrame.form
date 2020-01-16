@@ -88,14 +88,14 @@
                       <Component id="jLabelCoreStationName" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="e3osAuth" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Group type="103" alignment="3" groupAlignment="3" attributes="0">
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="103" alignment="0" groupAlignment="3" attributes="0">
                           <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabelToken" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabelExpires" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
+                      <Component id="e3osAuth" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>

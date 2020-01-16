@@ -237,13 +237,13 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
                     .addComponent(jLabel2)
                     .addComponent(jLabelCoreStationName))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(e3osAuth)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel1)
                         .addComponent(jLabelToken)
                         .addComponent(jLabel3)
-                        .addComponent(jLabelExpires)))
+                        .addComponent(jLabelExpires))
+                    .addComponent(e3osAuth))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -435,17 +435,17 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
     }//GEN-LAST:event_jTableE3OSStationsMousePressed
 
     private void jToggleButtonLiveCoreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButtonLiveCoreActionPerformed
-                if (jTogglePollForLiveData.isSelected()) {
-            long sec = (int) jSpinnerPollInterval.getModel().getValue();
+                if (jToggleButtonLiveCore.isSelected()) {
+            long sec = (int) jSpinnerCore.getModel().getValue();
             long interval = 1000 * sec;
             long startDelay = 0;
 
-            timer = new Timer();
-            timer.schedule(new TimerTask() {
+            coreTimer = new Timer();
+            coreTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
                     try {
-                        DatapointsTableModel mod = (DatapointsTableModel) jTableDatapointsTable.getModel();
+                        LiveDataTableModel mod = (LiveDataTableModel) jTableLiveDataCompare.getModel();
                         controller.getLiveData(mod.getSubscribedPoints());
                         System.out.println("polling...");
                     } catch (Exception ex) {
@@ -454,13 +454,13 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
                 }
             }, startDelay, interval);
 
-            jSpinnerPollInterval.setEnabled(false);
+            jSpinnerCore.setEnabled(false);
 
         } else {
-            if (timer != null) {
-                timer.cancel();
+            if (coreTimer != null) {
+                coreTimer.cancel();
             }
-            jSpinnerPollInterval.setEnabled(true);
+            jSpinnerCore.setEnabled(true);
         }
     }//GEN-LAST:event_jToggleButtonLiveCoreActionPerformed
 
