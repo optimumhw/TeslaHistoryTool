@@ -11,13 +11,17 @@ import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
+import model.DataPoints.LiveDatapoint;
 import model.DataPoints.StationInfo;
 import model.E3OS.CustTreeList.E3OSSite;
 import model.E3OS.E3OSLiveData.E3OSDataPoint;
 import model.E3OS.E3OSLiveData.E3OSStation;
 import model.E3OS.E3OSLiveData.E3osAuthResponse;
+import model.E3OS.E3OSLiveData.LiveDataRequest;
+import model.E3OS.E3OSLiveData.LiveDataResponse;
 import model.PropertyChangeNames;
 import org.jfree.ui.DateCellRenderer;
+import org.joda.time.DateTime;
 import view.DataPointsTable.DatapointsTableModel;
 import view.DataPointsTable.PopupMenuForDataPointsTable;
 import view.LiveDataCompareFrame.E3OSSiteTable.E3OSSiteTableCellRenderer;
@@ -154,6 +158,16 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
                 column.setPreferredWidth(50);
             }
         }
+    }
+
+    public void fillCoreLiveData(List<LiveDatapoint> dpList) {
+        LiveDataTableModel model = (LiveDataTableModel) (this.jTableLiveDataCompare.getModel());
+        model.appendLiveData(dpList);
+    }
+
+    public void fillE3OSLiveData(List<LiveDataResponse> liveDataResponse) {
+        LiveDataTableModel model = (LiveDataTableModel) (this.jTableLiveDataCompare.getModel());
+        model.appendE3OSLiveData(liveDataResponse);
     }
 
     @SuppressWarnings("unchecked")
@@ -343,6 +357,11 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
         jLabel4.setText("secs:");
 
         jToggleButtonLiveE3OS.setText("Poll E3OS Data");
+        jToggleButtonLiveE3OS.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleButtonLiveE3OSActionPerformed(evt);
+            }
+        });
 
         jLabel5.setText("secs:");
 
@@ -435,7 +454,7 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
     }//GEN-LAST:event_jTableE3OSStationsMousePressed
 
     private void jToggleButtonLiveCoreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButtonLiveCoreActionPerformed
-                if (jToggleButtonLiveCore.isSelected()) {
+        if (jToggleButtonLiveCore.isSelected()) {
             long sec = (int) jSpinnerCore.getModel().getValue();
             long interval = 1000 * sec;
             long startDelay = 0;
@@ -447,9 +466,9 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
                     try {
                         LiveDataTableModel mod = (LiveDataTableModel) jTableLiveDataCompare.getModel();
                         controller.getLiveData(mod.getSubscribedPoints());
-                        System.out.println("polling...");
+                        System.out.println("polling for core live data...");
                     } catch (Exception ex) {
-                        System.out.println("oops. something went wrong with the timer");
+                        System.out.println("oops. something went wrong with the core timer");
                     }
                 }
             }, startDelay, interval);
@@ -463,6 +482,41 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
             jSpinnerCore.setEnabled(true);
         }
     }//GEN-LAST:event_jToggleButtonLiveCoreActionPerformed
+
+    private void jToggleButtonLiveE3OSActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButtonLiveE3OSActionPerformed
+                if (jToggleButtonLiveE3OS.isSelected()) {
+            long sec = (int) jSpinnerE3OS.getModel().getValue();
+            long interval = 1000 * sec;
+            long startDelay = 0;
+
+            e3osTimer = new Timer();
+            e3osTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    try {
+                        LiveDataTableModel mod = (LiveDataTableModel) jTableLiveDataCompare.getModel();
+                        
+                        List<Integer> e3osPointIds = new ArrayList<>();
+                        LiveDataRequest ldr = new LiveDataRequest(DateTime.now(), e3osPointIds);
+                        
+                        
+                        controller.e3osLiveDataRequest(ldr);
+                        System.out.println("polling for e3os live data...");
+                    } catch (Exception ex) {
+                        System.out.println("oops. something went wrong with the e3os timer");
+                    }
+                }
+            }, startDelay, interval);
+
+            jSpinnerCore.setEnabled(false);
+
+        } else {
+            if (coreTimer != null) {
+                coreTimer.cancel();
+            }
+            jSpinnerCore.setEnabled(true);
+        }
+    }//GEN-LAST:event_jToggleButtonLiveE3OSActionPerformed
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
@@ -479,6 +533,14 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
         } else if (propName.equals(PropertyChangeNames.E3OSPointsListReturned.getName())) {
             e3osDataPoints = (List<E3OSDataPoint>) evt.getNewValue();
             fillLiveDataTable();
+
+        } else if (propName.equals(PropertyChangeNames.LiveDataReturned.getName())) {
+            List<LiveDatapoint> dpList = (List<LiveDatapoint>) evt.getNewValue();
+            fillCoreLiveData(dpList);
+
+        } else if (propName.equals(PropertyChangeNames.E3OSLiveDataReturned.getName())) {
+            List<LiveDataResponse> liveDataResponse = (List<LiveDataResponse>) evt.getNewValue();
+            fillE3OSLiveData(liveDataResponse);
         }
 
     }

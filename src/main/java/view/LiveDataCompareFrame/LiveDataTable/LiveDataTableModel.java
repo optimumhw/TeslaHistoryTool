@@ -10,13 +10,17 @@ import model.DataPoints.Equipment;
 import model.DataPoints.LiveDatapoint;
 import model.DataPoints.StationInfo;
 import model.E3OS.E3OSLiveData.E3OSDataPoint;
+import model.E3OS.E3OSLiveData.LiveDataPointAndValue;
+import model.E3OS.E3OSLiveData.LiveDataResponse;
 
 public class LiveDataTableModel extends AbstractTableModel {
 
     private List<CoreDatapoint> datapointList;
-    private Map<String, CoreDatapoint> idToDatapointMap;
+    private Map<String, LiveDataMappingTableRow> coreIDtoMaapingTableRow;
     private List<String> subscribedPoints;
+
     private List<E3OSDataPoint> e3osDataPoints;
+    private Map<Integer, LiveDataMappingTableRow> e3osIDtoMappingTableRow;
 
     private List<LiveDataMappingTableRow> mappingRows;
 
@@ -28,13 +32,18 @@ public class LiveDataTableModel extends AbstractTableModel {
         for (Equipment eq : stationInfo.getequipments()) {
             datapointList.addAll(eq.getDatapoints());
         }
-        
-        
-        idToDatapointMap = new HashMap<>();
-        for (CoreDatapoint dp : datapointList) {
-            idToDatapointMap.put(dp.getId(), dp);
-        }
 
+        /*
+        coreIDtoCorePointMap = new HashMap<>();
+        for (CoreDatapoint dp : datapointList) {
+            coreIDtoCorePointMap.put(dp.getId(), dp);
+        }
+        
+        e3osIDtoE3OSPointMap = new HashMap<>();
+        for (E3OSDataPoint dp : e3osDataPoints) {
+            e3osIDtoE3OSPointMap.put(dp.getId(), dp);
+        }
+         */
         subscribedPoints = new ArrayList<>();
         for (CoreDatapoint dp : datapointList) {
             if (dp.getSubscribedFlag() || otherUIPointNames.contains(dp.getShortName())) {
@@ -50,7 +59,6 @@ public class LiveDataTableModel extends AbstractTableModel {
 
         for (E3OSDataPoint e3osPoint : e3osDataPoints) {
             Boolean foundIt = false;
-            
 
             for (LiveDataMappingTableRow mrow : mappingRows) {
                 if (e3osPoint.getName().contentEquals(mrow.getCoreName())) {
@@ -66,6 +74,13 @@ public class LiveDataTableModel extends AbstractTableModel {
                 mappingRows.add(new LiveDataMappingTableRow(e3osPoint));
             }
 
+        }
+
+        coreIDtoMaapingTableRow = new HashMap<>();
+        e3osIDtoMappingTableRow = new HashMap<>();
+        for (LiveDataMappingTableRow mrow : mappingRows) {
+            coreIDtoMaapingTableRow.put(mrow.getCoreID(), mrow);
+            e3osIDtoMappingTableRow.put(mrow.getE3osID(), mrow);
         }
 
     }
@@ -137,14 +152,33 @@ public class LiveDataTableModel extends AbstractTableModel {
 
         for (LiveDatapoint livePoint : livePoints) {
 
-            if (idToDatapointMap.containsKey(livePoint.getId())) {
-                CoreDatapoint dpInTable = idToDatapointMap.get(livePoint.getId());
+            if (coreIDtoMaapingTableRow.containsKey(livePoint.getId())) {
+                LiveDataMappingTableRow dpInTable = coreIDtoMaapingTableRow.get(livePoint.getId());
                 if (livePoint.getValues() != null) {
-                    dpInTable.setLiveDataValue(livePoint.getValues().get(0));
+                    dpInTable.setCoreValue(livePoint.getValues().get(0));
                 }
             }
             fireTableDataChanged();
         }
 
+    }
+
+    public void appendE3OSLiveData(List<LiveDataResponse> listOfLiveDataResponses) {
+
+        for (LiveDataResponse livePoint : listOfLiveDataResponses) {
+
+            for (LiveDataPointAndValue e3osPointAndValue : livePoint.getData()) {
+
+                if (coreIDtoMaapingTableRow.containsKey(e3osPointAndValue.getId())) {
+                    LiveDataMappingTableRow dpInTable = e3osIDtoMappingTableRow.get(e3osPointAndValue.getId());
+
+                    //if (e3osPointAndValue.getValue() != null) {
+                    dpInTable.setE3osValue(e3osPointAndValue.getValue());
+                    //}
+                }
+                fireTableDataChanged();
+            }
+
+        }
     }
 }
