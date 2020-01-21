@@ -21,11 +21,20 @@ public class LiveDataRequest {
     @JsonIgnore
     public LiveDataRequest( DateTime minDate, List<Integer> dataPointIds ){
     
-        this.ticks = minDate.getMillis() * 1000L;
+        //this.ticks = minDate.getMillis() * 1000L;
+        
+        this.ticks = 637115884007570000L;
+        
         this.dataPointIds = dataPointIds;
-    
+        
+
+  
         //{"dataSourceType":"LiveData","minDateTime":637115884007570000,"dataPoints":[120631]}
         //long ticks = DateTime.now().getMillis() * 1000L;
+        
+        //bad 1579622185730000
+        //    637115884007570000
+        
     }
     
     

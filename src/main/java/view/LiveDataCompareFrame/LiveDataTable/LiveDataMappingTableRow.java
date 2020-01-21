@@ -8,6 +8,7 @@ import model.E3OS.E3OSLiveData.E3OSDataPoint;
 public class LiveDataMappingTableRow {
 
     private EnumLiveDataMapStatus mapStatus;
+    private boolean pollFlag;
     
     private String coreName;
     private String coreType;
@@ -21,6 +22,8 @@ public class LiveDataMappingTableRow {
     public LiveDataMappingTableRow() {
 
         mapStatus = EnumLiveDataMapStatus.NoInfo;
+        pollFlag = false;
+        
         
         coreName = "?";
         coreType = "?";
@@ -35,6 +38,7 @@ public class LiveDataMappingTableRow {
     
     public LiveDataMappingTableRow(CoreDatapoint pt){
         mapStatus = EnumLiveDataMapStatus.NoE3OSInfo;
+        pollFlag = false;
         
         coreName = pt.getShortName();
         coreType = pt.getPointType();
@@ -69,6 +73,14 @@ public class LiveDataMappingTableRow {
 
     public EnumLiveDataMapStatus getMapStatus() {
         return mapStatus;
+    }
+    
+    public void setPollFlag(boolean pollFlag) {
+        this.pollFlag = pollFlag;
+    }
+
+    public boolean getPollFlag() {
+        return pollFlag;
     }
     
     

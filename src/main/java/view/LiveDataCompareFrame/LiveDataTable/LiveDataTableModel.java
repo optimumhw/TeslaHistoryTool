@@ -120,6 +120,9 @@ public class LiveDataTableModel extends AbstractTableModel {
             case MapStatus:
                 val = mappingTableRow.getMapStatus().name();
                 break;
+            case PollFlag:
+                val = mappingTableRow.getPollFlag();
+                break;
 
             case CoreName:
                 val = mappingTableRow.getCoreName();
@@ -147,6 +150,26 @@ public class LiveDataTableModel extends AbstractTableModel {
 
         return val;
     }
+    
+    public List<String> getCorePollPointIDs() {
+        List<String> corePointIDs = new ArrayList<>();
+        for (LiveDataMappingTableRow mrow : mappingRows) {
+            if (mrow.getMapStatus() == EnumLiveDataMapStatus.Mapped && mrow.getCoreID().length() > 0 && mrow.getPollFlag()) {
+                corePointIDs.add(mrow.getCoreID());
+            }
+        }
+        return corePointIDs;
+    }
+
+    public List<Integer> getE3OSPollPointIDs() {
+        List<Integer> e3osIDs = new ArrayList<>();
+        for (LiveDataMappingTableRow mrow : mappingRows) {
+            if (mrow.getMapStatus() == EnumLiveDataMapStatus.Mapped && mrow.getE3osID() > 0 && mrow.getPollFlag()) {
+                e3osIDs.add(mrow.getE3osID());
+            }
+        }
+        return e3osIDs;
+    }
 
     public void appendLiveData(List<LiveDatapoint> livePoints) {
 
@@ -163,22 +186,20 @@ public class LiveDataTableModel extends AbstractTableModel {
 
     }
 
-    public void appendE3OSLiveData(List<LiveDataResponse> listOfLiveDataResponses) {
+    public void appendE3OSLiveData(LiveDataResponse listOfLiveDataResponse) {
 
-        for (LiveDataResponse livePoint : listOfLiveDataResponses) {
+        for (LiveDataPointAndValue e3osPointAndValue : listOfLiveDataResponse.getData()) {
 
-            for (LiveDataPointAndValue e3osPointAndValue : livePoint.getData()) {
+            if (e3osIDtoMappingTableRow.containsKey(e3osPointAndValue.getId())) {
+                LiveDataMappingTableRow dpInTable = e3osIDtoMappingTableRow.get(e3osPointAndValue.getId());
 
-                if (coreIDtoMaapingTableRow.containsKey(e3osPointAndValue.getId())) {
-                    LiveDataMappingTableRow dpInTable = e3osIDtoMappingTableRow.get(e3osPointAndValue.getId());
-
-                    //if (e3osPointAndValue.getValue() != null) {
-                    dpInTable.setE3osValue(e3osPointAndValue.getValue());
-                    //}
-                }
+                //if (e3osPointAndValue.getValue() != null) {
+                dpInTable.setE3osValue(e3osPointAndValue.getValue());
+                //}
                 fireTableDataChanged();
             }
 
         }
     }
+
 }

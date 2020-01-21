@@ -1434,7 +1434,7 @@ public class TeslaAPIModel extends java.util.Observable {
                     OEResponse resp = get();
 
                     if (resp.responseCode == 200) {
-                        List<LiveDataResponse> liveDataResponse = (List<LiveDataResponse>) resp.responseObject;
+                        LiveDataResponse liveDataResponse = (LiveDataResponse) resp.responseObject;
 
                         pcs.firePropertyChange(PropertyChangeNames.E3OSLiveDataReturned.getName(), null, liveDataResponse);
                     } else {

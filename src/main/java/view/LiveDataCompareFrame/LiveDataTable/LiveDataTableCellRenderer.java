@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package view.LiveDataCompareFrame.LiveDataTable;
 
 import java.awt.Color;
@@ -16,10 +12,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-/**
- *
- * @author hal
- */
+
 public class LiveDataTableCellRenderer extends DefaultTableCellRenderer {
 
     private final Color limeGreen = new Color(204, 255, 204);
@@ -39,7 +32,11 @@ public class LiveDataTableCellRenderer extends DefaultTableCellRenderer {
 
         Color color = Color.WHITE;
         setBackground(isSelected ? color : color);
-        this.setHorizontalAlignment( (column == 0 )? JLabel.LEFT : JLabel.RIGHT);
+        this.setHorizontalAlignment( JLabel.LEFT );
+        EnumLiveDataTableColumns colEnum = EnumLiveDataTableColumns.getColumnFromColumnNumber(column);
+        if( colEnum == EnumLiveDataTableColumns.CoreValue || colEnum == EnumLiveDataTableColumns.E3OSvalue ){
+            this.setHorizontalAlignment( JLabel.RIGHT );
+        }
 
         if (value == null) {
             color = Color.lightGray;

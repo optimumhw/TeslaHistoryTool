@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -142,15 +145,18 @@ public class E3OSClient {
 
     public OEResponse requestLiveData(LiveDataRequest ldr) {
 
-        String url = connProps.getHost() + "/services/LiveData.ashx?cmd=command1&request=";
+        
         OEResponse resp = new OEResponse();
         try {
 
             ObjectMapper mapper = new ObjectMapper();
             String reqParam = mapper.writeValueAsString(ldr);
+            String encodedParams = URLEncoder.encode(reqParam, "UTF-8");
+            String url = connProps.getHost() + "/services/LiveData.ashx?cmd=command1&request=";
+            url += encodedParams;
 
             String payload = "";
-
+            
             resp = doPostAndGetBody(url, getHeaders(), payload);
 
             if (resp.responseCode == 200) {

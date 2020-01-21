@@ -8,13 +8,14 @@ import java.util.List;
 public enum EnumLiveDataTableColumns {
 
     MapStatus(0,"MapStatus", 100),
-    CoreName(1,"CoreName", 200),
-    CoreType(2,"CoreType", 100),
-    CoreID(3,"CoreID", 100),
-    CoreValue(4,"CoreValue", 300),
-    E3OSName(5,"E3OSName", 250),
-    E3OSID(6,"E3OSID", 100),
-    E3OSvalue(7,"E3OSvalue", 100);
+    PollFlag(1,"PollFlag", 100),
+    CoreName(2,"CoreName", 200),
+    CoreType(3,"CoreType", 100),
+    CoreID(4,"CoreID", 100),
+    CoreValue(5,"CoreValue", 300),
+    E3OSName(6,"E3OSName", 250),
+    E3OSID(7,"E3OSID", 100),
+    E3OSvalue(8,"E3OSvalue", 100);
 
     private final String friendlyName;
     private final int columnNumber;
