@@ -9,12 +9,12 @@ public enum EnumLiveDataTableColumns {
 
     MapStatus(0,"MapStatus", 100),
     PollFlag(1,"PollFlag", 100),
-    CoreName(2,"CoreName", 200),
+    CoreName(2,"CoreName", 100),
     CoreType(3,"CoreType", 100),
-    CoreID(4,"CoreID", 100),
-    CoreValue(5,"CoreValue", 300),
-    E3OSName(6,"E3OSName", 250),
-    E3OSID(7,"E3OSID", 100),
+    CoreID(4,"CoreID", 200),
+    CoreValue(5,"CoreValue", 100),
+    E3OSName(6,"E3OSName", 100),
+    E3OSID(7,"E3OSID", 200),
     E3OSvalue(8,"E3OSvalue", 100);
 
     private final String friendlyName;

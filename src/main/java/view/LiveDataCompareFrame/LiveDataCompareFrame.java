@@ -6,16 +6,22 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
+import model.DataPoints.CoreDatapoint;
+import model.DataPoints.Equipment;
 import model.DataPoints.LiveDatapoint;
 import model.DataPoints.StationInfo;
-import model.E3OS.CustTreeList.E3OSSite;
 import model.E3OS.E3OSLiveData.E3OSDataPoint;
 import model.E3OS.E3OSLiveData.E3OSStation;
 import model.E3OS.E3OSLiveData.E3osAuthResponse;
@@ -24,8 +30,6 @@ import model.E3OS.E3OSLiveData.LiveDataResponse;
 import model.PropertyChangeNames;
 import org.jfree.ui.DateCellRenderer;
 import org.joda.time.DateTime;
-import view.DataPointsTable.DatapointsTableModel;
-import view.DataPointsTable.PopupMenuForDataPointsTable;
 import view.LiveDataCompareFrame.E3OSSiteTable.E3OSSiteTableCellRenderer;
 import view.LiveDataCompareFrame.E3OSSiteTable.E3OSStationTableModel;
 import view.LiveDataCompareFrame.E3OSSiteTable.EnumE3OSStationTableColumns;
@@ -34,7 +38,6 @@ import view.LiveDataCompareFrame.LiveDataTable.EnumLiveDataTableColumns;
 import view.LiveDataCompareFrame.LiveDataTable.LiveDataMappingTableRow;
 import view.LiveDataCompareFrame.LiveDataTable.LiveDataTableCellRenderer;
 import view.LiveDataCompareFrame.LiveDataTable.LiveDataTableModel;
-import view.StationsTable.StationsTableModel;
 
 public class LiveDataCompareFrame extends javax.swing.JFrame implements PropertyChangeListener {
 
@@ -70,6 +73,11 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
         this.jSpinnerE3OS.setModel(spinModel);
 
         e3osDataPoints = new ArrayList<>();
+
+        configureCheckBoxUseRegex();
+        configureShowPollPointsOnly();
+        configureCheckBoxHideUnmapped();
+
         fillLiveDataTable();
     }
 
@@ -99,25 +107,37 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
             e3osTimer = null;
         }
     }
-    
-    /*
-    private void configureHideUnmappedCheckbox() {
-        this.jCheckBoxHideUnmapped.addActionListener(new ActionListener() {
+
+    private void configureCheckBoxUseRegex() {
+        this.jCheckBoxUseRegex.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-
-                jCheckBoxHideUnmapped.setSelected(false);
-                jCheckBoxHideUnmapped.setEnabled(false);
-                //killLivePollingTimer();
-                //jLabelHistoryLiveId.setText("");
-
-                if (jTableDatapointsList.getSelectedRowCount() > 0 && jCheckBoxAppendLiveData.isSelected()) {
-                    createLiveDataRequest();
-                }
+                clearLiveDataTable();
+                fillLiveDataTable();
             }
         });
     }
-    */
+
+    private void configureShowPollPointsOnly() {
+        this.jCheckBoxShowPollPointsOnly.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                clearLiveDataTable();
+                fillLiveDataTable();
+            }
+        });
+    }
+
+    private void configureCheckBoxHideUnmapped() {
+
+        this.jCheckBoxHideUnmapped.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                clearLiveDataTable();
+                fillLiveDataTable();
+            }
+        });
+    }
 
     private void ShowE3OSAuthResponse(E3osAuthResponse e3osAuthResp) {
         this.jLabelToken.setText(e3osAuthResp.getToken());
@@ -163,9 +183,128 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
         this.jTableLiveDataCompare.setModel(new DefaultTableModel());
     }
 
+    private List<LiveDataMappingTableRow> createLiveDataMappingTable() {
+
+        Map< String, CoreDatapoint> tempMap = new HashMap<>();
+
+        List<CoreDatapoint> datapointList = selectedStation.getDatapoints();
+
+        for (CoreDatapoint dp : datapointList) {
+            if (tempMap.containsKey(dp.getId())) {
+                System.out.println("already there");
+            } else {
+                tempMap.put(dp.getId(), dp);
+            }
+        }
+
+        for (Equipment eq : selectedStation.getequipments()) {
+
+            for (CoreDatapoint eqPt : eq.getDatapoints()) {
+                if (tempMap.containsKey(eqPt.getId())) {
+                    System.out.println("already there");
+                } else {
+                    tempMap.put(eqPt.getId(), eqPt);
+                    datapointList.add(eqPt);
+                }
+
+            }
+
+            //datapointList.addAll(eq.getDatapoints());
+        }
+
+        //List<String> otherUIPointNames = getOtherUIPointNames();
+        /*
+        ArrayList<String> subscribedPoints = new ArrayList<>();
+        for (CoreDatapoint dp : datapointList) {
+            if (dp.getSubscribedFlag() || otherUIPointNames.contains(dp.getShortName())) {
+                subscribedPoints.add(dp.getId());
+            }
+        }
+         */
+        List<LiveDataMappingTableRow> mappingRows = new ArrayList<>();
+
+        for (CoreDatapoint corePoint : datapointList) {
+            mappingRows.add(new LiveDataMappingTableRow(corePoint));
+        }
+
+        for (E3OSDataPoint e3osPoint : e3osDataPoints) {
+            Boolean foundIt = false;
+
+            for (LiveDataMappingTableRow mrow : mappingRows) {
+                if (e3osPoint.getName().contentEquals(mrow.getCoreName())) {
+                    mrow.setMapStatus(EnumLiveDataMapStatus.Mapped);
+                    mrow.setE3osName(e3osPoint.getName());
+                    mrow.setE3osID(e3osPoint.getId());
+                    mrow.setE3osValue(null);
+                    foundIt = true;
+                }
+            }
+
+            if (!foundIt) {
+                mappingRows.add(new LiveDataMappingTableRow(e3osPoint));
+            }
+
+        }
+
+        return mappingRows;
+    }
+
     private void fillLiveDataTable() {
-        this.jTableLiveDataCompare.setDefaultRenderer(Object.class, new LiveDataTableCellRenderer());
-        this.jTableLiveDataCompare.setModel(new LiveDataTableModel(selectedStation, getOtherUIPointNames(), e3osDataPoints));
+
+        clearLiveDataTable();
+
+        List<LiveDataMappingTableRow> mappingTableRows = createLiveDataMappingTable();
+
+        List<LiveDataMappingTableRow> filteredList = new ArrayList<>();
+
+        String filter = this.jTextFieldPointFilter.getText();
+        String[] pointNameFilters = filter.split(" ");
+
+        for (LiveDataMappingTableRow mtRow : mappingTableRows) {
+
+            if (filter.length() == 0) {
+                filteredList.add(mtRow);
+                continue;
+            }
+
+            for (String pointNameFilter : Arrays.asList(pointNameFilters)) {
+
+                if (!this.jCheckBoxUseRegex.isSelected()
+                        && (mtRow.getCoreName().contains(pointNameFilter)
+                        || mtRow.getE3osName().contains(pointNameFilter))) {
+                    filteredList.add(mtRow);
+                } else if (this.jCheckBoxUseRegex.isSelected()) {
+                    Pattern r = Pattern.compile(pointNameFilter);
+                    Matcher m = r.matcher(mtRow.getCoreName());
+                    if (m.find()) {
+                        filteredList.add(mtRow);
+                    }
+                    m = r.matcher(mtRow.getE3osName());
+                    if (m.find()) {
+                        filteredList.add(mtRow);
+                    }
+                }
+            }
+        }
+
+        List<LiveDataMappingTableRow> finalList = new ArrayList<>();
+
+        for (LiveDataMappingTableRow mtRow : filteredList) {
+
+            if (mtRow.getMapStatus() != EnumLiveDataMapStatus.Mapped && jCheckBoxHideUnmapped.isSelected()) {
+                continue;
+            }
+
+            if (!mtRow.getPollFlag() && jCheckBoxShowPollPointsOnly.isSelected()) {
+                continue;
+            }
+
+            finalList.add(mtRow);
+
+        }
+
+        this.jTableLiveDataCompare.setDefaultRenderer(Object.class, new LiveDataTableCellRenderer(3));
+        this.jTableLiveDataCompare.setModel(new LiveDataTableModel(finalList));
         this.jTableLiveDataCompare.setAutoCreateRowSorter(true);
         fixLiveDataTableColumns(jTableLiveDataCompare);
     }
@@ -213,7 +352,7 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
         jScrollPane2 = new javax.swing.JScrollPane();
         jTableLiveDataCompare = new javax.swing.JTable();
         jCheckBoxHideUnmapped = new javax.swing.JCheckBox();
-        jCheckBoxPollPoints = new javax.swing.JCheckBox();
+        jCheckBoxShowPollPointsOnly = new javax.swing.JCheckBox();
         jLabel6 = new javax.swing.JLabel();
         jTextFieldPointFilter = new javax.swing.JTextField();
         jCheckBoxUseRegex = new javax.swing.JCheckBox();
@@ -359,11 +498,15 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
 
         jCheckBoxHideUnmapped.setText("Hide Unmapped");
 
-        jCheckBoxPollPoints.setText("Poll Pts Only");
+        jCheckBoxShowPollPointsOnly.setText("Poll Pts Only");
 
         jLabel6.setText("Filter:");
 
-        jTextFieldPointFilter.setText("jTextField1");
+        jTextFieldPointFilter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextFieldPointFilterActionPerformed(evt);
+            }
+        });
 
         jCheckBoxUseRegex.setText("Use RegEx");
 
@@ -382,7 +525,7 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jCheckBoxUseRegex)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jCheckBoxPollPoints)
+                        .addComponent(jCheckBoxShowPollPointsOnly)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jCheckBoxHideUnmapped)))
                 .addContainerGap())
@@ -390,12 +533,13 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jCheckBoxHideUnmapped)
-                    .addComponent(jCheckBoxPollPoints)
-                    .addComponent(jLabel6)
-                    .addComponent(jTextFieldPointFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jCheckBoxUseRegex, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jCheckBoxUseRegex, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jCheckBoxHideUnmapped)
+                        .addComponent(jCheckBoxShowPollPointsOnly)
+                        .addComponent(jLabel6)
+                        .addComponent(jTextFieldPointFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 473, Short.MAX_VALUE))
         );
@@ -600,6 +744,10 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
 
     }//GEN-LAST:event_jTableLiveDataCompareMousePressed
 
+    private void jTextFieldPointFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldPointFilterActionPerformed
+        fillLiveDataTable();
+    }//GEN-LAST:event_jTextFieldPointFilterActionPerformed
+
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         String propName = evt.getPropertyName();
@@ -632,7 +780,7 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
     private javax.swing.JButton e3osAuth;
     private javax.swing.JButton jButtonClose;
     private javax.swing.JCheckBox jCheckBoxHideUnmapped;
-    private javax.swing.JCheckBox jCheckBoxPollPoints;
+    private javax.swing.JCheckBox jCheckBoxShowPollPointsOnly;
     private javax.swing.JCheckBox jCheckBoxUseRegex;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

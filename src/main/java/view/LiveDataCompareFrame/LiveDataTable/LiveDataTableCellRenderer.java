@@ -18,8 +18,14 @@ public class LiveDataTableCellRenderer extends DefaultTableCellRenderer {
     private final Color limeGreen = new Color(204, 255, 204);
     private final Color lightBlue = new Color(204,255,255);
     private final Color lightYellow = new Color(255,255,229);
+    
+    final int prec;
     //private final DateTimeFormatter zzFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
     private final DateTimeFormatter uiFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
+    
+    public LiveDataTableCellRenderer( int prec ){
+        this.prec = prec;
+    }
 
     @Override
     public Component getTableCellRendererComponent(
@@ -51,6 +57,10 @@ public class LiveDataTableCellRenderer extends DefaultTableCellRenderer {
             try {
                 String precFormatString = "#0";
                 String stringOfZeros = "000000";
+                if (prec > 0) {
+                    precFormatString += ".";
+                    precFormatString = precFormatString.concat(stringOfZeros.substring(0, prec));
+                }
 
                 NumberFormat formatter = new DecimalFormat(precFormatString);
                 value = formatter.format(value);

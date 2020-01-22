@@ -5,84 +5,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.table.AbstractTableModel;
-import model.DataPoints.CoreDatapoint;
-import model.DataPoints.Equipment;
 import model.DataPoints.LiveDatapoint;
-import model.DataPoints.StationInfo;
-import model.E3OS.E3OSLiveData.E3OSDataPoint;
 import model.E3OS.E3OSLiveData.LiveDataPointAndValue;
 import model.E3OS.E3OSLiveData.LiveDataResponse;
 
 public class LiveDataTableModel extends AbstractTableModel {
 
-    private List<CoreDatapoint> datapointList;
-    private Map<String, LiveDataMappingTableRow> coreIDtoMaapingTableRow;
+    private final Map<String, LiveDataMappingTableRow> coreIDtoMaapingTableRow;
     private List<String> subscribedPoints;
 
-    private List<E3OSDataPoint> e3osDataPoints;
-    private Map<Integer, LiveDataMappingTableRow> e3osIDtoMappingTableRow;
+    private final Map<Integer, LiveDataMappingTableRow> e3osIDtoMappingTableRow;
+    private final List<LiveDataMappingTableRow> mappingRows;
 
-    private List<LiveDataMappingTableRow> mappingRows;
-
-    public LiveDataTableModel(StationInfo stationInfo, List<String> otherUIPointNames, List<E3OSDataPoint> e3osDataPoints) {
+    public LiveDataTableModel(List<LiveDataMappingTableRow> mappingRows) {
         super();
 
-        datapointList = new ArrayList<>();
-        datapointList = stationInfo.getDatapoints();
-        for (Equipment eq : stationInfo.getequipments()) {
-            datapointList.addAll(eq.getDatapoints());
-        }
-
-        /*
-        coreIDtoCorePointMap = new HashMap<>();
-        for (CoreDatapoint dp : datapointList) {
-            coreIDtoCorePointMap.put(dp.getId(), dp);
-        }
+        this.mappingRows = mappingRows;
         
-        e3osIDtoE3OSPointMap = new HashMap<>();
-        for (E3OSDataPoint dp : e3osDataPoints) {
-            e3osIDtoE3OSPointMap.put(dp.getId(), dp);
-        }
-         */
-        subscribedPoints = new ArrayList<>();
-        for (CoreDatapoint dp : datapointList) {
-            if (dp.getSubscribedFlag() || otherUIPointNames.contains(dp.getShortName())) {
-                subscribedPoints.add(dp.getId());
-            }
-        }
-
-        mappingRows = new ArrayList<>();
-
-        for (CoreDatapoint corePoint : datapointList) {
-            mappingRows.add(new LiveDataMappingTableRow(corePoint));
-        }
-
-        for (E3OSDataPoint e3osPoint : e3osDataPoints) {
-            Boolean foundIt = false;
-
-            for (LiveDataMappingTableRow mrow : mappingRows) {
-                if (e3osPoint.getName().contentEquals(mrow.getCoreName())) {
-                    mrow.setMapStatus(EnumLiveDataMapStatus.Mapped);
-                    mrow.setE3osName(e3osPoint.getName());
-                    mrow.setE3osID(e3osPoint.getId());
-                    mrow.setE3osValue(null);
-                    foundIt = true;
-                }
-            }
-
-            if (!foundIt) {
-                mappingRows.add(new LiveDataMappingTableRow(e3osPoint));
-            }
-
-        }
-
         coreIDtoMaapingTableRow = new HashMap<>();
         e3osIDtoMappingTableRow = new HashMap<>();
         for (LiveDataMappingTableRow mrow : mappingRows) {
             coreIDtoMaapingTableRow.put(mrow.getCoreID(), mrow);
             e3osIDtoMappingTableRow.put(mrow.getE3osID(), mrow);
         }
-
     }
 
     public List<String> getSubscribedPoints() {
