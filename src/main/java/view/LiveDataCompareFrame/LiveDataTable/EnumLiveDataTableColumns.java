@@ -1,21 +1,19 @@
-
 package view.LiveDataCompareFrame.LiveDataTable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
 public enum EnumLiveDataTableColumns {
 
-    MapStatus(0,"MapStatus", 100),
-    PollFlag(1,"PollFlag", 100),
-    CoreName(2,"CoreName", 100),
-    CoreType(3,"CoreType", 100),
-    CoreID(4,"CoreID", 200),
-    CoreValue(5,"CoreValue", 100),
-    E3OSName(6,"E3OSName", 100),
-    E3OSID(7,"E3OSID", 200),
-    E3OSvalue(8,"E3OSvalue", 100);
+    MapStatus(0, "MapStatus", 100),
+    PollFlag(1, "PollFlag", 50),
+    CoreName(2, "CoreName", 150),
+    CoreValue(3, "CoreValue", 100),
+    E3OSName(4, "E3OSName", 150),
+    E3OSvalue(5, "E3OSvalue", 100),
+    CoreType(6, "CoreType", 100),
+    CoreID(7, "CoreID", 300),
+    E3OSID(8, "E3OSID", 75);
 
     private final String friendlyName;
     private final int columnNumber;
@@ -57,4 +55,3 @@ public enum EnumLiveDataTableColumns {
         return names;
     }
 }
-

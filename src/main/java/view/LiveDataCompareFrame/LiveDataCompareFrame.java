@@ -83,6 +83,17 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
 
     @Override
     public void dispose() {
+
+        if (coreTimer != null) {
+            coreTimer.cancel();
+            coreTimer = null;
+        }
+
+        if (e3osTimer != null) {
+            e3osTimer.cancel();
+            e3osTimer = null;
+        }
+
         controller.removePropChangeListener(this);
         thisInstance = null;
         super.dispose();
@@ -190,9 +201,7 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
         List<CoreDatapoint> datapointList = selectedStation.getDatapoints();
 
         for (CoreDatapoint dp : datapointList) {
-            if (tempMap.containsKey(dp.getId())) {
-                System.out.println("already there");
-            } else {
+            if (!tempMap.containsKey(dp.getId())) {
                 tempMap.put(dp.getId(), dp);
             }
         }
@@ -200,27 +209,13 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
         for (Equipment eq : selectedStation.getequipments()) {
 
             for (CoreDatapoint eqPt : eq.getDatapoints()) {
-                if (tempMap.containsKey(eqPt.getId())) {
-                    System.out.println("already there");
-                } else {
+                if (!tempMap.containsKey(eqPt.getId())) {
                     tempMap.put(eqPt.getId(), eqPt);
                     datapointList.add(eqPt);
                 }
-
-            }
-
-            //datapointList.addAll(eq.getDatapoints());
-        }
-
-        //List<String> otherUIPointNames = getOtherUIPointNames();
-        /*
-        ArrayList<String> subscribedPoints = new ArrayList<>();
-        for (CoreDatapoint dp : datapointList) {
-            if (dp.getSubscribedFlag() || otherUIPointNames.contains(dp.getShortName())) {
-                subscribedPoints.add(dp.getId());
             }
         }
-         */
+
         List<LiveDataMappingTableRow> mappingRows = new ArrayList<>();
 
         for (CoreDatapoint corePoint : datapointList) {
@@ -252,9 +247,7 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
     private void fillLiveDataTable() {
 
         clearLiveDataTable();
-
         List<LiveDataMappingTableRow> mappingTableRows = createLiveDataMappingTable();
-
         List<LiveDataMappingTableRow> filteredList = new ArrayList<>();
 
         String filter = this.jTextFieldPointFilter.getText();
@@ -298,9 +291,8 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
             if (!mtRow.getPollFlag() && jCheckBoxShowPollPointsOnly.isSelected()) {
                 continue;
             }
-
+            
             finalList.add(mtRow);
-
         }
 
         this.jTableLiveDataCompare.setDefaultRenderer(Object.class, new LiveDataTableCellRenderer(3));
@@ -460,7 +452,7 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1095, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1206, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -517,7 +509,7 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 1095, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 1206, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                         .addComponent(jLabel6)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -533,15 +525,14 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jCheckBoxUseRegex, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jCheckBoxHideUnmapped)
-                        .addComponent(jCheckBoxShowPollPointsOnly)
-                        .addComponent(jLabel6)
-                        .addComponent(jTextFieldPointFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jCheckBoxHideUnmapped)
+                    .addComponent(jCheckBoxShowPollPointsOnly)
+                    .addComponent(jLabel6)
+                    .addComponent(jTextFieldPointFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jCheckBoxUseRegex, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 473, Short.MAX_VALUE))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 464, Short.MAX_VALUE))
         );
 
         jSplitPane1.setRightComponent(jPanel3);
@@ -643,12 +634,9 @@ public class LiveDataCompareFrame extends javax.swing.JFrame implements Property
     }//GEN-LAST:event_e3osAuthActionPerformed
 
     private void jTableE3OSStationsMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTableE3OSStationsMousePressed
-        //killLivePollingTimer();
-        //this.jTogglePollForLiveData.setSelected(false);
+        killE3OSLivePollingTimer();
+        killCoreLivePollingTimer();
 
-        //if (evt.isPopupTrigger()) {
-        //    PopupMenuForDataPointsTable popup = new PopupMenuForDataPointsTable(evt, jTableStationsTable);
-        //}
         clearLiveDataTable();
 
         int row = jTableE3OSStations.getSelectedRow();
