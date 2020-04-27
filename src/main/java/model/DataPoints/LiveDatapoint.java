@@ -25,7 +25,7 @@ public class LiveDatapoint {
 
     @JsonProperty("calculation")
     private String calculation;
-    
+
     @JsonProperty("editable")
     private Boolean editable;
 
@@ -35,11 +35,20 @@ public class LiveDatapoint {
     @JsonProperty("type")
     private String pointType;
 
+    @JsonProperty("ownerType")
+    private String ownerType;
+
+    @JsonProperty("ownerId")
+    private String ownerId;
+
     @JsonProperty("unitOfMeasurement")
     private String unitOfMeasurement;
 
     @JsonProperty("rollupAggregation")
     private String rollupAggregation;
+    
+    @JsonProperty("hourlySubAggregation")
+    private String hourlySubAggregation;
 
     @JsonProperty("values")
     private List<Object> values;
@@ -74,7 +83,7 @@ public class LiveDatapoint {
     public String getCalculation() {
         return calculation;
     }
-    
+
     public Boolean getEditable() {
         return editable;
     }

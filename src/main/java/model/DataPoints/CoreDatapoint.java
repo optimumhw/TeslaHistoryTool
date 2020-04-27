@@ -10,7 +10,10 @@ public class CoreDatapoint {
 
     @JsonProperty("name")
     private String name;
-
+    
+    @JsonProperty("stationId")
+    private String stationId;
+    
     @JsonProperty("shortName")
     private String shortName;
 
@@ -43,6 +46,9 @@ public class CoreDatapoint {
     
     @JsonProperty("rollupAggregation")
     private String rollupAggregation;
+    
+    @JsonProperty("hourlySubAggregation")
+    private String hourlySubAggregation;
     
     @JsonIgnore
     private boolean subscribedFlag;

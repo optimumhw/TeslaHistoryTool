@@ -16,7 +16,7 @@ public class HistoryQueryResults {
     private final List<String> pointNames;
     private final Map< String, Integer> pointNameToValueIndex;
     private final Map< DateTime, List< Object>> timeStampToValuesArray;
-    private final DateTimeFormatter zzFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
+    private final DateTimeFormatter zzFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZZ");
 
     public HistoryQueryResults(List<LiveDatapoint> retPoints) {
 
