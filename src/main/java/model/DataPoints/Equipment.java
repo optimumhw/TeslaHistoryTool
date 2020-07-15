@@ -36,7 +36,7 @@ public class Equipment {
     @JsonProperty("model")
     private String model;
     
-    @JsonProperty("dataPoints")
+    @JsonProperty("points")
     private List<CoreDatapoint> dataPoints;
 
 

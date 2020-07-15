@@ -68,7 +68,7 @@ public class StationInfo {
     @JsonProperty("longitude")
     private String longitude;
 
-    @JsonProperty("dataPoints")
+    @JsonProperty("points")
     private List<CoreDatapoint> datapoints;
 
     @JsonProperty("equipments")

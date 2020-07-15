@@ -58,7 +58,7 @@ public class StationClient {
 
     public OEResponse getDatapoints(String stationID) throws IOException {
 
-        String url = baseURL.getURL() + "/stations/" + stationID + "/data-points";
+        String url = baseURL.getURL() + "/stations/" + stationID + "/points";
         OEResponse resObj = restClient.getResponse(url, true);
 
         if (resObj.responseCode == 200) {
@@ -72,7 +72,7 @@ public class StationClient {
 
     public OEResponse getSubscribed(String stationID) throws IOException {
 
-        String url = baseURL.getURL() + "/stations/" + stationID + "/data-points/subscribed";
+        String url = baseURL.getURL() + "/stations/" + stationID + "/points/subscribed";
         OEResponse resObj = restClient.getResponse(url, true);
 
         if (resObj.responseCode == 200) {
