@@ -196,16 +196,26 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
 
             for (MappingTableRow mappingTableRow : mappingTable) {
 
-                if (overrideE3osName.containsKey(mappingTableRow.getTeslaName())) {
-                    mappingTableRow.setMapStatus(EnumMapStatus.Mapped);
-                    mappingTableRow.setE3osName(overrideE3osName.get(mappingTableRow.getTeslaName()));
-                    mappingTableRow.setXid(e3osPoint);
-                    foundIt = true;
-                } else if (mappingTableRow.getTeslaName().equalsIgnoreCase(e3osPoint.getDatapointName())) {
+                
+                if (mappingTableRow.getTeslaName().equalsIgnoreCase(e3osPoint.getDatapointName())) {
                     mappingTableRow.setMapStatus(EnumMapStatus.Mapped);
                     mappingTableRow.setE3osName(e3osPoint.getDatapointName());
                     mappingTableRow.setXid(e3osPoint);
                     foundIt = true;
+                } 
+                //if the sql point is in the overrides table 
+                else if (overrideE3osName.containsKey(e3osPoint.getDatapointName())) {
+
+                    String corePointName = mappingTableRow.getTeslaName();
+                    String corePointWithOverride = overrideE3osName.get(e3osPoint.getDatapointName());
+                    
+                    //and the core point is the override, set e3os name to this sql point
+                    if (corePointName.equalsIgnoreCase(corePointWithOverride)) {
+                        mappingTableRow.setMapStatus(EnumMapStatus.Mapped);
+                        mappingTableRow.setE3osName(e3osPoint.getDatapointName());
+                        mappingTableRow.setXid(e3osPoint);
+                        foundIt = true;
+                    }
                 }
             }
             if (!foundIt) {
@@ -219,44 +229,25 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
 
         Map<String, String> map = new HashMap<>();
 
-        map.put("CDWP1SPDNotOptimized", "CDWP1SPD_Alarm");
-        map.put("CDWP2SPDNotOptimized", "CDWP2SPD_Alarm");
-        map.put("CDWP3SPDNotOptimized", "CDWP3SPD_Alarm");
+        map.put("CDWP1SPD_Alarm", "CDWP1SPDNotOptimized");
+        map.put("CDWP2SPD_Alarm", "CDWP2SPDNotOptimized");
+        map.put("CDWP3SPD_Alarm", "CDWP3SPDNotOptimized");
 
-        map.put("CT4SPDNotOptimized", "CT4SPD_Alarm");
-        map.put("CT3SPDNotOptimized", "CT3SPD_Alarm");
-        map.put("CT2SPDNotOptimized", "CT2SPD_Alarm");
-        map.put("CT1SPDNotOptimized", "CT1SPD_Alarm");
+        map.put("CT4SPD_Alarm", "CT4SPDNotOptimized");
+        map.put("CT3SPD_Alarm", "CT3SPDNotOptimized");
+        map.put("CT2SPD_Alarm", "CT2SPDNotOptimized");
+        map.put("CT1SPD_Alarm", "CT1SPDNotOptimized");
 
-        map.put("PCHWP3SPDNotOptimized", "PCHWP3SPD_Alarm");
-        map.put("PCHWP2SPDNotOptimized", "PCHWP2SPD_Alarm");
-        map.put("PCHWP1SPDNotOptimized", "PCHWP1SPD_Alarm");
-        map.put("BASCommunicationFailure", "commfail");
-        map.put("EDGEMODE", "LOOPREQ");
-        map.put("EDGEREADY", "OECREADY");
-        map.put("CH1CHWSTSPNotOptimized", "CH1_CHWSTSP_Alarm");
-        map.put("CH2CHWSTSPNotOptimized", "CH2_CHWSTSP_Alarm");
+        map.put("PCHWP3SPD_Alarm", "PCHWP3SPDNotOptimized");
+        map.put("PCHWP2SPD_Alarm", "PCHWP2SPDNotOptimized");
+        map.put("PCHWP1SPD_Alarm", "PCHWP1SPDNotOptimized");
+        map.put("commfail", "BASCommunicationFailure");
+        map.put("LOOPREQ", "EDGEMODE");
+        map.put("OECREADY", "EDGEREADY");
+        map.put("CH1_CHWSTSP_Alarm", "CH1CHWSTSPNotOptimized");
+        map.put("CH2_CHWSTSP_Alarm", "CH2CHWSTSPNotOptimized");
 
         return map;
-
-    }
-
-    private boolean matchesOverride(DataPointFromSql e3osPoint, MappingTableRow mappingTableRow) {
-
-        String e3osFilter = "SPD_Alarm";
-        String coreFilter = "SPDNotOptimized";
-
-        if (mappingTableRow.getTeslaName().contains(coreFilter)) {
-            System.out.println("here");
-        }
-
-        if (e3osPoint.getDatapointName().contains(e3osFilter)) {
-            System.out.println("here");
-        }
-
-        return (mappingTableRow.getTeslaName().contains(coreFilter)
-                && e3osPoint.getDatapointName().contains(e3osFilter)
-                && mappingTableRow.getMapStatus() != EnumMapStatus.Mapped);
 
     }
 
