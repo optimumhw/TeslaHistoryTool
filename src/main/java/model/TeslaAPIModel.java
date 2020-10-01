@@ -1314,6 +1314,115 @@ public class TeslaAPIModel extends java.util.Observable {
         }
     }
 
+    // ==== PUSH TESLA to TESLA small batch
+
+    public OEResponse pullFromTeslaPushToTeslaSmallBatch(EnumPrimarySecodaryClient usePrimaryOrSecondaryClientForHistoryPull, DateTime pushStartTime, DateTime pushEndTime, List<TTTTableRow> mappedRows, String stationTimeZone) {
+
+        final String fiveMinuteString = "fiveMinute";
+        List<String> fromIDs = new ArrayList<>();
+        Map< String, String> fromIDtoIDMap = new HashMap<>();
+
+        for (TTTTableRow mtr : mappedRows) {
+            fromIDs.add(mtr.getFromID());
+            fromIDtoIDMap.put(mtr.getFromID(), mtr.getToID());
+        }
+
+        try {
+
+            HistoryRequest historyRequest = new HistoryRequest(fromIDs, pushStartTime, pushEndTime, fiveMinuteString, stationTimeZone);
+            OEResponse results;
+
+            if (usePrimaryOrSecondaryClientForHistoryPull == EnumPrimarySecodaryClient.Primary) {
+                results = primaryStationClient.getHistory(historyRequest);
+
+                if (results.responseCode == 401) {
+                    System.out.println("getting a new primary token. was:");
+                    System.out.println(primaryRestClient.getOAuthToken());
+                    OEResponse resp = primaryLoginClient.login(primaryBaseURL);
+
+                    if (resp.responseCode == 200) {
+                        LoginResponse loginResponse = (LoginResponse) resp.responseObject;
+                        String newToken = loginResponse.getAccessToken();
+                        primaryRestClient.setOauthToken(newToken);
+                        System.out.println("new token is:");
+                        System.out.println(primaryRestClient.getOAuthToken());
+                        results = primaryStationClient.getHistory(historyRequest);
+                    }
+                }
+            } else {
+
+                results = secondaryStationClient.getHistory(historyRequest);
+
+                if (results.responseCode == 401) {
+                    System.out.println("getting a new primary token. was:");
+                    System.out.println(secondaryRestClient.getOAuthToken());
+                    OEResponse resp = secondaryLoginClient.login(secondaryBaseURL);
+
+                    if (resp.responseCode == 200) {
+                        LoginResponse loginResponse = (LoginResponse) resp.responseObject;
+                        String newToken = loginResponse.getAccessToken();
+                        secondaryRestClient.setOauthToken(newToken);
+                        System.out.println("new secodary token is:");
+                        System.out.println(secondaryRestClient.getOAuthToken());
+                        results = secondaryStationClient.getHistory(historyRequest);
+                    }
+                }
+
+            }
+
+            if (results.responseCode != 200) {
+                return results;
+            }
+
+            List<LiveDatapoint> history = (List<LiveDatapoint>) results.responseObject;
+
+            TTTDataPointUpsertRequest tdpu = new TTTDataPointUpsertRequest(history, fromIDtoIDMap);
+            OEResponse teslaPutResponse = primaryStationClient.putHistory(tdpu);
+
+            if (teslaPutResponse.responseCode == 422) {
+                System.out.println("unprocessable entity");
+                return teslaPutResponse;
+            }
+
+            if (teslaPutResponse.responseCode >= 500) {
+                System.out.println("retrying...");
+                teslaPutResponse = primaryStationClient.putHistory(tdpu);
+
+            } else if (teslaPutResponse.responseCode == 401) {
+                System.out.println("getting a new primary token. was:");
+                System.out.println(primaryRestClient.getOAuthToken());
+
+                //OEResponse resp = loginClient.login(this.baseURL);
+                OEResponse resp = primaryLoginClient.login(secondaryBaseURL);
+
+                if (resp.responseCode == 200) {
+                    LoginResponse loginResponse = (LoginResponse) resp.responseObject;
+                    String newToken = loginResponse.getAccessToken();
+                    primaryRestClient.setOauthToken(newToken);
+
+                    System.out.println("new token is:");
+                    System.out.println(primaryRestClient.getOAuthToken());
+
+                    teslaPutResponse = primaryStationClient.putHistory(tdpu);
+
+                }
+
+            }
+
+            return teslaPutResponse;
+
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(TeslaAPIModel.class.getName()).log(Level.SEVERE, null, ex);
+            OEResponse resp = new OEResponse();
+            resp.responseCode = 999;
+            resp.responseObject = "not sure";
+            return resp;
+        }
+    }
+    
+    
+    
+    
     // === E3OSLive =====
     public void e3osLiveAuthenticate() {
 

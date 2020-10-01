@@ -98,7 +98,9 @@ public final class PushFromTeslaFrame extends javax.swing.JFrame implements Prop
         this.toStationInfo = toStationInfo;
         this.toStationDatapointList = toStationDatapointList;
         this.jTextFieldStartDate.setText(startDate.toString(zzFormat));
+        
         this.jTextFieldEndDate.setText(endDate.toString(zzFormat));
+        
 
         secondaryBaseURL = EnumBaseURLs.Ninja;
         this.jLabelFromStationName.setText("TBD");

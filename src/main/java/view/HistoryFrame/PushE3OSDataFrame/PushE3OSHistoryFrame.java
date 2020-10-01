@@ -8,7 +8,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
@@ -88,7 +90,7 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
         this.jTextFieldMaxPointsPush.setText("50");
         this.jTextFieldSitesFilter.setText("");
         this.jTextFieldMappingFilter.setText("");
-        
+
         lapsedTimeUpdater = new ActionListener() {
 
             @Override
@@ -100,7 +102,7 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
                 lapsedTimeTimer.restart();
             }
         };
-        
+
         controller.getE3OSSites();
 
     }
@@ -181,6 +183,9 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
 
     private void createMappingsTable(List<DataPointFromSql> e3osPoints) {
 
+        Map<String, String> overrideE3osName = getOverrideMap();
+
+        //add core points
         mappingTable = new ArrayList<>();
         for (DatapointListItem pt : datapointsList) {
             mappingTable.add(new MappingTableRow(pt));
@@ -188,8 +193,15 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
 
         for (DataPointFromSql e3osPoint : e3osPoints) {
             boolean foundIt = false;
+
             for (MappingTableRow mappingTableRow : mappingTable) {
-                if (mappingTableRow.getTeslaName().equalsIgnoreCase(e3osPoint.getDatapointName())) {
+
+                if (overrideE3osName.containsKey(mappingTableRow.getTeslaName())) {
+                    mappingTableRow.setMapStatus(EnumMapStatus.Mapped);
+                    mappingTableRow.setE3osName(overrideE3osName.get(mappingTableRow.getTeslaName()));
+                    mappingTableRow.setXid(e3osPoint);
+                    foundIt = true;
+                } else if (mappingTableRow.getTeslaName().equalsIgnoreCase(e3osPoint.getDatapointName())) {
                     mappingTableRow.setMapStatus(EnumMapStatus.Mapped);
                     mappingTableRow.setE3osName(e3osPoint.getDatapointName());
                     mappingTableRow.setXid(e3osPoint);
@@ -203,8 +215,53 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
 
     }
 
-    private void fillMappingsTable( String filter ) {
-        
+    private Map<String, String> getOverrideMap() {
+
+        Map<String, String> map = new HashMap<>();
+
+        map.put("CDWP1SPDNotOptimized", "CDWP1SPD_Alarm");
+        map.put("CDWP2SPDNotOptimized", "CDWP2SPD_Alarm");
+        map.put("CDWP3SPDNotOptimized", "CDWP3SPD_Alarm");
+
+        map.put("CT4SPDNotOptimized", "CT4SPD_Alarm");
+        map.put("CT3SPDNotOptimized", "CT3SPD_Alarm");
+        map.put("CT2SPDNotOptimized", "CT2SPD_Alarm");
+        map.put("CT1SPDNotOptimized", "CT1SPD_Alarm");
+
+        map.put("PCHWP3SPDNotOptimized", "PCHWP3SPD_Alarm");
+        map.put("PCHWP2SPDNotOptimized", "PCHWP2SPD_Alarm");
+        map.put("PCHWP1SPDNotOptimized", "PCHWP1SPD_Alarm");
+        map.put("BASCommunicationFailure", "commfail");
+        map.put("EDGEMODE", "LOOPREQ");
+        map.put("EDGEREADY", "OECREADY");
+        map.put("CH1CHWSTSPNotOptimized", "CH1_CHWSTSP_Alarm");
+        map.put("CH2CHWSTSPNotOptimized", "CH2_CHWSTSP_Alarm");
+
+        return map;
+
+    }
+
+    private boolean matchesOverride(DataPointFromSql e3osPoint, MappingTableRow mappingTableRow) {
+
+        String e3osFilter = "SPD_Alarm";
+        String coreFilter = "SPDNotOptimized";
+
+        if (mappingTableRow.getTeslaName().contains(coreFilter)) {
+            System.out.println("here");
+        }
+
+        if (e3osPoint.getDatapointName().contains(e3osFilter)) {
+            System.out.println("here");
+        }
+
+        return (mappingTableRow.getTeslaName().contains(coreFilter)
+                && e3osPoint.getDatapointName().contains(e3osFilter)
+                && mappingTableRow.getMapStatus() != EnumMapStatus.Mapped);
+
+    }
+
+    private void fillMappingsTable(String filter) {
+
         List<MappingTableRow> filteredList = new ArrayList<>();
 
         String[] pointNamesInFilter = filter.split(" ");
@@ -217,7 +274,7 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
             }
 
             for (String pointNameFilter : Arrays.asList(pointNamesInFilter)) {
-                if (!this.jCheckBoxMappingRexEx.isSelected() && ( mappingTableRow.getE3osName().contains(pointNameFilter) || mappingTableRow.getTeslaName().contains(pointNameFilter) )) {
+                if (!this.jCheckBoxMappingRexEx.isSelected() && (mappingTableRow.getE3osName().contains(pointNameFilter) || mappingTableRow.getTeslaName().contains(pointNameFilter))) {
                     if (!filteredList.contains(mappingTableRow)) {
                         filteredList.add(mappingTableRow);
                     }
@@ -677,12 +734,12 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
 
         if (propName.equals(PropertyChangeNames.E3OSSitesReturned.getName())) {
             this.sitesList = (List<E3OSStationRecord>) evt.getNewValue();
-            fillSitesTable( this.jTextFieldSitesFilter.getText());
+            fillSitesTable(this.jTextFieldSitesFilter.getText());
 
         } else if (propName.equals(PropertyChangeNames.E3OSPointsReturned.getName())) {
             List<DataPointFromSql> e3osPoints = (List<DataPointFromSql>) evt.getNewValue();
             createMappingsTable(e3osPoints);
-            fillMappingsTable( this.mappingFilter);
+            fillMappingsTable(this.mappingFilter);
 
         } else if (propName.equals(PropertyChangeNames.TeslaBucketPushed.getName())) {
             completedBatches += 1;

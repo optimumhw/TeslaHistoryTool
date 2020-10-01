@@ -30,6 +30,13 @@ public class TTTDataPointUpsertRequest {
             for (String timeStamp : historyPoint.getTimestamps()) {
 
                 Object val = historyPoint.getValues().get(timeStampIndex);
+                
+                if( val instanceof Double ){
+                    Double temp = (Double)val;
+                    temp /= 50.0;
+                    val = temp;
+                            
+                }
 
                 if (val instanceof Boolean) {
                     Boolean tempBool = (Boolean) val;

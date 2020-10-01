@@ -8,11 +8,11 @@ import java.util.List;
 public enum EnumMappingTableColumns {
 
     MapStatus(0, "MapStatus", 100),
-    E3OSName(1,"EdisonName", 200),
+    E3OSName(1,"E3OSName", 200),
     E3OSXid(2,"XID", 400),
-    TeslaName(3, "TeslaName", 200),
-    TeslaType(4, "TeslaType", 50),
-    TeslaID(5, "TesalID", 300); 
+    TeslaName(3, "CoreName", 200),
+    TeslaType(4, "CoreType", 50),
+    TeslaID(5, "CoreID", 300); 
 
     private final String friendlyName;
     private final int columnNumber;
