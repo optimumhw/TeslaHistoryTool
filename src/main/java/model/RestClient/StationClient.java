@@ -130,6 +130,10 @@ public class StationClient {
         String payload = mapper.writeValueAsString(dur.getListOfPoints());
 
         OEResponse resObj = restClient.doPostAndGetBody(url, payload, true);
+        
+        if( resObj.responseCode != 200){
+            System.out.println("push failed...");
+        }
 
         return resObj;
 

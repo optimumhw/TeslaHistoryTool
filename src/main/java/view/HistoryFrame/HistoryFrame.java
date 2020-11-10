@@ -1270,7 +1270,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
             DateTime pushStart = DateTime.parse(jTextFieldStartDate.getText(), zzFormat).withZone(DateTimeZone.UTC);
             DateTime pushEnd = DateTime.parse(jTextFieldEndDate.getText(), zzFormat).withZone(DateTimeZone.UTC);
 
-            PushE3OSHistoryFrame frame = PushE3OSHistoryFrame.getInstance(controller, pushStart, pushEnd, listOfPoints);
+            PushE3OSHistoryFrame frame = PushE3OSHistoryFrame.getInstance(controller, selectedStation, pushStart, pushEnd, listOfPoints);
             controller.addModelListener(frame);
             frame.pack();
             frame.setLocationRelativeTo(this);

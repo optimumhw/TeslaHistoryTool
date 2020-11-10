@@ -17,6 +17,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.Timer;
 import javax.swing.table.TableColumn;
+import model.DataPoints.StationInfo;
 import model.DatapointList.DatapointListItem;
 import model.E3OS.LoadFromE3OS.DataPointFromSql;
 import model.E3OS.LoadFromE3OS.E3OSStationRecord;
@@ -44,6 +45,7 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
 
     private static PushE3OSHistoryFrame thisInstance;
     private final Controller controller;
+    private final StationInfo stationInfo;
     private List<E3OSStationRecord> sitesList;
     private final List<DatapointListItem> datapointsList;
 
@@ -60,6 +62,7 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
 
     public static PushE3OSHistoryFrame getInstance(
             final Controller controller,
+            StationInfo stationInfo,
             DateTime startDate,
             DateTime endDate,
             List<DatapointListItem> datapointsList) {
@@ -67,6 +70,7 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
         if (thisInstance == null) {
             thisInstance = new PushE3OSHistoryFrame(
                     controller,
+                    stationInfo,
                     startDate,
                     endDate,
                     datapointsList);
@@ -76,12 +80,14 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
     }
 
     private PushE3OSHistoryFrame(final Controller controller,
+            StationInfo stationInfo,
             DateTime startDate,
             DateTime endDate,
             List<DatapointListItem> datapointsList) {
         initComponents();
 
         this.controller = controller;
+        this.stationInfo = stationInfo;
         this.datapointsList = datapointsList;
 
         this.jTextFieldStartDate.setText(startDate.toString(zzFormat));
@@ -658,7 +664,7 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
         } else if (propName.equals(PropertyChangeNames.E3OSPointsReturned.getName())) {
             List<DataPointFromSql> e3osPoints = (List<DataPointFromSql>) evt.getNewValue();
             
-            mappingTable = new PushDataTable(datapointsList, e3osPoints ).getMappingTable();
+            mappingTable = new PushDataTable(stationInfo, datapointsList, e3osPoints ).getMappingTable();
             fillMappingsTable(this.mappingFilter);
 
         } else if (propName.equals(PropertyChangeNames.TeslaBucketPushed.getName())) {

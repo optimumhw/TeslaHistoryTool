@@ -9,6 +9,7 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import model.E3OS.LoadFromE3OS.EnumMapStatus;
+import model.E3OS.LoadFromE3OS.EnumOverrideType;
 import model.E3OS.LoadFromE3OS.MappingTableRow;
 import view.DataPointsTable.EnumDatpointsTableColumns;
 
@@ -35,15 +36,20 @@ public class MappingTableCellRenderer extends DefaultTableCellRenderer {
         Color color = Color.WHITE;
         setBackground(isSelected ? color : color);
         this.setHorizontalAlignment(JLabel.LEFT);
+        Color purple = new Color(153, 153, 255);
 
-        EnumDatpointsTableColumns enumColumn = EnumDatpointsTableColumns.getColumnFromColumnNumber(column);
         MappingTableModel model = (MappingTableModel) table.getModel();
         int modelIndex = table.convertRowIndexToModel(row);
         MappingTableRow mappedRow = model.getRow(modelIndex);
+        
+        //mappedRow.getOverrideType()
 
         if (column == 0) {
-            if (mappedRow.getMapStatus() == EnumMapStatus.Overridden) {
-                color = Color.YELLOW;
+            if (mappedRow.getOverrideType() == EnumOverrideType.StationRegEx ){
+                color = purple;
+            }
+            else if (mappedRow.getMapStatus() == EnumMapStatus.Overridden) {
+                color = Color.MAGENTA;
             }
             else if (mappedRow.getMapStatus() == EnumMapStatus.NoE3OSInfo) {
                 color = Color.PINK;

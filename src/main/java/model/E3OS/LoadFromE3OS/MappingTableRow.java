@@ -7,6 +7,7 @@ import model.DatapointList.DatapointListItem;
 public class MappingTableRow {
 
     private EnumMapStatus mapStatus;
+    private EnumOverrideType overrideType;
     private String e3osName;
     private DataPointFromSql xid;
     private String teslaName;
@@ -16,6 +17,7 @@ public class MappingTableRow {
     public MappingTableRow() {
 
         mapStatus = EnumMapStatus.NoInfo;
+        overrideType = EnumOverrideType.Normal;
         e3osName = "?";
         xid = new DataPointFromSql();
         teslaName = "?";
@@ -25,6 +27,7 @@ public class MappingTableRow {
     
     public MappingTableRow(DatapointListItem pt){
         mapStatus = EnumMapStatus.NoE3OSInfo;
+        overrideType = EnumOverrideType.Normal;
         e3osName = "?";
         xid = new DataPointFromSql();
         teslaName = pt.getShortName();
@@ -34,6 +37,7 @@ public class MappingTableRow {
     
         public MappingTableRow(DataPointFromSql e3osPoint){
         mapStatus = EnumMapStatus.NoTeslaInfo;
+        overrideType = EnumOverrideType.Normal;
         e3osName = e3osPoint.getDatapointName();
         xid = e3osPoint;
         teslaName = "?";
@@ -44,9 +48,17 @@ public class MappingTableRow {
     public void setMapStatus(EnumMapStatus mapStatus) {
         this.mapStatus = mapStatus;
     }
-
+    
     public EnumMapStatus getMapStatus() {
         return mapStatus;
+    }
+    
+    public void setOverrideType(EnumOverrideType overrideType) {
+        this.overrideType = overrideType;
+    }
+    
+    public EnumOverrideType getOverrideType() {
+        return overrideType;
     }
     
    

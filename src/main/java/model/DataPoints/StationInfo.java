@@ -7,7 +7,7 @@ public class StationInfo {
 
     @JsonProperty("id")
     private String id;
-    
+
     @JsonProperty("name")
     private String name;
 
@@ -22,7 +22,7 @@ public class StationInfo {
 
     @JsonProperty("siteId")
     private String siteId;
-    
+
     @JsonProperty("salesforceId")
     private String salesforceId;
 
@@ -31,7 +31,7 @@ public class StationInfo {
 
     @JsonProperty("siteName")
     private String shortName;
-    
+
     @JsonProperty("customerName")
     private String customerName;
 
@@ -46,6 +46,9 @@ public class StationInfo {
 
     @JsonProperty("atomEnabled")
     private boolean atomEnabled;
+
+    @JsonProperty("plantDiagnosticsEnabled")
+    private boolean plantDiagnosticsEnabled;
 
     @JsonProperty("productType")
     private String productType;
@@ -77,7 +80,7 @@ public class StationInfo {
     public String getId() {
         return id;
     }
-    
+
     public String getName() {
         return name;
     }
@@ -97,11 +100,11 @@ public class StationInfo {
     public String getSiteId() {
         return siteId;
     }
-    
+
     public String getSalesforceId() {
         return salesforceId;
     }
-    
+
     public String getcommissionedAt() {
         return commissionedAt;
     }
@@ -109,7 +112,7 @@ public class StationInfo {
     public String getShortName() {
         return shortName;
     }
-    
+
     public String getCustomerName() {
         return customerName;
     }
@@ -128,6 +131,10 @@ public class StationInfo {
 
     public boolean getAtomEnabled() {
         return atomEnabled;
+    }
+
+    public boolean getPlantDiagnosticsEnabled() {
+        return plantDiagnosticsEnabled;
     }
 
     public String getProductType() {
