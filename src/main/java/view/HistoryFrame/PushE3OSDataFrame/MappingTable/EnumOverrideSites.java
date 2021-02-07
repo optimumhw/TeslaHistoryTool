@@ -1,9 +1,7 @@
-
 package view.HistoryFrame.PushE3OSDataFrame.MappingTable;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 public enum EnumOverrideSites {
 
@@ -16,22 +14,19 @@ public enum EnumOverrideSites {
     MANATI("Manati Plant"),
     BIOCORK("Cork IE Plant"),
     INDEPEND("Independencia CP"),
-    
     VISTAKON_7("Jacksonville CUP"),
     VISTAKON_1("Jacksonville PH1"),
     VISTAKON_PH2("Jacksonville PH2"),
     VISTAKON_RND("Jacksonville RnD"),
-    
-    FORT_WASH("Fort Washington"),
-    YALE("Yale CT US CCCP"),
-    BLDG42("Springhouse B42"),
     LAJOLLA("La Jolla Plant"),
     SAN_ANGELO("San Angelo LOOP"),
-    
+    YALE("Yale CT US CCCP"),
+    FORT_WASH("Fort Washington"),
+    SPRINGHOUSE_CUP("SpringHouse CUP"),
+    BLDG42("Springhouse B42"),
     UNKONWN("Unknown");
 
     private final String friendlyName;
-
 
     EnumOverrideSites(String name) {
         this.friendlyName = name;
@@ -40,18 +35,16 @@ public enum EnumOverrideSites {
     public static EnumOverrideSites getEnumFromName(String siteName) {
 
         for (EnumOverrideSites v : EnumOverrideSites.values()) {
-            if (v.friendlyName.equalsIgnoreCase(siteName) ) {
+            if (v.friendlyName.equalsIgnoreCase(siteName)) {
                 return v;
             }
         }
         return UNKONWN;
     }
 
-
     public String getFriendlyName() {
         return this.friendlyName;
     }
-    
 
     public static List<String> getSiteNames() {
         List<String> names = new ArrayList<>();

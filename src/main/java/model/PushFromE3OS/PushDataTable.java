@@ -431,6 +431,8 @@ public class PushDataTable {
                 map.put("TESPSPD", "TESCHWCircuit1SPDSP");
                 map.put("TESPTR", "TESCHWCircuit1PTRSP");
 
+                map.put("CDWPSPD", "CDWCircuit1SPDSP");
+
                 break;
 
             case SUZHOU:
@@ -658,23 +660,34 @@ public class PushDataTable {
 
                 map.put("PCHWPTR", "PCHWCircuit1PTRSP");
                 map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
-                map.put("PCHWPTR2", "PCHWCircuit2PTRSP");
-                map.put("PCHWPSPD2", "PCHWCircuit2SPDSP");
-                //map.put("PCHWPTR3 (doesn't exist)", "PCHWCircuit3PTRSP");
-                map.put("PCHWPSPD3", "PCHWCircuit3SPDSP");
+                map.put("PCHWPTR2", "PCHWCircuit3PTRSP");
+                map.put("PCHWPSPD2", "PCHWCircuit3SPDSP");
+                map.put("PCHWPTR3", "PCHWCircuit2PTRSP");
+                map.put("PCHWPSPD3", "PCHWCircuit2SPDSP");
 
-                //map.put("CDWPTR", "CDWCircuit1PTRSP (doesn't exisit)");
-                map.put("CDWPSPD", "CDWCircuit1SPDSP");
-                //map.put("CDWPTR2", "CDWCircuit2PTRSP (doesn't exist)");
-                map.put("CDWSPD2", "CDWCircuit2SPDSP");
-                //map.put("CDWPTR3 (doesn't exist)", "CDWCircuit3PTRSP (doesn't exist)");
-                map.put("CDWPSPD3", "CDWCircuit3SPDSP");
+                map.put("CDWPTR", "CDWCircuit4PTRSP");
+                map.put("CDWPSPD", "CDWCircuit4SPDSP");
+                map.put("CDWPTR2", "CDWCircuit6PTRSP");
+                map.put("CDWPSPD2", "CDWCircuit6SPDSP");
+                map.put("CDWPTR3", "CDWCircuit5PTRSP");
+                map.put("CDWPSPD3", "CDWCircuit5SPDSP");
 
                 break;
 
             case VISTAKON_7:
+
+                map.put("CT1A", "CT11");
+                map.put("CT1B", "CT12");
+                map.put("CT2A", "CT21");
+                map.put("CT2B", "CT22");
+
+                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
+                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
+
                 //map.put("CDWPTR", "CDWCircuit1PTRSP (doesn't exist)");
                 map.put("CDWPSPD", "CDWCircuit1SPDSP");
+
+                break;
 
             case VISTAKON_1:
                 map.put("CT1A", "CT11");
@@ -688,9 +701,9 @@ public class PushDataTable {
                 //map.put("CDWPTR", "CDWCircuit1PTRSP (doesn't exist)");
                 map.put("CDWPSPD", "CDWCircuit1SPDSP");
                 //map.put("CDWPTR2", "CDWCircuit2PTRSP (doesn't exist)");
-                map.put("CDWPSPD2", "CDWCircuit1SPDSP");
+                map.put("CDWPSPD2", "CDWCircuit2SPDSP");
                 //map.put("CDWPTR3", "CDWCircuit3PTRSP (doesn't exist)");
-                map.put("CDWPSPD3", "CDWCircuit1SPDSP");
+                map.put("CDWPSPD3", "CDWCircuit3SPDSP");
 
                 break;
 
@@ -702,6 +715,16 @@ public class PushDataTable {
                 map.put("CT5A", "CT51");
                 map.put("CT5B", "CT52");
 
+                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
+                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
+
+                map.put("CDWPTR", "CDWCircuit4PTRSP");
+                map.put("CDWPSPD", "CDWCircuit4SPDSP");
+                map.put("CDWPTR2", "CDWCircuit5PTRSP");
+                map.put("CDWPSPD2", "CDWCircuit5SPDSP");
+                map.put("CDWPTR3", "CDWCircuit6PTRSP");
+                map.put("CDWPSPD3", "CDWCircuit6SPDSP");
+
                 break;
 
             case VISTAKON_RND:
@@ -709,6 +732,80 @@ public class PushDataTable {
                 map.put("CT1B", "CT12");
                 map.put("CT2A", "CT21");
                 map.put("CT2B", "CT22");
+
+                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
+                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
+
+                map.put("CDWPTR", "CDWCircuit2PTRSP");
+                map.put("CDWPSPD", "CDWCircuit2SPDSP");
+
+                break;
+
+            case LAJOLLA:
+                map.put("Ton", "JACETon");
+                map.put("CH4", "CH12");
+
+                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
+                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
+                map.put("PCHWPTR2", "PCHWCircuit2PTRSP");
+                map.put("PCHWPSPD2", "PCHWCircuit2SPDSP");
+
+                map.put("SCHWPTR1", "SCHWCircuit1PTRSP");
+                map.put("SCHWPSPD1", "SCHWCircuit1SPDSP");
+                map.put("SCHWPTR2", "SCHWCircuit2PTRSP");
+                map.put("SCHWPSPD2", "SCHWCircuit2SPDSP");
+
+                map.put("CDWPTR", "CDWCircuit2PTRSP");
+                map.put("CDWPSPD", "CDWCircuit2SPDSP");
+
+                break;
+
+            case SAN_ANGELO:
+                map.put("CH1", "CH50");
+                map.put("CH2", "CH51");
+                map.put("CH3", "CH61");
+                map.put("CH4", "CH62");
+                map.put("CH5", "CH63");
+
+                map.put("CT1A", "CT1");
+                map.put("CT2A", "CT2");
+                map.put("CT3A", "CT3");
+                map.put("CT52", "CT52");
+                map.put("CT53", "CT53");
+
+                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
+                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
+                map.put("PCHWPTR2", "PCHWCircuit2PTRSP");
+                map.put("PCHWPSPD2", "PCHWCircuit2SPDSP");
+
+                map.put("CDWPTR", "CDWCircuit3PTRSP");
+                map.put("CDWPSPD", "CDWCircuit3SPDSP");
+                map.put("CDWPTR2", "CDWCircuit4PTRSP");
+                map.put("CDWPSPD2", "CDWCircuit4SPDSP");
+
+                break;
+
+            case YALE:
+
+                map.put("CT1", "CT1");
+                map.put("CT2A", "CT21");
+                map.put("CT2B", "CT22");
+                map.put("CT2C", "CT23");
+                map.put("CT6", "CT6");
+                map.put("CT7", "CT7");
+                map.put("PCHWP1", "PCHWP1");
+                map.put("PCHWP2", "PCHWP2");
+                map.put("PCHWPP1", "PCHWP3");
+                map.put("PCHWPP2", "PCHWP4");
+                map.put("Ton", "JACETon");
+
+                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
+                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
+
+                map.put("CDWPTR", "CDWCircuit5PTRSP");
+                map.put("CDWPSPD", "CDWCircuit5SPDSP");
+                map.put("CDWPTR1", "CDWCircuit4PTRSP");
+                map.put("CDWPSPD1", "CDWCircuit4SPDSP");
 
                 break;
 
@@ -735,21 +832,36 @@ public class PushDataTable {
                 map.put("CTD", "CT4");
                 map.put("CTF", "CT5  ");
 
+                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
+                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
+                map.put("PCHWPTR2", "PCHWCircuit2PTRSP");
+                map.put("PCHWPSPD2", "PCHWCircuit2SPDSP");
+                map.put("PCHWPTR3", "PCHWCircuit3PTRSP");
+                map.put("PCHWPSPD3", "PCHWCircuit3SPDSP");
+                map.put("PCHWPTR4", "PCHWCircuit4PTRSP");
+                map.put("PCHWPSPD4", "PCHWCircuit4SPDSP");
+                map.put("PCHWPTR5", "PCHWCircuit5PTRSP");
+                map.put("PCHWPSPD5", "PCHWCircuit5SPDSP");
+
+                map.put("CDWPTR", "CDWCircuit4PTRSP");
+                map.put("CDWPSPD", "CDWCircuit4SPDSP");
+                map.put("CDWPTR2", "CDWCircuit5PTRSP");
+                map.put("CDWPSPD2", "CDWCircuit5SPDSP");
+                map.put("CDWPTR3", "CDWCircuit6PTRSP");
+                map.put("CDWPSPD3", "CDWCircuit6SPDSP");
+
                 break;
 
-            case YALE:
+            case SPRINGHOUSE_CUP:
+                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
+                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
+                map.put("SCHWPTR", "SCHWCircuit1PTRSP");
+                map.put("SCHWPSPD", "SCHWCircuit1SPDSP");
 
-                map.put("CT1", "CT1");
-                map.put("CT2A", "CT21");
-                map.put("CT2B", "CT22");
-                map.put("CT2C", "CT23");
-                map.put("CT6", "CT6");
-                map.put("CT7", "CT7");
-                map.put("PCHWP1", "PCHWP1");
-                map.put("PCHWP2", "PCHWP2");
-                map.put("PCHWPP1", "PCHWP3");
-                map.put("PCHWPP2", "PCHWP4");
-                map.put("Ton", "JACETon");
+                map.put("CDWPTR", "CDWCircuit3PTRSP");
+                map.put("CDWPSPD", "CDWCircuit3SPDSP");
+                map.put("CDWPTR2", "CDWCircuit4PTRSP");
+                map.put("CDWPSPD2", "CDWCircuit4SPDSP");
 
                 break;
 
@@ -760,27 +872,6 @@ public class PushDataTable {
                 map.put("SCHWP1", "SCHWP421");
                 map.put("SCHWP2", "SCHWP422");
                 map.put("SCHWP3", "SCHWP423");
-
-                break;
-
-            case LAJOLLA:
-                map.put("Ton", "JACETon");
-                map.put("CH4", "CH12");
-
-                break;
-
-            case SAN_ANGELO:
-                map.put("CH1", "CH50");
-                map.put("CH2", "CH51");
-                map.put("CH3", "CH61");
-                map.put("CH4", "CH62");
-                map.put("CH5", "CH63");
-
-                map.put("CT1A", "CT1");
-                map.put("CT2A", "CT2");
-                map.put("CT3A", "CT3");
-                map.put("CT52", "CT52");
-                map.put("CT53", "CT53");
 
                 break;
 
