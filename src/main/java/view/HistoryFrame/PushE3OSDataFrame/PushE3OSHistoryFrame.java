@@ -221,8 +221,10 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
             }
         }
 
-        this.jTableMapping.setDefaultRenderer(Object.class, new MappingTableCellRenderer());
-        this.jTableMapping.setModel(new MappingTableModel(filteredList));
+        MappingTableModel mtm = new MappingTableModel(filteredList);
+        this.jTableMapping.setModel(mtm);
+        this.jTableMapping.setDefaultRenderer(Object.class, new MappingTableCellRenderer(mtm));
+
         this.jTableMapping.setAutoCreateRowSorter(true);
         fixTableDataPointsListColumns(jTableMapping);
 

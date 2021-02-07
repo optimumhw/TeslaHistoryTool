@@ -17,8 +17,11 @@ import view.DataPointsTable.EnumDatpointsTableColumns;
 public class MappingTableCellRenderer extends DefaultTableCellRenderer {
 
     final Color limeGreen;
+    private MappingTableModel mappingTableModel;
 
-    public MappingTableCellRenderer() {
+    public MappingTableCellRenderer( MappingTableModel mappingTableModel ) {
+        
+        this.mappingTableModel = mappingTableModel;
 
         limeGreen = new Color(204, 255, 204);
 
@@ -37,16 +40,28 @@ public class MappingTableCellRenderer extends DefaultTableCellRenderer {
         setBackground(isSelected ? color : color);
         this.setHorizontalAlignment(JLabel.LEFT);
         Color purple = new Color(153, 153, 255);
+        Color orange = new Color(235, 131, 52);
+        Color limeGreen = new Color(169, 245, 149);
+        Color blue = new Color(159, 215, 245);
 
-        MappingTableModel model = (MappingTableModel) table.getModel();
+//        MappingTableModel model = (MappingTableModel) table.getModel();
         int modelIndex = table.convertRowIndexToModel(row);
-        MappingTableRow mappedRow = model.getRow(modelIndex);
+        MappingTableRow mappedRow = mappingTableModel.getRow(modelIndex);
         
         //mappedRow.getOverrideType()
 
         if (column == 0) {
             if (mappedRow.getOverrideType() == EnumOverrideType.StationRegEx ){
                 color = purple;
+            }
+            else if (mappedRow.getOverrideType() == EnumOverrideType.ReverseRegEx ){
+                color = blue;
+            }
+            else if (mappedRow.getOverrideType() == EnumOverrideType.DoubleOverride ){
+                color = orange;
+            }
+            else if (mappedRow.getOverrideType() == EnumOverrideType.TailOnlyOverride ){
+                color = limeGreen;
             }
             else if (mappedRow.getMapStatus() == EnumMapStatus.Overridden) {
                 color = Color.MAGENTA;

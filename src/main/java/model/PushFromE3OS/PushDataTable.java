@@ -24,6 +24,7 @@ public class PushDataTable {
 
         Map<String, String> regexOverridesMap = getCoreToE3OSNameRegExOverridesMap(stationInfo.getName());
         Map<String, String> coreToE3OSNameOverridesMap = getCoreToE3OSNameOverridesMap();
+        Map<String, String> trailingPieceOverrideMap = getTrailingPieceOverridesMap();
 
         validateOverrides(e3osPoints);
 
@@ -36,8 +37,22 @@ public class PushDataTable {
 
         //go through all the rows and try to find a matching e3os point
         for (MappingTableRow mappingTableRow : mappingTable) {
+
+            if (getExceptionsList().contains(mappingTableRow.getTeslaName())) {
+                continue;
+            }
+
             boolean foundIt = false;
             for (DataPointFromSql e3osPoint : e3osPoints) {
+
+                if (getExceptionsList().contains(e3osPoint.getDatapointName())) {
+                    continue;
+                }
+
+                if (getSiteExceptionsList(stationInfo.getName()).contains(e3osPoint.getDatapointName())) {
+                    continue;
+                }
+
                 //match on short name
                 if (mappingTableRow.getTeslaName().equalsIgnoreCase(e3osPoint.getDatapointName())) {
                     mappingTableRow.setMapStatus(EnumMapStatus.Mapped);
@@ -51,39 +66,111 @@ public class PushDataTable {
             //if didn't find it, first check new overrides
             if (!foundIt) {
 
-                String coreName = mappingTableRow.getTeslaName();             
-                
+                String coreName = mappingTableRow.getTeslaName();
+
                 if (hasMatchingOverrideKey(regexOverridesMap, coreName)) {
-                    
-                    String coreKey = getMatchingOverrideKey(regexOverridesMap, coreName);            
-                    String[] pieces = coreName.split(coreKey, 2);                  
+
+                    EnumOverrideType overrideType = EnumOverrideType.StationRegEx;
+
+                    String coreKey = getMatchingOverrideKey(regexOverridesMap, coreName);
+
+                    String[] pieces = coreName.split(coreKey, 2);
                     String trailingPiece = pieces[1];
-                   
+
+                    //check trailingPieceOverride
+                    if (trailingPieceOverrideMap.containsKey(trailingPiece)) {
+                        trailingPiece = trailingPieceOverrideMap.get(trailingPiece);
+                        overrideType = EnumOverrideType.DoubleOverride;
+                    }
+
                     String e3osPattern = regexOverridesMap.get(coreKey);
-                    
+
                     String e3osNameToMatch = e3osPattern + trailingPiece;
 
                     // if there is a key for this point, look through e3os points for a match
                     for (DataPointFromSql e3osPoint : e3osPoints) {
 
                         String e3osPointName = e3osPoint.getDatapointName();
-                        
+
                         //match on formed name
                         if (e3osPointName.equalsIgnoreCase(e3osNameToMatch)) {
                             mappingTableRow.setMapStatus(EnumMapStatus.Mapped);
                             mappingTableRow.setE3osName(e3osPoint.getDatapointName());
                             mappingTableRow.setXid(e3osPoint);
-                            mappingTableRow.setOverrideType(EnumOverrideType.StationRegEx);
+                            mappingTableRow.setOverrideType(overrideType);
                             foundIt = true;
                         }
 
                     }
                 }
+
+                //if not found it, try applying just the trailing override
+                if (!foundIt) {
+
+                    for (String coreTail : trailingPieceOverrideMap.keySet()) {
+                        String e3osTail = trailingPieceOverrideMap.get(coreTail);
+                        String[] pieces = coreName.split(coreTail, 2);
+
+                        if (pieces == null || pieces.length < 2) {
+                            continue;
+                        }
+
+                        String e3osNameToMatch = pieces[0] + e3osTail;
+
+                        // if there is a key for this point, look through e3os points for a match
+                        for (DataPointFromSql e3osPoint : e3osPoints) {
+
+                            String e3osPointName = e3osPoint.getDatapointName();
+
+                            //match on formed name
+                            if (e3osPointName.equalsIgnoreCase(e3osNameToMatch)) {
+                                mappingTableRow.setMapStatus(EnumMapStatus.Mapped);
+                                mappingTableRow.setE3osName(e3osPoint.getDatapointName());
+                                mappingTableRow.setXid(e3osPoint);
+                                mappingTableRow.setOverrideType(EnumOverrideType.TailOnlyOverride);
+                                foundIt = true;
+                            }
+
+                        }
+
+                    }
+
+                }
+
+                if (hasMatchingOverrideValue(regexOverridesMap, coreName)) {
+
+                    EnumOverrideType overrideType = EnumOverrideType.ReverseRegEx;
+
+                    String e3osNameToMatch = getMatchingOverrideKeyFromValue(regexOverridesMap, coreName);
+
+                    // if there is a key for this point, look through e3os points for a match
+                    for (DataPointFromSql e3osPoint : e3osPoints) {
+
+                        String e3osPointName = e3osPoint.getDatapointName();
+
+                        if (getSiteExceptionsList(stationInfo.getName()).contains(e3osPointName)) {
+                            continue;
+                        }
+
+                        //match on formed name
+                        if (e3osPointName.equalsIgnoreCase(e3osNameToMatch)) {
+                            mappingTableRow.setMapStatus(EnumMapStatus.Mapped);
+                            mappingTableRow.setE3osName(e3osPoint.getDatapointName());
+                            mappingTableRow.setXid(e3osPoint);
+                            mappingTableRow.setOverrideType(overrideType);
+                            foundIt = true;
+                        }
+
+                    }
+
+                }
+
             }
 
             //if still didn't find it, check the other overrides
             if (!foundIt) {
                 String coreName = mappingTableRow.getTeslaName();
+
                 if (coreToE3OSNameOverridesMap.containsKey(coreName)) {
                     String e3osName = coreToE3OSNameOverridesMap.get(coreName);
                     if (e3OSOverrideToRecordMap.containsKey(e3osName)) {
@@ -214,6 +301,9 @@ public class PushDataTable {
         map.put("CH1COM1SPD", "CH1SPD");
         map.put("CH1COM1IGV", "CH1IGV");
 
+        map.put("Ton", "JACETon");
+        map.put("LOOPREQ", "OEMode");
+
         return map;
 
     }
@@ -227,6 +317,17 @@ public class PushDataTable {
         for (String key : regexOverridesMap.keySet()) {
             if (matchesPointName(corePointName, key)) {
                 return key;
+            }
+        }
+
+        return null;
+    }
+
+    private String getMatchingOverrideKeyFromValue(Map<String, String> regexOverridesMap, String corePointName) {
+
+        for (String key : regexOverridesMap.keySet()) {
+            if (matchesPointName(corePointName, regexOverridesMap.get(key))) {
+                return regexOverridesMap.get(key);
             }
         }
 
@@ -254,6 +355,43 @@ public class PushDataTable {
         return false;
     }
 
+    private boolean hasMatchingOverrideValue(Map<String, String> regexOverridesMap, String coreName) {
+        for (String v : regexOverridesMap.values()) {
+            if (matchesPointName(coreName, v)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private List<String> getExceptionsList() {
+        List<String> list = new ArrayList<>();
+
+        list.add("LOOPREQ");
+        list.add("CDWPSPD");
+        list.add("EDGEMODE");
+
+        return list;
+    }
+
+    private List<String> getSiteExceptionsList(String siteName) {
+        List<String> list = new ArrayList<>();
+
+        EnumOverrideSites enumOverrideSite = EnumOverrideSites.getEnumFromName(siteName);
+
+        switch (enumOverrideSite) {
+
+            case Pickle:
+                list.add("TESPSPD");
+                list.add("TESPTR");
+                break;
+
+        }
+
+        return list;
+    }
+
     private Map<String, String> getCoreToE3OSNameRegExOverridesMap(String siteName) {
 
         // CORE --> E3OS
@@ -269,12 +407,32 @@ public class PushDataTable {
     public Map<String, String> getRegexOverridesMap(String siteName) {
 
         Map<String, String> map = new HashMap<>();
-        
+
         EnumOverrideSites enumOverrideSite = EnumOverrideSites.getEnumFromName(siteName);
 
         switch (enumOverrideSite) {
 
             // e3os --> core
+            case UTMB:
+                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
+                map.put("CDWPSPD", "CDWCircuit1SPDSP");
+
+                map.put("LOOPREQ", "OEMode");
+
+                break;
+
+            case Pickle:
+                map.put("CHWPSPD", "PCHWCircuit1SPDSP");
+                map.put("CHWPTR", "PCHWCircuit1PTRSP");
+
+                map.put("CHWPSPD", "PCHWCircuit1SPDSP");
+                map.put("CHWPPTR", "PCHWCircuit1PRTP");
+
+                map.put("TESPSPD", "TESCHWCircuit1SPDSP");
+                map.put("TESPTR", "TESCHWCircuit1PTRSP");
+
+                break;
+
             case SUZHOU:
                 map.put("CH1", "CH1");
                 map.put("CH2", "CH2");
@@ -282,10 +440,10 @@ public class PushDataTable {
                 map.put("CH4", "CH4");
                 map.put("CH5", "CH5");
                 map.put("CH6", "CH6");
-                map.put("PCHWP1", "PCHWP1");
-                map.put("PCHWP2", "PCHWP2");
-                map.put("PCHWP3", "PCHWP3");
-                map.put("PCHWP4", "PCHWP4");
+                map.put("CHWP1", "PCHWP1");
+                map.put("CHWP2", "PCHWP2");
+                map.put("CHWP3", "PCHWP3");
+                map.put("CHWP4", "PCHWP4");
                 map.put("PCHWP5", "PCHWP5");
                 map.put("PCHWP6", "PCHWP6");
                 map.put("PCHWP7", "PCHWP7");
@@ -301,6 +459,31 @@ public class PushDataTable {
                 map.put("CT4", "CT4");
                 map.put("CT5", "CT5");
                 map.put("CT6", "CT6");
+                map.put("Ton", "JaceTon");
+
+                map.put("CHWPTR", "PCHWCircuit1PTRSP");
+                map.put("CHWPTR2", "PCHWCircuit2PTRSP");
+
+                map.put("CHWPSPD", "PCHWCircuit1SPDSP");
+                map.put("CHWPSPD2", "PCHWCircuit2SPDSP");
+
+                map.put("CDWPSPD", "CDWCircuit3SPDSP");
+                map.put("CDWPSPD2", "CDWCircuit4SPDSP");
+                map.put("CDWPSPD3", "CDWCircuit5SPDSP");
+                map.put("CDWPSPD4", "CDWCircuit6SPDSP");
+                map.put("CDWPSPD5", "CDWCircuit7SPDSP");
+                map.put("CDWPSPD6", "CDWCircuit8SPDSP");
+
+                map.put("LOOPREQ", "OEMode");
+
+                break;
+
+            case CHANDLER:
+                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
+                map.put("PCHWSPD2", "PCHWCircuit2SPDSP");
+                map.put("SCHWPTR", "SCHWCircuit3PTRSP");
+                map.put("CDWSPD", "CDWCircuit1SPD");
+                map.put("CDWPSD2", "CDWCircuit2SPD");
                 break;
 
             case CORNELIA:
@@ -322,12 +505,21 @@ public class PushDataTable {
                 map.put("CT3A", "CT3");
                 map.put("CT3B", "CT4");
                 map.put("CT4", "CT5");
+                map.put("Ton", "JaceTon");
+
+                map.put("CDWPSPD", "CDWCircuit1SPDSP");
+                map.put("CDWPSPD2", "CDWCircuit2SPDSP");
+                map.put("CDWPSPD3", "CDWCircuit3SPDSP");
+                map.put("CDWPSPD4", "CDWCircuit4SPDSP");
+                map.put("CHWPSPD", "PCHWCircuit1SPDSP");
+                map.put("CHWPTR", "PCHWCircuit1PTRSP");
+
                 break;
 
             case LATINA:
-                map.put("CH13", "CH13");
-                map.put("CH14", "CH14");
-                map.put("CH15", "CH15");
+                map.put("CH1", "CH13");
+                map.put("CH2", "CH14");
+                map.put("CH4", "CH15");
                 map.put("PCHWP132A", "PCHWP132");
                 map.put("PCHWP132B", "PCHWP133");
                 map.put("PCHWP142A", "PCHWP142");
@@ -364,6 +556,29 @@ public class PushDataTable {
                 map.put("CT151", "CT151");
                 map.put("CT152", "CT152");
                 map.put("CT153", "CT153");
+
+                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
+                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
+
+                map.put("PCHWPTR2", "PCHWCircuit2PTRSP");
+                map.put("PCHWPSPD2", "PCHWCircuit2SPDSP");
+                map.put("PCHWPTR3", "PCHWCircuit3PTRSP");
+                map.put("PCHWPSPD3", "PCHWCircuit3SPDSP");
+                map.put("SCHWPTR", "SCHWPCircuit1PTRSP");
+                map.put("SCHWPSPD", "SCHWPCircuit1SPDSP");
+                map.put("SCHWPTR2", "SCHWPCircuit2PTRSP");
+                map.put("SCHWPSPD2", "SCHWPCircuit2SPDSP");
+                map.put("SCHWPTR3", "SCHWPCircuit3PTRSP");
+                map.put("SCHWPSPD3", "SCHWPCircuit3SPDSP");
+                map.put("SCHWPTR4", "SCHWPCircuit4PTRSP");
+                map.put("SCHWPSPD4", "SCHWPCircuit4SPDSP");
+
+                map.put("CDWPSPD", "CDWCircuit1SPDSP");
+                map.put("CDWPTR", "CDWCircuit1PTRSP");
+                map.put("CDWPSPD2", "CDWCircuit2SPDSP");
+                map.put("CDWPTR2", "CDWCircuit2PTRSP");
+                map.put("CDWPSPD3", "CDWCircuit3SPDSP");
+                map.put("CDWPTR3", "CDWCircuit3PTRSP");
                 break;
 
             case MANATI:
@@ -372,11 +587,11 @@ public class PushDataTable {
                 map.put("CH5", "CH5");
                 map.put("CH6", "CH6");
                 map.put("CH7", "CH7    ");
-                map.put("PCHWP1", "PCHWP1");
-                map.put("PCHWP2", "PCHWP2");
-                map.put("PCHWP3", "PCHWP3");
-                map.put("PCHWP4", "PCHWP4");
-                map.put("PCHWP5", "PCHWP5");
+                map.put("CHWP1", "PCHWP1");
+                map.put("CHWP2", "PCHWP2");
+                map.put("CHWP3", "PCHWP3");
+                map.put("CHWP4", "PCHWP4");
+                map.put("CHWP5", "PCHWP5");
                 map.put("OBICHWP1", "SCHWP1");
                 map.put("OBICHWP2", "SCHWP2");
                 map.put("OBICHWP3", "SCHWP3");
@@ -387,16 +602,27 @@ public class PushDataTable {
                 map.put("CDWP5", "CDWP5");
                 map.put("CT1", "CT1");
                 map.put("CT2", "CT2");
-                map.put("CT3A", "CT3");
-                map.put("CT3B", "CT4");
-                map.put("CT4A", "CT5");
-                map.put("CT4B", "CT6");
+                map.put("CT3A", "CT31");
+                map.put("CT3B", "CT32");
+                map.put("CT4A", "CT41");
+                map.put("CT4B", "CT42");
+                map.put("Ton", "JACETon");
+
+                map.put("CHWPTR", "PCHWCircuit1PTRSP");
+                map.put("CHWPSPD", "PCHWCircuit1SPDSP");
+                map.put("SCHWPTR", "SCHWPCircuit1PTRSP");
+                map.put("SCHWPSPD", "SCHWPCircuit1SPDSP");
+                map.put("CDWPTR", "CDWCircuit1PTRSP");
+                map.put("CDWPSPD", "CDWCircuit1SPDSP");
+                map.put("CDWPTR2", "CDWCircuit2PTRSP");
+                map.put("CDWPSPD2", "CDWCircuit2SPDSP");
+
                 break;
 
             case BIOCORK:
-                map.put("CH931", "CH931");
-                map.put("CH932", "CH932");
-                map.put("CH934", "CH934");
+                map.put("CH1", "CH931");
+                map.put("CH2", "CH932");
+                map.put("CH4", "CH934");
                 map.put("PCHWP931", "PCHWP931");
                 map.put("PCHWP932", "PCHWP932");
                 map.put("PCHWP936", "PCHWP936");
@@ -410,17 +636,170 @@ public class PushDataTable {
                 map.put("CDWP942", "CDWP942");
                 map.put("CDWP943", "CDWP943");
                 map.put("CDWP944", "CDWP944");
-                map.put("CT931", "CT931");
-                map.put("CT932", "CT932");
-                map.put("CT933", "CT933");
+                map.put("CT1", "CT931");
+                map.put("CT2", "CT932");
+                map.put("CT3", "CT933");
+
+                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
+                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
+
+                map.put("CDWPTR", "CDWCircuit1PTRSP");
+                map.put("CDWPSPD", "CDWCircuit1SPDSP");
+                map.put("CDWPTR2", "CDWCircuit2PTRSP");
+
                 break;
-                
+
+            case INDEPEND:
+                map.put("CT1A", "CT11");
+                map.put("CT1B", "CT12");
+                map.put("CT2", "CT2");
+                map.put("CT3", "CT3");
+                map.put("CT4", "CT4");
+
+                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
+                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
+                map.put("PCHWPTR2", "PCHWCircuit2PTRSP");
+                map.put("PCHWPSPD2", "PCHWCircuit2SPDSP");
+                //map.put("PCHWPTR3 (doesn't exist)", "PCHWCircuit3PTRSP");
+                map.put("PCHWPSPD3", "PCHWCircuit3SPDSP");
+
+                //map.put("CDWPTR", "CDWCircuit1PTRSP (doesn't exisit)");
+                map.put("CDWPSPD", "CDWCircuit1SPDSP");
+                //map.put("CDWPTR2", "CDWCircuit2PTRSP (doesn't exist)");
+                map.put("CDWSPD2", "CDWCircuit2SPDSP");
+                //map.put("CDWPTR3 (doesn't exist)", "CDWCircuit3PTRSP (doesn't exist)");
+                map.put("CDWPSPD3", "CDWCircuit3SPDSP");
+
+                break;
+
+            case VISTAKON_7:
+                //map.put("CDWPTR", "CDWCircuit1PTRSP (doesn't exist)");
+                map.put("CDWPSPD", "CDWCircuit1SPDSP");
+
+            case VISTAKON_1:
+                map.put("CT1A", "CT11");
+                map.put("CT1B", "CT12");
+                map.put("CT2A", "CT21");
+                map.put("CT2B", "CT22");
+
+                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
+                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
+
+                //map.put("CDWPTR", "CDWCircuit1PTRSP (doesn't exist)");
+                map.put("CDWPSPD", "CDWCircuit1SPDSP");
+                //map.put("CDWPTR2", "CDWCircuit2PTRSP (doesn't exist)");
+                map.put("CDWPSPD2", "CDWCircuit1SPDSP");
+                //map.put("CDWPTR3", "CDWCircuit3PTRSP (doesn't exist)");
+                map.put("CDWPSPD3", "CDWCircuit1SPDSP");
+
+                break;
+
+            case VISTAKON_PH2:
+                map.put("CT3A", "CT31");
+                map.put("CT3B", "CT32");
+                map.put("CT4A", "CT41");
+                map.put("CT4B", "CT42");
+                map.put("CT5A", "CT51");
+                map.put("CT5B", "CT52");
+
+                break;
+
+            case VISTAKON_RND:
+                map.put("CT1A", "CT11");
+                map.put("CT1B", "CT12");
+                map.put("CT2A", "CT21");
+                map.put("CT2B", "CT22");
+
+                break;
+
+            case FORT_WASH:
+
+                map.put("CHA", "CH1");
+                map.put("CHB", "CH2");
+                map.put("CHC", "CH3");
+                map.put("CHD", "CH4");
+                map.put("CHF", "CH5");
+
+                map.put("CDWPA", "CDWP1");
+                map.put("CDWPB", "CDWP2");
+                map.put("CDWPC", "CDWP3");
+                map.put("CDWPCD", "CDWP4");
+                map.put("CDWPD", "CDWP5");
+                map.put("CDWPE", "CDWP6");
+                map.put("CDWPF", "CDWP7");
+                map.put("CDWPH", "CDWP8");
+
+                map.put("CTA", "CT1");
+                map.put("CTB", "CT2");
+                map.put("CTC", "CT3");
+                map.put("CTD", "CT4");
+                map.put("CTF", "CT5  ");
+
+                break;
+
+            case YALE:
+
+                map.put("CT1", "CT1");
+                map.put("CT2A", "CT21");
+                map.put("CT2B", "CT22");
+                map.put("CT2C", "CT23");
+                map.put("CT6", "CT6");
+                map.put("CT7", "CT7");
+                map.put("PCHWP1", "PCHWP1");
+                map.put("PCHWP2", "PCHWP2");
+                map.put("PCHWPP1", "PCHWP3");
+                map.put("PCHWPP2", "PCHWP4");
+                map.put("Ton", "JACETon");
+
+                break;
+
+            case BLDG42:
+                map.put("PCHWP4", "PCHWP424");
+                map.put("PCHWP5", "PCHWP425");
+                map.put("PCHWP6", "PCHWP426");
+                map.put("SCHWP1", "SCHWP421");
+                map.put("SCHWP2", "SCHWP422");
+                map.put("SCHWP3", "SCHWP423");
+
+                break;
+
+            case LAJOLLA:
+                map.put("Ton", "JACETon");
+                map.put("CH4", "CH12");
+
+                break;
+
+            case SAN_ANGELO:
+                map.put("CH1", "CH50");
+                map.put("CH2", "CH51");
+                map.put("CH3", "CH61");
+                map.put("CH4", "CH62");
+                map.put("CH5", "CH63");
+
+                map.put("CT1A", "CT1");
+                map.put("CT2A", "CT2");
+                map.put("CT3A", "CT3");
+                map.put("CT52", "CT52");
+                map.put("CT53", "CT53");
+
+                break;
+
             default:
                 break;
 
         }
 
         return map;
+    }
+
+    public Map<String, String> getTrailingPieceOverridesMap() {
+
+        Map<String, String> map = new HashMap<>();
+
+        map.put("SPDNotOptimized", "SPD_Alarm");
+
+        return map;
+
     }
 
 }

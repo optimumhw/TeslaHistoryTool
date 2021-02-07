@@ -14,7 +14,11 @@ public class Equipment {
 
     @JsonProperty("shortName")
     private String shortName;
-
+    
+    @JsonProperty("e3osShortName")
+    private String e3osShortName;
+    
+   
     @JsonProperty("type")
     private String equipmentType;
 
@@ -50,6 +54,11 @@ public class Equipment {
 
     public String getShortName() {
         return shortName;
+    }
+    
+    
+    public String gete3osShortName() {
+        return e3osShortName;
     }
 
     public Object getEquipmentType() {

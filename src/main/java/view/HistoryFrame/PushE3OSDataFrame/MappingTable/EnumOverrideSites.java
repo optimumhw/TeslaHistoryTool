@@ -7,11 +7,27 @@ import java.util.List;
 
 public enum EnumOverrideSites {
 
+    UTMB("UTMB GalvestonEP"),
+    Pickle("JJ Pickle LOOP"),
     SUZHOU("Suzhou CN Plant"),
+    CHANDLER("Energy Center"),
     CORNELIA("Cornelia Plant"),
     LATINA("Latina IT Plant"),
     MANATI("Manati Plant"),
     BIOCORK("Cork IE Plant"),
+    INDEPEND("Independencia CP"),
+    
+    VISTAKON_7("Jacksonville CUP"),
+    VISTAKON_1("Jacksonville PH1"),
+    VISTAKON_PH2("Jacksonville PH2"),
+    VISTAKON_RND("Jacksonville RnD"),
+    
+    FORT_WASH("Fort Washington"),
+    YALE("Yale CT US CCCP"),
+    BLDG42("Springhouse B42"),
+    LAJOLLA("La Jolla Plant"),
+    SAN_ANGELO("San Angelo LOOP"),
+    
     UNKONWN("Unknown");
 
     private final String friendlyName;

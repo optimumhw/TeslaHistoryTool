@@ -22,7 +22,10 @@ public class StationInfo {
 
     @JsonProperty("siteId")
     private String siteId;
-
+    
+    @JsonProperty("e3osShortName")
+    private String e3osShortName;
+    
     @JsonProperty("salesforceId")
     private String salesforceId;
 
@@ -31,7 +34,7 @@ public class StationInfo {
 
     @JsonProperty("siteName")
     private String shortName;
-
+    
     @JsonProperty("customerName")
     private String customerName;
 
@@ -112,6 +115,13 @@ public class StationInfo {
     public String getShortName() {
         return shortName;
     }
+    
+    
+            
+    public String getE3osName() {
+        return e3osShortName;
+    }
+    
 
     public String getCustomerName() {
         return customerName;

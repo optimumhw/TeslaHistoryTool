@@ -112,8 +112,8 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         this.dpNameToCalcMap = getCalculationMap();
 
         queryPeriod = EnumQueryPeriods.LAST_30_DAYS;
-        selectedMonth = EnumMonths.Jan;
-        selectedYear = EnumYears.y2019;
+        selectedMonth = EnumMonths.Nov;
+        selectedYear = EnumYears.y2020;
 
         setStartAndEndDates(queryPeriod);
 
@@ -407,6 +407,8 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         this.jTableDataPointsList.setAutoCreateRowSorter(true);
         fixTableDataPointsListColumns(jTableDataPointsList);
 
+        fillCalcPointsListDropDown();
+
     }
 
     public void fixTableDataPointsListColumns(JTable t) {
@@ -495,6 +497,92 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         });
     }
 
+    private void fillCalcPointsListDropDown() {
+
+        jTableDataPointsList.clearSelection();
+
+        Map<String, List<String>> map = getCalcAndDepPointNamesMapidToDatapointMap();
+        ComboBoxModel comboBoxModel = new DefaultComboBoxModel(map.keySet().toArray());
+
+        this.jComboBoxCalcPointsList.setModel(comboBoxModel);
+        this.jComboBoxCalcPointsList.setSelectedIndex(0);
+        this.jComboBoxCalcPointsList.setEnabled(true);
+
+        this.jComboBoxCalcPointsList.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                JComboBox<String> combo = (JComboBox<String>) event.getSource();
+                final String name = (String) combo.getSelectedItem();
+
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        selectCalcPointsAndDependencies(name);
+
+                    }
+                });
+            }
+        });
+    }
+
+    private void selectCalcPointsAndDependencies(String selectedCalcPointName) {
+
+        jTableDataPointsList.clearSelection();
+
+
+        List<String> specialPoints = getCalcAndDepPointNamesMapidToDatapointMap().get(selectedCalcPointName);
+
+        DataPointsListTableModel tableModel = (DataPointsListTableModel) (jTableDataPointsList.getModel());
+
+        for (int row = 0; row < jTableDataPointsList.getRowCount(); row++) {
+            int modelRowNumber = jTableDataPointsList.convertRowIndexToModel(row);
+            DatapointListItem dataRow = tableModel.getRow(modelRowNumber);
+            
+
+            if (matchesACalcRegx(dataRow.getShortName(), specialPoints)) {
+                jTableDataPointsList.addRowSelectionInterval(row, row);
+            }
+        }
+    }
+
+    private boolean matchesACalcRegx(String pointName, List<String> patterns) {
+
+
+        for (String pattern : patterns) {
+
+            Pattern r = Pattern.compile("^" + pattern + "$");
+            Matcher m = r.matcher(pointName);
+            if (m.find()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private Map<String, List<String>> getCalcAndDepPointNamesMapidToDatapointMap() {
+
+        Map<String, List<String>> map = new HashMap<>();
+        map.put("CHWPEfficiency", Arrays.asList(new String[]{"CHWPEfficiency", "PCHWPPower", "SCHWPPower", "TESPPower"}));
+        map.put("PCHWPEfficiency", Arrays.asList(new String[]{"PCHWPEfficiency", "PCHWPPower", "TotalTon"}));
+        map.put("SCHWPEfficiency", Arrays.asList(new String[]{"SCHWPEfficiency", "SCHWP\\d+kW", "TotalTon"}));
+        map.put("CDWPEfficiency", Arrays.asList(new String[]{"CDWPEfficiency", "CDWPPower", "TotalTon"}));
+
+        map.put("PCWHPkWh", Arrays.asList(new String[]{"PCWHPkWh", "PCHWPPower"}));
+        map.put("SCHWPkWh", Arrays.asList(new String[]{"SCHWPkWh", "SCHWPPower"}));
+        map.put("CDWPkWh", Arrays.asList(new String[]{"CDWPkWh", "CDWPPower"}));
+
+        map.put("TotalTon", Arrays.asList(new String[]{"TotalTon", "Ton", "CHWFLO", "CHWFLO2", "MinimumChilledWaterFlow", "TotalCapacity", "ChillerPower"}));
+        map.put("Ton", Arrays.asList(new String[]{"Ton", "CHWRT", "CHWST", "CHWFLO", "CHWFLO2"}));
+
+        map.put("PCHWPPower", Arrays.asList(new String[]{"PCHWPPower", "PCHWP\\d+kW"}));
+        map.put("SCHWPPower", Arrays.asList(new String[]{"SCHWPPower", "SCHWP\\d+kW"}));
+        map.put("CDWPPower", Arrays.asList(new String[]{"CDWPPower", "CDWP\\d+kW"}));
+        map.put("ChillerPower", Arrays.asList(new String[]{"ChillerPower", "CH\\d+kW"}));
+
+        return map;
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -546,6 +634,8 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         jCheckBoxRegEx = new javax.swing.JCheckBox();
         jTextFieldFilter = new javax.swing.JTextField();
         jButtonSpecialSelect = new javax.swing.JButton();
+        jComboBoxCalcPointsList = new javax.swing.JComboBox<>();
+        jLabel10 = new javax.swing.JLabel();
         jPanel6 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         jTextAreaCalculation = new javax.swing.JTextArea();
@@ -959,6 +1049,10 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
             }
         });
 
+        jComboBoxCalcPointsList.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        jLabel10.setText("CalcPts:");
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
@@ -972,7 +1066,11 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                         .addComponent(jTextFieldFilter))
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addComponent(jCheckBoxRegEx)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel10)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jComboBoxCalcPointsList, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButtonSpecialSelect)))
                 .addContainerGap())
         );
@@ -986,7 +1084,9 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                 .addGap(4, 4, 4)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jCheckBoxRegEx)
-                    .addComponent(jButtonSpecialSelect))
+                    .addComponent(jButtonSpecialSelect)
+                    .addComponent(jComboBoxCalcPointsList, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel10))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -1330,11 +1430,11 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
         clearHistoryTable();
         clearHistoryStatsTable();
-        
+
         jProgressBar.setMaximum(100);
         jProgressBar.setValue(0);
         jProgressBar.setStringPainted(true);
-        
+
         totalFramesToPush = 0;
         completedFrames = 0;
 
@@ -1355,24 +1455,20 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
             DateTimeZone zone = DateTimeZone.forID(selectedStation.getTimeZone());
             DateTime queryStart = DateTime.parse(jTextFieldStartDate.getText(), zzFormat).withZone(zone);
             DateTime queryEnd = DateTime.parse(jTextFieldEndDate.getText(), zzFormat).withZone(zone);
-            
+
             int maxDays = Integer.parseInt(this.jTextFieldNumDays.getText());
             int maxPoints = Integer.parseInt(this.jTextFieldNumPoints.getText());
-            
+
             int daysBetween = Days.daysBetween(queryStart.toLocalDate(), queryEnd.toLocalDate()).getDays();
             int numFrameRows = daysBetween / maxDays;
             //int numFrameColumns = listOfTeslaPointIDs.size() / maxPoints;
-            
-            
+
             int numFrameColumns = listOfTeslaPointIDs.size() / maxPoints;
-            if( listOfTeslaPointIDs.size() % maxPoints > 0 ){
+            if (listOfTeslaPointIDs.size() % maxPoints > 0) {
                 numFrameColumns++;
             }
-            
+
             totalFramesToPush = numFrameRows * numFrameColumns;
-            
-            
-            
 
             controller.getHistoryInFrames(
                     listOfTeslaPoints,
@@ -1412,7 +1508,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         if (propName.equals(PropertyChangeNames.FrameProcessed.getName())) {
             int count = (int) evt.getNewValue();
             System.out.println("frame " + count + " processed ");
-            
+
             double percComplete = (double) count / (double) totalFramesToPush;
             percComplete *= 100;
 
@@ -1428,11 +1524,11 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
             fillHistoryTable(prec);
             historyStats = new Statistics(history);
             fillHistoryStatsTable(prec);
-            
+
             jProgressBar.setBackground(Color.GREEN);
             jProgressBar.invalidate();
             jProgressBar.repaint();
-            
+
             jProgressBar.setMaximum(100);
             jProgressBar.setValue(0);
             jProgressBar.setStringPainted(true);
@@ -1466,11 +1562,13 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
     private javax.swing.JButton jButtonSpecialSelect;
     private javax.swing.JButton jButtonSplitQuery;
     private javax.swing.JCheckBox jCheckBoxRegEx;
+    private javax.swing.JComboBox<String> jComboBoxCalcPointsList;
     private javax.swing.JComboBox<String> jComboBoxMonthPicker;
     private javax.swing.JComboBox<String> jComboBoxQueryPeriods;
     private javax.swing.JComboBox<String> jComboBoxResolutions;
     private javax.swing.JComboBox<String> jComboBoxYears;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

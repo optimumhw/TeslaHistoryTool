@@ -6,7 +6,7 @@ import java.util.List;
 
 
 public enum EnumBaseURLs {
-    LocalHost("http://localhost/v1"),
+    LocalHost("http://127.0.0.1:4000/v1"),
     Ninja("https://api.optimumenergy.ninja/v1"),
     Prod("https://api.optimumenergyco.com/v1");
 

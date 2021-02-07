@@ -181,6 +181,12 @@ public final class MainFrame extends javax.swing.JFrame {
         clearDatapointsTable();
 
         this.jComboBoxEquipment.setModel(comboBoxModel);
+        
+        if(this.selectedStationInfo == null ){
+            System.out.println("no station info");
+            return;
+        }
+        
         jComboBoxEquipment.addItem("Station");
 
         for (Equipment eq : selectedStationInfo.getequipments()) {
