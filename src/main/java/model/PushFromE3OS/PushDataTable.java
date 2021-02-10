@@ -387,6 +387,10 @@ public class PushDataTable {
                 list.add("TESPTR");
                 break;
 
+            case CHANDLER:
+                list.add("PCHWPSPD");
+                break;
+
         }
 
         return list;
@@ -481,11 +485,15 @@ public class PushDataTable {
                 break;
 
             case CHANDLER:
+                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
                 map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
-                map.put("PCHWSPD2", "PCHWCircuit2SPDSP");
-                map.put("SCHWPTR", "SCHWCircuit3PTRSP");
-                map.put("CDWSPD", "CDWCircuit1SPD");
-                map.put("CDWPSD2", "CDWCircuit2SPD");
+                map.put("PCHWPTR2", "PCHWCircuit2PTRSP");
+                map.put("PCHWPSPD2", "PCHWCircuit2SPDSP");
+                map.put("SCHWPTR3", "PCHWCircuit3PTRSP");
+                map.put("SCHWPSPD3", "PCHWCircuit3SPDSP");
+
+                map.put("CDWPSPD", "CDWCircuit1SPDSP");
+                map.put("CDWPSD2", "CDWCircuit2SPDSP");
                 break;
 
             case CORNELIA:
@@ -660,10 +668,9 @@ public class PushDataTable {
 
                 map.put("PCHWPTR", "PCHWCircuit1PTRSP");
                 map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
-                map.put("PCHWPTR2", "PCHWCircuit3PTRSP");
-                map.put("PCHWPSPD2", "PCHWCircuit3SPDSP");
-                map.put("PCHWPTR3", "PCHWCircuit2PTRSP");
-                map.put("PCHWPSPD3", "PCHWCircuit2SPDSP");
+                map.put("PCHWPTR2", "PCHWCircuit2PTRSP");
+                map.put("PCHWPSPD2", "PCHWCircuit2SPDSP");
+                map.put("PCHWPSPD3", "PCHWCircuit3SPDSP");
 
                 map.put("CDWPTR", "CDWCircuit4PTRSP");
                 map.put("CDWPSPD", "CDWCircuit4SPDSP");
@@ -873,8 +880,26 @@ public class PushDataTable {
                 map.put("SCHWP2", "SCHWP422");
                 map.put("SCHWP3", "SCHWP423");
 
+                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
+                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
+                map.put("SCHWPTR", "SCHWCircuit1PTRSP");
+                map.put("SCHWPSPD", "SCHWCircuit1SPDSP");
+
+                map.put("CDWPTR2", "CDWCircuit2PTRSP");
+                map.put("CDWPSPD2", "CDWCircuit2SPDSP");
+
                 break;
 
+            case ETHICON_NEW_MEXICO:
+                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
+                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
+                map.put("SCHWPTR", "SCHWCircuit1PTRSP");
+                map.put("SCHWPSPD", "SCHWCircuit1SPDSP");
+
+                map.put("CDWPTR", "CDWCircuit2PTRSP");
+                map.put("CDWPSPD", "CDWCircuit2SPDSP");
+
+                break;
             default:
                 break;
 

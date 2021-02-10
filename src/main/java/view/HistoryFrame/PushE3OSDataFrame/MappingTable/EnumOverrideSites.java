@@ -24,6 +24,7 @@ public enum EnumOverrideSites {
     FORT_WASH("Fort Washington"),
     SPRINGHOUSE_CUP("SpringHouse CUP"),
     BLDG42("Springhouse B42"),
+    ETHICON_NEW_MEXICO("Albuquerque LOOP"),
     UNKONWN("Unknown");
 
     private final String friendlyName;
