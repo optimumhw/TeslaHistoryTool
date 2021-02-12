@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public class Equipment {
+   
+    @JsonProperty("controlGroupId")
+    private String controlGroupId;
     
     @JsonProperty("id")
     private String id;
@@ -43,6 +46,12 @@ public class Equipment {
     @JsonProperty("points")
     private List<CoreDatapoint> dataPoints;
 
+    
+            
+    public String getControlGroupId() {
+        return controlGroupId;
+    }
+    
 
     public String getId() {
         return id;
