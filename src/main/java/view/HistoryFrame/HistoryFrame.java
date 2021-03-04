@@ -836,6 +836,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
             }
         });
 
+        jTableHistory.setAutoCreateRowSorter(true);
         jTableHistory.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},

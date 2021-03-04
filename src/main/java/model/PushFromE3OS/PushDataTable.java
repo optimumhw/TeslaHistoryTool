@@ -38,12 +38,21 @@ public class PushDataTable {
         //go through all the rows and try to find a matching e3os point
         for (MappingTableRow mappingTableRow : mappingTable) {
 
+            //map.put("CHWPSPD", "PCHWCircuit1SPDSP");
+            if (mappingTableRow.getTeslaName().equalsIgnoreCase("PCHWCircuit1SPDSP")) {
+                System.out.println("stop here");
+            }
+
             if (getExceptionsList().contains(mappingTableRow.getTeslaName())) {
                 continue;
             }
 
             boolean foundIt = false;
             for (DataPointFromSql e3osPoint : e3osPoints) {
+
+                if (e3osPoint.getDatapointName().equalsIgnoreCase("CHWPSPD")) {
+                    System.out.println("stop here");
+                }
 
                 if (getExceptionsList().contains(e3osPoint.getDatapointName())) {
                     continue;
@@ -781,7 +790,7 @@ public class PushDataTable {
                 map.put("CT53", "CT53");
 
                 map.put("PCHWPTR", "PCHWCircuit1PTRSP");
-                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
+                //map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
                 map.put("PCHWPTR2", "PCHWCircuit2PTRSP");
                 map.put("PCHWPSPD2", "PCHWCircuit2SPDSP");
 
@@ -789,6 +798,9 @@ public class PushDataTable {
                 map.put("CDWPSPD", "CDWCircuit3SPDSP");
                 map.put("CDWPTR2", "CDWCircuit4PTRSP");
                 map.put("CDWPSPD2", "CDWCircuit4SPDSP");
+
+                map.put("CHWPSPD", "PCHWCircuit1SPDSP");
+                map.put("CHWPSPD2", "PCHWCircuit2SPDSP");
 
                 break;
 
