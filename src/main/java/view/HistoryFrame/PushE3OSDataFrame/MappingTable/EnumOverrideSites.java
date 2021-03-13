@@ -25,6 +25,7 @@ public enum EnumOverrideSites {
     SPRINGHOUSE_CUP("SpringHouse CUP"),
     BLDG42("Springhouse B42"),
     ETHICON_NEW_MEXICO("Albuquerque LOOP"),
+    XIAN("Xian Plant"),
     UNKONWN("Unknown");
 
     private final String friendlyName;

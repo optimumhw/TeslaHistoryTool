@@ -93,7 +93,7 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
         this.jTextFieldStartDate.setText(startDate.toString(zzFormat));
         this.jTextFieldEndDate.setText(endDate.toString(zzFormat));
 
-        this.jTextFieldMaxHoursPush.setText("12");
+        this.jTextFieldMaxHoursPush.setText("6");
         this.jTextFieldMaxPointsPush.setText("50");
         this.jTextFieldSitesFilter.setText("");
         this.jTextFieldMappingFilter.setText("");
