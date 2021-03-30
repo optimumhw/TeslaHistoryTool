@@ -954,6 +954,55 @@ public class PushDataTable {
                 map.put("CT4", "CT4");
                 map.put("CT5", "CT5");
 
+                break;
+
+            case GURABOJ2:
+
+                map.put("CH1", "CH1");
+                map.put("CH2", "CH2");
+                map.put("CH3", "CH3");
+                map.put("CH4", "CH4");
+                map.put("CH5", "CH5");
+                map.put("CH6", "CH6");
+
+                map.put("PCHWP1", "PCHWP6");
+                map.put("PCHWP2", "PCWHP7");
+                map.put("CHWP1", "PCHWP1");
+                map.put("CHWP2", "PCHWP2");
+                map.put("CHWP3", "PCHWP3");
+                map.put("CHWP4", "PCHWP4");
+                map.put("CHWP5", "PCHWP5");
+
+                map.put("PCHWPTR", "PCHWCircuit2PTRSP");
+                map.put("PCHWPSPD", "PCHWCircuit2SPDSP");
+                map.put("CHWPSPD", "PCHWCircuit1SPDSP");
+                map.put("CHWPTR", "PCHWCircuit1PTRSP");
+
+                map.put("CTP1", "CDWP1");
+                map.put("CTP3", "CDWP3");
+                map.put("CTP161", "CDWP161");
+                map.put("CTP162", "CDWP162");
+                map.put("CDWP4", "CDWP4");
+                map.put("CDWP5", "CDWP5");
+                map.put("CDWP6", "CDWP6");
+
+                map.put("CDWPTR", "CDWCircuit1PTRSP");
+                map.put("CDWPSPD", "CDWCircuit1SPDSP");
+
+                map.put("CT1", "CT1");
+                map.put("CT2", "CT2");
+                map.put("CT3", "CT3");
+                map.put("CT4A", "CT41");
+                map.put("CT4B", "CT42");
+                map.put("CT4C", "CT43");
+                map.put("CT4D", "CT44");
+                map.put("CT5A", "CT51");
+                map.put("CT5B", "CT52");
+                map.put("CT5C", "CT53");
+                map.put("CT5D", "CT54");
+
+                break;
+
             default:
                 break;
 

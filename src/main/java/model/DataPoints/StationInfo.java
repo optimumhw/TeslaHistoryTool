@@ -22,10 +22,10 @@ public class StationInfo {
 
     @JsonProperty("siteId")
     private String siteId;
-    
+
     @JsonProperty("e3osShortName")
     private String e3osShortName;
-    
+
     @JsonProperty("salesforceId")
     private String salesforceId;
 
@@ -34,7 +34,7 @@ public class StationInfo {
 
     @JsonProperty("siteName")
     private String shortName;
-    
+
     @JsonProperty("customerName")
     private String customerName;
 
@@ -73,6 +73,9 @@ public class StationInfo {
 
     @JsonProperty("longitude")
     private String longitude;
+
+    @JsonProperty("communicationProtocol")
+    private String communicationProtocol;
 
     @JsonProperty("points")
     private List<CoreDatapoint> datapoints;
@@ -115,13 +118,10 @@ public class StationInfo {
     public String getShortName() {
         return shortName;
     }
-    
-    
-            
+
     public String getE3osName() {
         return e3osShortName;
     }
-    
 
     public String getCustomerName() {
         return customerName;
@@ -182,5 +182,9 @@ public class StationInfo {
     public List<Equipment> getequipments() {
         return equipments;
 
+    }
+
+    public String getCommunicationProtocol() {
+        return communicationProtocol;
     }
 }
