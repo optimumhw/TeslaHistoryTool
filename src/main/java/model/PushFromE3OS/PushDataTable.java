@@ -766,8 +766,8 @@ public class PushDataTable {
                 map.put("PCHWPTR2", "PCHWCircuit2PTRSP");
                 map.put("PCHWPSPD2", "PCHWCircuit2SPDSP");
 
-                map.put("SCHWPTR1", "SCHWCircuit1PTRSP");
-                map.put("SCHWPSPD1", "SCHWCircuit1SPDSP");
+                map.put("SCHWPTR", "SCHWCircuit1PTRSP");
+                map.put("SCHWPSPD", "SCHWCircuit1SPDSP");
                 map.put("SCHWPTR2", "SCHWCircuit2PTRSP");
                 map.put("SCHWPSPD2", "SCHWCircuit2SPDSP");
 
