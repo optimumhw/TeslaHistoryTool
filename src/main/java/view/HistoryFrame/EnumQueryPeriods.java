@@ -4,14 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum EnumQueryPeriods {
-    LAST_12_MONTHS("Last 12 Months", 0),
-    THIS_YEAR("This Year", 1),
-    LAST_30_DAYS("Last 30 Days", 2),
-    THIS_MONTH("This Month", 3),
-    LAST_7_DAYS("Last 7 Days", 4),
-    THIS_WEEK("This Week", 5),
-    LAST_24_HOURS("Last 24 Hours", 6),
-    TODAY("Today", 7);
+    LAST_MONTH("Last Month", 0),
+    LAST_12_MONTHS("Last 12 Months", 1),
+    THIS_YEAR("This Year", 2),
+    LAST_30_DAYS("Last 30 Days", 3),
+    THIS_MONTH("This Month", 4),
+    LAST_7_DAYS("Last 7 Days", 5),
+    THIS_WEEK("This Week", 6),
+    LAST_24_HOURS("Last 24 Hours", 7),
+    TODAY("Today", 8);
 
     private final String queryPeriodName;
     private final int dropDownIndex;

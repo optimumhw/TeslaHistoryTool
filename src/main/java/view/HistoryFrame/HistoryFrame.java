@@ -60,89 +60,89 @@ import view.HistoryFrame.PushE3OSDataFrame.PushE3OSHistoryFrame;
 import view.HistoryFrame.PushFromTeslaFrame.PushFromTeslaFrame;
 
 public final class HistoryFrame extends javax.swing.JFrame implements PropertyChangeListener {
-
+    
     private static HistoryFrame thisInstance;
-
+    
     private final Controller controller;
     private final StationInfo selectedStation;
     private List<DatapointListItem> datapointsList;
     private final Map<String, String> dpNameToCalcMap;
     private DatapointListItem selectedDataPoint;
-
+    
     private HistoryQueryResults history;
     private Statistics historyStats;
 
     //private final String timeZone = "UTC";
     private final DateTimeFormatter zzFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
     private final DateTimeFormatter utcFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-
+    
     private DateTime utcStartDate;
     private DateTime utcEndDate;
-
+    
     private DateTime siteLocalStartDate;
     private DateTime siteLocalEndDate;
-
+    
     private EnumQueryPeriods queryPeriod;
     private EnumMonths selectedMonth;
     private EnumYears selectedYear;
-
+    
     private String filter = "";
-
+    
     private Timer lapsedTimeTimer = null;
     private int totalFramesToPush = 0;
     private int completedFrames = 0;
-
+    
     private final String fiveMinuteString = "fiveMinute";
-
+    
     public static HistoryFrame getInstance(final Controller controller, StationInfo selectedStation) {
         if (thisInstance == null) {
             thisInstance = new HistoryFrame(controller, selectedStation);
         }
         return thisInstance;
     }
-
+    
     private HistoryFrame(Controller controller, StationInfo selectedStation) {
         initComponents();
-
+        
         this.setTitle(selectedStation.getName() + " History");
-
+        
         this.controller = controller;
         this.selectedStation = selectedStation;
-
+        
         this.dpNameToCalcMap = getCalculationMap();
-
-        queryPeriod = EnumQueryPeriods.LAST_30_DAYS;
-        selectedMonth = EnumMonths.Nov;
-        selectedYear = EnumYears.y2020;
-
+        
+        queryPeriod = EnumQueryPeriods.LAST_MONTH;
+        selectedMonth = EnumMonths.Mar;
+        selectedYear = EnumYears.y2021;
+        
         setStartAndEndDates(queryPeriod);
-
+        
         fillQueryPeriodsDropDown(queryPeriod);
         fillMonthsDropDown(selectedMonth);
-        fillReportYearDropDown();
-
+        fillReportYearDropDown(selectedYear);
+        
         this.jLabelTimeZone.setText(selectedStation.getTimeZone());
-
+        
         setPrecSpinner();
         fillHistoryResolutionDropdown();
         controller.getDatapoints(EnumPrimarySecodaryClient.Primary, selectedStation.getId());
-
+        
     }
-
+    
     @Override
     public void dispose() {
         controller.removePropChangeListener(this);
         thisInstance = null;
         super.dispose();
     }
-
+    
     private void setPrecSpinner() {
         SpinnerNumberModel spinModel = new SpinnerNumberModel(3, 0, 6, 1);
         this.jSpinnerPrec.setModel(spinModel);
         jSpinnerPrec.addChangeListener(new javax.swing.event.ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-
+                
                 if (history != null && history.getTimestamps().size() > 0) {
                     int prec = (int) jSpinnerPrec.getModel().getValue();
                     fillHistoryTable(prec);
@@ -151,128 +151,139 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
             }
         });
     }
-
+    
     private void fillQueryPeriodsDropDown(EnumQueryPeriods initPeriod) {
-
+        
         ComboBoxModel comboBoxModel = new DefaultComboBoxModel(EnumQueryPeriods.getQueryPeriodNames().toArray());
         this.jComboBoxQueryPeriods.setModel(comboBoxModel);
         this.jComboBoxQueryPeriods.setSelectedIndex(initPeriod.getDropDownIndex());
         this.jComboBoxQueryPeriods.setEnabled(true);
-
+        
         this.jComboBoxQueryPeriods.addActionListener(new ActionListener() {
-
+            
             @Override
             public void actionPerformed(ActionEvent event) {
                 JComboBox<String> combo = (JComboBox<String>) event.getSource();
                 String name = (String) combo.getSelectedItem();
                 queryPeriod = EnumQueryPeriods.getQueryPeriodFromName(name);
-
+                
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
                         setStartAndEndDates(queryPeriod);
                     }
                 });
-
+                
             }
         });
     }
-
+    
     private void fillMonthsDropDown(EnumMonths initMonth) {
-
+        
         ComboBoxModel comboBoxModel = new DefaultComboBoxModel(EnumMonths.getMonthNames().toArray());
         this.jComboBoxMonthPicker.setModel(comboBoxModel);
         this.jComboBoxMonthPicker.setSelectedIndex(initMonth.getDropDownIndex());
         this.jComboBoxMonthPicker.setEnabled(true);
-
+        
         this.jComboBoxMonthPicker.addActionListener(new ActionListener() {
-
+            
             @Override
             public void actionPerformed(ActionEvent event) {
                 JComboBox<String> combo = (JComboBox<String>) event.getSource();
                 String name = (String) combo.getSelectedItem();
                 selectedMonth = EnumMonths.getMonthFromName(name);
-
+                
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
                         setStartAndEndDates(selectedMonth, selectedYear);
                     }
                 });
-
+                
             }
         });
     }
-
-    private void fillReportYearDropDown() {
-
+    
+    private void fillReportYearDropDown(EnumYears year) {
+        
         ComboBoxModel comboBoxModel = new DefaultComboBoxModel(EnumYears.getYearNames().toArray());
         this.jComboBoxYears.setModel(comboBoxModel);
-        this.jComboBoxYears.setSelectedIndex(EnumYears.y2019.getDropDownIndex());
+        this.jComboBoxYears.setSelectedIndex(year.getDropDownIndex());
         this.jComboBoxYears.setEnabled(true);
-
+        
         this.jComboBoxYears.addActionListener(new ActionListener() {
-
+            
             @Override
             public void actionPerformed(ActionEvent event) {
                 JComboBox<String> combo = (JComboBox<String>) event.getSource();
                 String name = (String) combo.getSelectedItem();
                 selectedYear = EnumYears.getYearFromName(name);
-
+                
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
                         setStartAndEndDates(selectedMonth, selectedYear);
                     }
                 });
-
+                
             }
         });
     }
-
+    
     private void setStartAndEndDates(EnumMonths month, EnumYears year) {
-
+        
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.MONTH, month.getMonthNumber());
         cal.set(Calendar.YEAR, year.getYearNumber());
         int numOfDaysInMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
-
+        
         DateTimeZone zone = DateTimeZone.forID(selectedStation.getTimeZone());
-
+        
         siteLocalStartDate = new DateTime(year.getYearNumber(), month.getMonthNumber() + 1, 1, 0, 0, zone);
         siteLocalEndDate = siteLocalStartDate.plusDays(numOfDaysInMonth).minusSeconds(1);
-
+        
         this.jTextFieldStartDate.setText(siteLocalStartDate.toString(zzFormat));
         this.jTextFieldEndDate.setText(siteLocalEndDate.toString(zzFormat));
-
+        
         setUTCLabels();
-
+        
     }
-
+    
     private void setStartAndEndDates(EnumQueryPeriods queryPeriod) {
-
+        
         DateTime utcToday = DateTime.now().withZone(DateTimeZone.UTC);
-
+        
         DateTimeZone zone = DateTimeZone.forID(selectedStation.getTimeZone());
         DateTime siteLocalToday = new DateTime(utcToday).withZone(zone);
-
+        
         switch (queryPeriod) {
+            case LAST_MONTH: {
+                DateTime thisTimeLastMonth = siteLocalToday.minusMonths(1);
+                thisTimeLastMonth = thisTimeLastMonth.minusMillis(thisTimeLastMonth.getMillisOfDay());
+                siteLocalStartDate = thisTimeLastMonth.minusDays(thisTimeLastMonth.getDayOfMonth() - 1);
+                siteLocalEndDate = siteLocalStartDate.plusMonths(1).minusSeconds(1);
+            }
+            break;
+            
             case LAST_12_MONTHS: {
                 siteLocalEndDate = siteLocalToday;
                 siteLocalStartDate = siteLocalEndDate.minusMonths(12);
             }
             break;
+            
             case THIS_YEAR: {
                 siteLocalEndDate = siteLocalToday;
                 siteLocalStartDate = siteLocalEndDate.minusDays(siteLocalToday.getDayOfYear() - 1);
                 siteLocalStartDate = siteLocalStartDate.minusMillis(siteLocalStartDate.getMillisOfDay());
-
+                
             }
             break;
+            
             case LAST_30_DAYS: {
                 siteLocalEndDate = siteLocalToday;
                 siteLocalStartDate = siteLocalEndDate.minusDays(30);
                 siteLocalStartDate = siteLocalStartDate.minusMillis(siteLocalStartDate.getMillisOfDay());
-
+                
             }
             break;
+            
             case THIS_MONTH: {
                 siteLocalEndDate = siteLocalToday;
                 siteLocalStartDate = siteLocalEndDate.minusDays(siteLocalEndDate.getDayOfMonth() - 1);
@@ -285,70 +296,70 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                 siteLocalStartDate = siteLocalStartDate.minusMillis(siteLocalStartDate.getMillisOfDay());
             }
             break;
-
+            
             case THIS_WEEK: {
                 siteLocalEndDate = siteLocalToday;
                 siteLocalStartDate = siteLocalEndDate.minusDays(siteLocalEndDate.getDayOfWeek());
                 siteLocalStartDate = siteLocalStartDate.minusMillis(siteLocalStartDate.getMillisOfDay());
             }
             break;
-
+            
             case LAST_24_HOURS: {
                 siteLocalEndDate = siteLocalToday;
                 siteLocalStartDate = siteLocalEndDate.minusDays(1);
-
+                
             }
             break;
-
+            
             case TODAY: {
                 siteLocalEndDate = siteLocalToday;
                 siteLocalStartDate = siteLocalEndDate.minusMillis(siteLocalEndDate.getMillisOfDay());
-
+                
             }
         }
-
+        
         this.jTextFieldStartDate.setText(siteLocalStartDate.toString(zzFormat));
         this.jTextFieldEndDate.setText(siteLocalEndDate.toString(zzFormat));
-
+        
         setUTCLabels();
-
+        
     }
-
+    
     private void setUTCLabels() {
-
+        
         DateTime tempStart = DateTime.parse(jTextFieldStartDate.getText(), zzFormat);
         DateTime tempEnd = DateTime.parse(jTextFieldEndDate.getText(), zzFormat);
-
+        
         utcStartDate = new DateTime(tempStart).withZone(DateTimeZone.UTC);
         utcEndDate = new DateTime(tempEnd).withZone(DateTimeZone.UTC);
-
+        
         this.jLabelutcStart.setText(utcStartDate.toString(utcFormat));
         this.jLabelutcEnd.setText(utcEndDate.toString(utcFormat));
-
+        
     }
-
+    
     public Map<String, String> getCalculationMap() {
-
+        
         Map<String, String> idToDatapointMap = new HashMap<>();
-
+        
         for (CoreDatapoint dp : selectedStation.getDatapoints()) {
             idToDatapointMap.put(dp.getId(), dp.getCalculation());
         }
-
+        
         for (Equipment eq : selectedStation.getequipments()) {
             for (CoreDatapoint dp : eq.getDatapoints()) {
                 idToDatapointMap.put(dp.getId(), dp.getCalculation());
             }
         }
-
+        
         return idToDatapointMap;
     }
-
+    
     public List<String> getPointNamesFromCalc(String calc) {
         List<String> depPointNames = new ArrayList<>();
-
+        
         String[] pointNames = StringUtils.split(calc, "[ <>()+/-*:?]");
-
+        
         for (String pn : pointNames) {
             if (pn.contentEquals("avg")) {
                 continue;
@@ -365,26 +376,26 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
             if (pn.contentEquals("avg")) {
                 continue;
             }
-
+            
             depPointNames.add(pn);
         }
-
+        
         return depPointNames;
     }
-
+    
     public void fillDataPointsListTable(String filter) {
-
+        
         List<DatapointListItem> filteredList = new ArrayList<>();
-
+        
         String[] pointNamesInFilter = filter.split(" ");
-
+        
         for (DatapointListItem point : datapointsList) {
-
+            
             if (filter.length() == 0) {
                 filteredList.add(point);
                 continue;
             }
-
+            
             for (String pointNameFilter : Arrays.asList(pointNamesInFilter)) {
                 if (!this.jCheckBoxRegEx.isSelected() && point.getShortName().contains(pointNameFilter)) {
                     if (!filteredList.contains(point)) {
@@ -401,18 +412,18 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                 }
             }
         }
-
+        
         this.jTableDataPointsList.setDefaultRenderer(Object.class, new DataPointsListTableCellRenderer());
         this.jTableDataPointsList.setModel(new DataPointsListTableModel(filteredList));
         this.jTableDataPointsList.setAutoCreateRowSorter(true);
         fixTableDataPointsListColumns(jTableDataPointsList);
-
+        
         fillCalcPointsListDropDown();
-
+        
     }
-
+    
     public void fixTableDataPointsListColumns(JTable t) {
-
+        
         for (int i = 0; i < t.getColumnCount(); i++) {
             EnumDataPointsListTableColumns colEnum = EnumDataPointsListTableColumns.getColumnFromColumnNumber(i);
             TableColumn column = t.getColumnModel().getColumn(i);
@@ -423,7 +434,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
             }
         }
     }
-
+    
     private void fillHistoryResolutionDropdown() {
         ComboBoxModel comboBoxModel = new DefaultComboBoxModel(EnumResolutions.getNames().toArray());
         EnumResolutions res = EnumResolutions.FIVEMINUTE;
@@ -431,40 +442,40 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         this.jComboBoxResolutions.setSelectedIndex(res.getDropDownIndex());
         this.jComboBoxResolutions.setEnabled(true);
     }
-
+    
     public void clearHistoryTable() {
-
+        
         this.jTableHistory.setDefaultRenderer(Object.class, new DefaultTableCellRenderer());
         this.jTableHistory.setModel(new DefaultTableModel());
         //this.jTableHistory.setAutoCreateRowSorter(true);
 
     }
-
+    
     public void fillHistoryTable(int prec) {
         this.jTableHistory.setDefaultRenderer(Object.class, new HistoryTableCellRenderer(prec));
         this.jTableHistory.setModel(new HistoryTableModel(history));
         //this.jTableHistory.setAutoCreateRowSorter(true);
         fixHistoryTableColumnWidths(jTableHistory);
-
+        
     }
-
+    
     public void clearHistoryStatsTable() {
-
+        
         this.jTableHistoryStats.setDefaultRenderer(Object.class, new DefaultTableCellRenderer());
         this.jTableHistoryStats.setModel(new DefaultTableModel());
         //this.jTableHistoryStats.setAutoCreateRowSorter(true);
 
     }
-
+    
     public void fillHistoryStatsTable(int prec) {
         this.jTableHistoryStats.setDefaultRenderer(Object.class, new HistoryStatsTableCellRenderer(prec));
         this.jTableHistoryStats.setModel(new HistoryStatsTableModel(historyStats));
         //this.jTableHistoryStats.setAutoCreateRowSorter(true);
         fixHistoryTableColumnWidths(jTableHistoryStats);
     }
-
+    
     public void fixHistoryTableColumnWidths(JTable t) {
-
+        
         for (int i = 0; i < t.getColumnCount(); i++) {
             TableColumn column = t.getColumnModel().getColumn(i);
             if (i == 0) {
@@ -474,9 +485,9 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
             }
         }
     }
-
+    
     private List<String> getSpecialPointNames() {
-
+        
         return Arrays.asList(new String[]{
             "TotalkWh",
             "BaselinekWh",
@@ -496,93 +507,90 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
             "FreeCooling"
         });
     }
-
+    
     private void fillCalcPointsListDropDown() {
-
+        
         jTableDataPointsList.clearSelection();
-
+        
         Map<String, List<String>> map = getCalcAndDepPointNamesMapidToDatapointMap();
         ComboBoxModel comboBoxModel = new DefaultComboBoxModel(map.keySet().toArray());
-
+        
         this.jComboBoxCalcPointsList.setModel(comboBoxModel);
         this.jComboBoxCalcPointsList.setSelectedIndex(0);
         this.jComboBoxCalcPointsList.setEnabled(true);
-
+        
         this.jComboBoxCalcPointsList.addActionListener(new ActionListener() {
-
+            
             @Override
             public void actionPerformed(ActionEvent event) {
                 JComboBox<String> combo = (JComboBox<String>) event.getSource();
                 final String name = (String) combo.getSelectedItem();
-
+                
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
                         selectCalcPointsAndDependencies(name);
-
+                        
                     }
                 });
             }
         });
     }
-
+    
     private void selectCalcPointsAndDependencies(String selectedCalcPointName) {
-
+        
         jTableDataPointsList.clearSelection();
-
-
+        
         List<String> specialPoints = getCalcAndDepPointNamesMapidToDatapointMap().get(selectedCalcPointName);
-
+        
         DataPointsListTableModel tableModel = (DataPointsListTableModel) (jTableDataPointsList.getModel());
-
+        
         for (int row = 0; row < jTableDataPointsList.getRowCount(); row++) {
             int modelRowNumber = jTableDataPointsList.convertRowIndexToModel(row);
             DatapointListItem dataRow = tableModel.getRow(modelRowNumber);
             
-
             if (matchesACalcRegx(dataRow.getShortName(), specialPoints)) {
                 jTableDataPointsList.addRowSelectionInterval(row, row);
             }
         }
     }
-
+    
     private boolean matchesACalcRegx(String pointName, List<String> patterns) {
-
-
+        
         for (String pattern : patterns) {
-
+            
             Pattern r = Pattern.compile("^" + pattern + "$");
             Matcher m = r.matcher(pointName);
             if (m.find()) {
                 return true;
             }
         }
-
+        
         return false;
     }
-
+    
     private Map<String, List<String>> getCalcAndDepPointNamesMapidToDatapointMap() {
-
+        
         Map<String, List<String>> map = new HashMap<>();
         map.put("CHWPEfficiency", Arrays.asList(new String[]{"CHWPEfficiency", "PCHWPPower", "SCHWPPower", "TESPPower"}));
         map.put("PCHWPEfficiency", Arrays.asList(new String[]{"PCHWPEfficiency", "PCHWPPower", "TotalTon"}));
         map.put("SCHWPEfficiency", Arrays.asList(new String[]{"SCHWPEfficiency", "SCHWP\\d+kW", "TotalTon"}));
         map.put("CDWPEfficiency", Arrays.asList(new String[]{"CDWPEfficiency", "CDWPPower", "TotalTon"}));
-
+        
         map.put("PCWHPkWh", Arrays.asList(new String[]{"PCWHPkWh", "PCHWPPower"}));
         map.put("SCHWPkWh", Arrays.asList(new String[]{"SCHWPkWh", "SCHWPPower"}));
         map.put("CDWPkWh", Arrays.asList(new String[]{"CDWPkWh", "CDWPPower"}));
-
+        
         map.put("TotalTon", Arrays.asList(new String[]{"TotalTon", "Ton", "CHWFLO", "CHWFLO2", "MinimumChilledWaterFlow", "TotalCapacity", "ChillerPower"}));
         map.put("Ton", Arrays.asList(new String[]{"Ton", "CHWRT", "CHWST", "CHWFLO", "CHWFLO2"}));
-
+        
         map.put("PCHWPPower", Arrays.asList(new String[]{"PCHWPPower", "PCHWP\\d+kW"}));
         map.put("SCHWPPower", Arrays.asList(new String[]{"SCHWPPower", "SCHWP\\d+kW"}));
         map.put("CDWPPower", Arrays.asList(new String[]{"CDWPPower", "CDWP\\d+kW"}));
         map.put("ChillerPower", Arrays.asList(new String[]{"ChillerPower", "CH\\d+kW"}));
-
+        
         return map;
     }
-
+    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -1218,13 +1226,13 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         if (evt.isPopupTrigger()) {
             PopupMenuForDataPointsListTable popup = new PopupMenuForDataPointsListTable(evt, jTableDataPointsList);
         }
-
+        
         if (jTableDataPointsList.getSelectedRowCount() > 0) {
             //enableQueryButtons(true);
         } else {
             //enableQueryButtons(false);
         }
-
+        
         int row = jTableDataPointsList.rowAtPoint(evt.getPoint());
         int modelIndex = jTableDataPointsList.convertRowIndexToModel(row);
         DataPointsListTableModel mod = (DataPointsListTableModel) jTableDataPointsList.getModel();
@@ -1236,15 +1244,15 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
             this.jTextAreaCalculation.setText(calc);
             this.jButtonSelectDepPoints.setEnabled(calc.length() > 0);
         }
-
+        
 
     }//GEN-LAST:event_jTableDataPointsListMousePressed
 
     private void jButtonRunQueryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRunQueryActionPerformed
-
+        
         clearHistoryTable();
         clearHistoryStatsTable();
-
+        
         if (jTableDataPointsList.getSelectedRowCount() > 0) {
             List<String> listOfTeslaPointIDs = new ArrayList<>();
             List<DatapointListItem> listOfTeslaPoints = new ArrayList<>();
@@ -1256,24 +1264,24 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                 listOfTeslaPoints.add(teslaPoint);
                 listOfTeslaPointIDs.add(teslaPoint.getId());
             }
-
+            
             String resolution = (String) (this.jComboBoxResolutions.getSelectedItem());
-
+            
             DateTimeZone zone = DateTimeZone.forID(selectedStation.getTimeZone());
             DateTime queryStart = DateTime.parse(jTextFieldStartDate.getText(), zzFormat).withZone(zone);
             DateTime queryEnd = DateTime.parse(jTextFieldEndDate.getText(), zzFormat).withZone(zone);
-
+            
             if (!resolution.contentEquals(fiveMinuteString)) {
-
+                
                 HistoryRequest hr = new HistoryRequest(listOfTeslaPointIDs, queryStart, queryEnd, resolution, selectedStation.getTimeZone());
                 controller.getHistory(hr);
                 return;
-
+                
             }
-
+            
             List<String> listOfFiveMinutePointIDs = new ArrayList<>();
             List<String> listOfHourlyPointIDs = new ArrayList<>();
-
+            
             for (DatapointListItem teslaPoint : listOfTeslaPoints) {
                 String minRes = teslaPoint.getMinimumResolution();
                 if (minRes.contentEquals(fiveMinuteString)) {
@@ -1282,7 +1290,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                     listOfHourlyPointIDs.add(teslaPoint.getId());
                 }
             }
-
+            
             HistoryRequest generalRequest = new HistoryRequest(listOfFiveMinutePointIDs, queryStart, queryEnd, resolution, selectedStation.getTimeZone());
             HistoryRequest secondaryHourlyRequest = new HistoryRequest(listOfHourlyPointIDs, queryStart, queryEnd, "hour", selectedStation.getTimeZone());
             controller.getComboHistory(generalRequest, secondaryHourlyRequest);
@@ -1303,16 +1311,16 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
     private void jButtonSpecialSelectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSpecialSelectActionPerformed
         List<String> specialPoints = getSpecialPointNames();
-
+        
         DataPointsListTableModel tableModel = (DataPointsListTableModel) (jTableDataPointsList.getModel());
-
+        
         for (int row = 0; row < jTableDataPointsList.getRowCount(); row++) {
             int modelRowNumber = jTableDataPointsList.convertRowIndexToModel(row);
             DatapointListItem dataRow = tableModel.getRow(modelRowNumber);
             if (specialPoints.contains(dataRow.getShortName())) {
                 jTableDataPointsList.addRowSelectionInterval(row, row);
             }
-
+            
         }
 
     }//GEN-LAST:event_jButtonSpecialSelectActionPerformed
@@ -1323,13 +1331,13 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
     }//GEN-LAST:event_jTextFieldFilterActionPerformed
 
     private void jButtonMakeCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonMakeCSVActionPerformed
-
+        
         if (history != null && history.getTimestamps().size() > 0) {
             JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
 
             //int returnValue = jfc.showOpenDialog(null);
             int returnValue = jfc.showSaveDialog(null);
-
+            
             if (returnValue == JFileChooser.APPROVE_OPTION) {
                 this.jButtonMakeCSV.setEnabled(false);
                 File selectedFile = jfc.getSelectedFile();
@@ -1347,30 +1355,30 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
     private void jButtonChartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonChartActionPerformed
         if (history != null && history.getTimestamps().size() > 0) {
-
+            
             HistoryChartFrame chartFrame = new HistoryChartFrame(controller, history);
             controller.addModelListener(chartFrame);
             chartFrame.pack();
             chartFrame.setLocationRelativeTo(this);
             chartFrame.setVisible(true);
-
+            
         }
     }//GEN-LAST:event_jButtonChartActionPerformed
 
     private void jButtonPushE3OSDataActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPushE3OSDataActionPerformed
-
+        
         List<DatapointListItem> listOfPoints = new ArrayList<>();
-
+        
         for (DatapointListItem teslaPoint : datapointsList) {
             if (teslaPoint.getPointType().contentEquals("raw")) {
                 listOfPoints.add(teslaPoint);
             }
         }
-
+        
         if (listOfPoints.size() > 0) {
             DateTime pushStart = DateTime.parse(jTextFieldStartDate.getText(), zzFormat).withZone(DateTimeZone.UTC);
             DateTime pushEnd = DateTime.parse(jTextFieldEndDate.getText(), zzFormat).withZone(DateTimeZone.UTC);
-
+            
             PushE3OSHistoryFrame frame = PushE3OSHistoryFrame.getInstance(controller, selectedStation, pushStart, pushEnd, listOfPoints);
             controller.addModelListener(frame);
             frame.pack();
@@ -1381,17 +1389,17 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
 
     private void jButtonPushFromTeslaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPushFromTeslaActionPerformed
         List<DatapointListItem> listOfPoints = new ArrayList<>();
-
+        
         for (DatapointListItem teslaPoint : datapointsList) {
             if (teslaPoint.getPointType().contentEquals("raw")) {
                 listOfPoints.add(teslaPoint);
             }
         }
-
+        
         if (listOfPoints.size() > 0) {
             DateTime pushStart = DateTime.parse(jTextFieldStartDate.getText(), zzFormat).withZone(DateTimeZone.UTC);
             DateTime pushEnd = DateTime.parse(jTextFieldEndDate.getText(), zzFormat).withZone(DateTimeZone.UTC);
-
+            
             PushFromTeslaFrame frame = PushFromTeslaFrame.getInstance(controller, selectedStation, listOfPoints, pushStart, pushEnd);
             controller.addModelListener(frame);
             frame.pack();
@@ -1417,7 +1425,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
             for (int i = 0; i < rowCount; i++) {
                 int modelRowNumber = jTableDataPointsList.convertRowIndexToModel(i);
                 DatapointListItem teslaPoint = tableModel.getRow(modelRowNumber);
-
+                
                 for (String name : depPoints) {
                     if (teslaPoint.getShortName().contentEquals(name)) {
                         jTableDataPointsList.addRowSelectionInterval(i, i);
@@ -1428,17 +1436,17 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
     }//GEN-LAST:event_jButtonSelectDepPointsActionPerformed
 
     private void jButtonSplitQueryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSplitQueryActionPerformed
-
+        
         clearHistoryTable();
         clearHistoryStatsTable();
-
+        
         jProgressBar.setMaximum(100);
         jProgressBar.setValue(0);
         jProgressBar.setStringPainted(true);
-
+        
         totalFramesToPush = 0;
         completedFrames = 0;
-
+        
         if (jTableDataPointsList.getSelectedRowCount() > 0) {
             List<String> listOfTeslaPointIDs = new ArrayList<>();
             List<DatapointListItem> listOfTeslaPoints = new ArrayList<>();
@@ -1450,16 +1458,16 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                 listOfTeslaPoints.add(teslaPoint);
                 listOfTeslaPointIDs.add(teslaPoint.getId());
             }
-
+            
             String resolution = (String) (this.jComboBoxResolutions.getSelectedItem());
             //EnumResolutions enumRes = EnumResolutions.getResolutionFromName(resolution);
             DateTimeZone zone = DateTimeZone.forID(selectedStation.getTimeZone());
             DateTime queryStart = DateTime.parse(jTextFieldStartDate.getText(), zzFormat).withZone(zone);
             DateTime queryEnd = DateTime.parse(jTextFieldEndDate.getText(), zzFormat).withZone(zone);
-
+            
             int maxDays = Integer.parseInt(this.jTextFieldNumDays.getText());
             int maxPoints = Integer.parseInt(this.jTextFieldNumPoints.getText());
-
+            
             int daysBetween = Days.daysBetween(queryStart.toLocalDate(), queryEnd.toLocalDate()).getDays();
             int numFrameRows = daysBetween / maxDays;
             //int numFrameColumns = listOfTeslaPointIDs.size() / maxPoints;
@@ -1468,9 +1476,9 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
             if (listOfTeslaPointIDs.size() % maxPoints > 0) {
                 numFrameColumns++;
             }
-
+            
             totalFramesToPush = numFrameRows * numFrameColumns;
-
+            
             controller.getHistoryInFrames(
                     listOfTeslaPoints,
                     queryStart,
@@ -1479,26 +1487,26 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                     selectedStation.getTimeZone(),
                     24 * maxDays,
                     maxPoints);
-
+            
         }
     }//GEN-LAST:event_jButtonSplitQueryActionPerformed
 
     private void jButtonE3OSLiveAuthActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonE3OSLiveAuthActionPerformed
         controller.e3osLiveAuthenticate();
     }//GEN-LAST:event_jButtonE3OSLiveAuthActionPerformed
-
+    
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         String propName = evt.getPropertyName();
-
+        
         if (propName.equals(PropertyChangeNames.DatapointsReturned.getName())) {
             datapointsList = (List<DatapointListItem>) evt.getNewValue();
             fillDataPointsListTable(this.filter);
         }
-
+        
         if (propName.equals(PropertyChangeNames.HistoryReturned.getName())) {
             int prec = (int) this.jSpinnerPrec.getModel().getValue();
-
+            
             history = (HistoryQueryResults) evt.getNewValue();
             fillHistoryTable(prec);
             historyStats = new Statistics(history);
@@ -1509,44 +1517,44 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         if (propName.equals(PropertyChangeNames.FrameProcessed.getName())) {
             int count = (int) evt.getNewValue();
             System.out.println("frame " + count + " processed ");
-
+            
             double percComplete = (double) count / (double) totalFramesToPush;
             percComplete *= 100;
-
+            
             int frameCompletePerc = (int) percComplete;
-
+            
             jProgressBar.setValue(Math.min(frameCompletePerc, jProgressBar.getMaximum()));
         }
-
+        
         if (propName.equals(PropertyChangeNames.FramesCompleted.getName())) {
             int prec = (int) this.jSpinnerPrec.getModel().getValue();
-
+            
             history = (HistoryQueryResults) evt.getNewValue();
             fillHistoryTable(prec);
             historyStats = new Statistics(history);
             fillHistoryStatsTable(prec);
-
+            
             jProgressBar.setBackground(Color.GREEN);
             jProgressBar.invalidate();
             jProgressBar.repaint();
-
+            
             jProgressBar.setMaximum(100);
             jProgressBar.setValue(0);
             jProgressBar.setStringPainted(true);
         }
-
+        
         if (propName.equals(PropertyChangeNames.CSVCreated.getName())) {
             boolean flag = (boolean) evt.getNewValue();
             System.out.println("done! : " + ((flag) ? "created" : "failed"));
             this.jButtonMakeCSV.setEnabled(true);
         }
-
+        
         if (propName.equals(PropertyChangeNames.LiveDataReturned.getName())) {
             List<LiveDatapoint> dpList = (List<LiveDatapoint>) evt.getNewValue();
-
+            
             HistoryTableModel model = (HistoryTableModel) this.jTableHistory.getModel();
             model.appendLiveData(dpList);
-
+            
         }
     }
 
