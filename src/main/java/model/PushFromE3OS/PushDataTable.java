@@ -399,6 +399,10 @@ public class PushDataTable {
             case CHANDLER:
                 list.add("PCHWPSPD");
                 break;
+                
+            case MANATI:
+                list.add("CHWPSPD");
+                break;
 
         }
 
@@ -629,8 +633,8 @@ public class PushDataTable {
 
                 map.put("CHWPTR", "PCHWCircuit1PTRSP");
                 map.put("CHWPSPD", "PCHWCircuit1SPDSP");
-                map.put("SCHWPTR", "SCHWPCircuit1PTRSP");
-                map.put("SCHWPSPD", "SCHWPCircuit1SPDSP");
+                map.put("CHWPTR2", "SCHWCircuit1PTRSP");
+                map.put("CHWPSPD2", "SCHWCircuit1SPDSP");
                 map.put("CDWPTR", "CDWCircuit1PTRSP");
                 map.put("CDWPSPD", "CDWCircuit1SPDSP");
                 map.put("CDWPTR2", "CDWCircuit2PTRSP");
