@@ -31,6 +31,9 @@ public class StationInfo {
 
     @JsonProperty("commissionedAt")
     private String commissionedAt;
+    
+    @JsonProperty("commissionStatus")
+    private String commissionStatus;
 
     @JsonProperty("siteName")
     private String shortName;
@@ -115,6 +118,10 @@ public class StationInfo {
         return commissionedAt;
     }
 
+    public String getcommissionStatus() {
+        return commissionStatus;
+    }
+    
     public String getShortName() {
         return shortName;
     }
