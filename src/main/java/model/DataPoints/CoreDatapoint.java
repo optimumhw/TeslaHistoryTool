@@ -56,6 +56,11 @@ public class CoreDatapoint {
     @JsonIgnore
     private Object liveDataValue;
     
+    @JsonIgnore
+    private String hardwareIntegrationSource;
+    
+    
+    
     public String getId() {
         return id;
     }
@@ -123,6 +128,10 @@ public class CoreDatapoint {
     
     public Object getLiveDataValue() {
         return liveDataValue;
+    }
+    
+    public String getHardwareIntegrationSource(){
+        return hardwareIntegrationSource;
     }
     
 }

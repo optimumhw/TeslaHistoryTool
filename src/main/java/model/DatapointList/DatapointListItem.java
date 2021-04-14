@@ -33,21 +33,24 @@ public class DatapointListItem {
 
     @JsonProperty("type")
     private String pointType;
-    
+
     @JsonProperty("ownerId")
     private String ownerId;
-    
+
     @JsonProperty("ownerType")
     private String ownerType;
-    
+
     @JsonProperty("unitOfMeasurement")
     private String unitOfMeasurement;
 
     @JsonProperty("rollupAggregation")
     private String rollupAggregation;
-    
+
     @JsonProperty("hourlySubAggregation")
     private String hourlySubAggregation;
+
+    @JsonProperty("hardwareIntegrationSource")
+    private String hardwareIntegrationSource;
 
     public String getId() {
         return id;
@@ -95,6 +98,10 @@ public class DatapointListItem {
 
     public String getrollupAggregation() {
         return rollupAggregation;
+    }
+
+    public String getHardwareIntegrationSource() {
+        return hardwareIntegrationSource;
     }
 
 }
