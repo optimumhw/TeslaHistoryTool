@@ -27,6 +27,7 @@ public enum EnumOverrideSites {
     ETHICON_NEW_MEXICO("Albuquerque LOOP"),
     XIAN("Xian Plant"),
     GURABOJ2("Gurabo J2"),
+    EC1EC2("EC1 & EC2 Plant"),
     UNKONWN("Unknown");
 
     private final String friendlyName;
