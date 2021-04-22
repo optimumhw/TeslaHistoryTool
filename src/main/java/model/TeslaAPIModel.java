@@ -1022,7 +1022,7 @@ public class TeslaAPIModel extends java.util.Observable {
                         int endIndex = Math.min(startPushIndex + maxPointsPerPush, mappedRows.size());
 
                         List<MappingTableRow> pointsToPush = mappedRows.subList(startPushIndex, endIndex);
-                        pullFromEdisonPushToTeslaInterval(intervalStart, intervalEnd, pointsToPush);
+                        pullFromE3OSPushToTeslaInterval(intervalStart, intervalEnd, pointsToPush);
                         pcs.firePropertyChange(PropertyChangeNames.TeslaBucketPushed.getName(), null, 1);
                         startPushIndex += maxPointsPerPush;
                     }
@@ -1060,7 +1060,7 @@ public class TeslaAPIModel extends java.util.Observable {
         worker.execute();
     }
 
-    private OEResponse pullFromEdisonPushToTeslaInterval(DateTime pushStartTime, DateTime pushEndTime, List<MappingTableRow> mappedRows) {
+    private OEResponse pullFromE3OSPushToTeslaInterval(DateTime pushStartTime, DateTime pushEndTime, List<MappingTableRow> mappedRows) {
 
         List<String> e3osPointNames = new ArrayList<>();
         List<DataPointFromSql> points = new ArrayList<>();
@@ -1083,7 +1083,7 @@ public class TeslaAPIModel extends java.util.Observable {
 
             List<DSG2QueryResultRecord> e3osHistory = dsg2Runner.runDSG2Query(startTime, endTime, points);
 
-            if (e3osHistory.size() == 0) {
+            if (e3osHistory.isEmpty()) {
                 OEResponse resp = new OEResponse();
                 resp.responseCode = 201;
                 resp.responseObject = "no histories from e3os";
@@ -1559,4 +1559,101 @@ public class TeslaAPIModel extends java.util.Observable {
         };
         worker.execute();
     }
+    
+    
+    //===============================================
+    
+    public void getE3OSHistory(final DateTime startTime, final DateTime endTime, final List<MappingTableRow> mappedRows) {
+
+        SwingWorker worker = new SwingWorker< OEResponse, Void>() {
+
+            @Override
+            public OEResponse doInBackground() throws IOException {
+                OEResponse historyQueryResponse = getE3OSData(startTime, endTime, mappedRows);
+
+//                if (historyQueryResponse.responseCode == 200) {
+//
+//                    List<DSG2QueryResultRecord>  history = (List<DSG2QueryResultRecord>) historyQueryResponse.responseObject;
+//
+//                    historyQueryResponse = new OEResponse();
+//                    historyQueryResponse.responseCode = 200;
+//                    historyQueryResponse.responseObject = history;
+//
+//                    return historyQueryResponse;
+//
+//                }
+
+                return historyQueryResponse;
+            }
+
+            @Override
+            public void done() {
+                try {
+                    OEResponse resp = get();
+
+                    if (resp.responseCode == 200) {
+                        List<DSG2QueryResultRecord>  history = (List<DSG2QueryResultRecord>) resp.responseObject;
+
+                        pcs.firePropertyChange(PropertyChangeNames.E3OSHistoryReturned.getName(), null, history);
+                    } else {
+                        pcs.firePropertyChange(PropertyChangeNames.ErrorResponse.getName(), null, resp);
+                    }
+                    pcs.firePropertyChange(PropertyChangeNames.RequestResponseChanged.getName(), null, getRRS());
+
+                } catch (Exception ex) {
+                    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+                    logger.error(this.getClass().getName(), ex);
+                }
+            }
+        };
+        worker.execute();
+    }
+    
+    
+    private OEResponse getE3OSData(DateTime startTime, DateTime endTime, List<MappingTableRow> mappedRows) {
+
+        List<String> e3osPointNames = new ArrayList<>();
+        List<DataPointFromSql> points = new ArrayList<>();
+        Map< String, MappingTableRow> e3osNameToMappingTableRowMap = new HashMap<>();
+
+        for (MappingTableRow mtr : mappedRows) {
+            e3osPointNames.add(mtr.getE3osName());
+            e3osNameToMappingTableRowMap.put(mtr.getE3osName(), mtr);
+            points.add(mtr.getXid());
+        }
+
+        try {
+
+            E3OSConnProperties e3osConnProps = new E3OSConnProperties();
+
+            DSG2Runner dsg2Runner = new DSG2Runner(e3osConnProps);
+
+            String startTimeString = startTime.toString();
+            String endTimeString = endTime.toString();
+
+            List<DSG2QueryResultRecord> e3osHistory = dsg2Runner.runDSG2Query(startTimeString, endTimeString, points);
+            
+            OEResponse resp = new OEResponse();
+            resp.responseObject = e3osHistory;
+
+            if (e3osHistory.isEmpty()) {
+                
+                resp.responseCode = 201;
+                resp.responseObject = "no histories from e3os";
+                return resp;
+            }
+
+
+            resp.responseCode = 200;
+            return resp;
+
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(TeslaAPIModel.class.getName()).log(Level.SEVERE, null, ex);
+            OEResponse resp = new OEResponse();
+            resp.responseCode = 999;
+            resp.responseObject = "not sure";
+            return resp;
+        }
+    }
+
 }

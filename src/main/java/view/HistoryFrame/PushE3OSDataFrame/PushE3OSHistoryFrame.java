@@ -19,6 +19,7 @@ import javax.swing.Timer;
 import javax.swing.table.TableColumn;
 import model.DataPoints.StationInfo;
 import model.DatapointList.DatapointListItem;
+import model.E3OS.LoadFromE3OS.DSG2QueryResultRecord;
 import model.E3OS.LoadFromE3OS.DataPointFromSql;
 import model.E3OS.LoadFromE3OS.E3OSStationRecord;
 import model.E3OS.LoadFromE3OS.EnumMapStatus;
@@ -183,8 +184,7 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
             }
         }
     }
-    
-  
+
     private void fillMappingsTable(String filter) {
 
         List<MappingTableRow> filteredList = new ArrayList<>();
@@ -272,6 +272,7 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
         jLabel7 = new javax.swing.JLabel();
         jTextFieldMappingFilter = new javax.swing.JTextField();
         jCheckBoxMappingRexEx = new javax.swing.JCheckBox();
+        jButtonGetE3OSHist = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTableE3OSSites = new javax.swing.JTable();
@@ -448,6 +449,13 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
 
         jCheckBoxMappingRexEx.setText("Use RegEx");
 
+        jButtonGetE3OSHist.setText("E3OSHist");
+        jButtonGetE3OSHist.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonGetE3OSHistActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -459,6 +467,8 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTextFieldMappingFilter)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButtonGetE3OSHist)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jCheckBoxMappingRexEx)
                 .addContainerGap())
         );
@@ -468,9 +478,10 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
                     .addComponent(jTextFieldMappingFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jCheckBoxMappingRexEx))
+                    .addComponent(jCheckBoxMappingRexEx)
+                    .addComponent(jButtonGetE3OSHist))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 172, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 169, Short.MAX_VALUE))
         );
 
         jSplitPane1.setBottomComponent(jPanel2);
@@ -623,9 +634,30 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
         fillMappingsTable(this.mappingFilter);
     }//GEN-LAST:event_jTextFieldMappingFilterActionPerformed
 
+    private void jButtonGetE3OSHistActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonGetE3OSHistActionPerformed
+
+        MappingTableModel model = (MappingTableModel) this.jTableMapping.getModel();
+        int[] rowNumbers = jTableMapping.getSelectedRows();
+        List<MappingTableRow> selectedRows = new ArrayList<>();
+        for (int selectedRowNumber : rowNumbers) {
+            int modelIndex = jTableMapping.convertRowIndexToModel(selectedRowNumber);
+            MappingTableRow mappedRow = model.getRow(modelIndex);
+
+            if (mappedRow.getMapStatus() == EnumMapStatus.Mapped) {
+                selectedRows.add(mappedRow);
+            }
+        }
+
+        DateTime queryStartTime = DateTime.parse(jTextFieldStartDate.getText(), zzFormat).withZone(DateTimeZone.UTC);
+        DateTime queryEndTime = DateTime.parse(jTextFieldEndDate.getText(), zzFormat).withZone(DateTimeZone.UTC);
+
+        controller.getE3OSHistory(queryStartTime, queryEndTime, selectedRows);
+    }//GEN-LAST:event_jButtonGetE3OSHistActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonClose;
+    private javax.swing.JButton jButtonGetE3OSHist;
     private javax.swing.JButton jButtonPushData;
     private javax.swing.JCheckBox jCheckBoxMappingRexEx;
     private javax.swing.JCheckBox jCheckBoxRegEx;
@@ -665,8 +697,8 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
 
         } else if (propName.equals(PropertyChangeNames.E3OSPointsReturned.getName())) {
             List<DataPointFromSql> e3osPoints = (List<DataPointFromSql>) evt.getNewValue();
-            
-            mappingTable = new PushDataTable(stationInfo, datapointsList, e3osPoints ).getMappingTable();
+
+            mappingTable = new PushDataTable(stationInfo, datapointsList, e3osPoints).getMappingTable();
             fillMappingsTable(this.mappingFilter);
 
         } else if (propName.equals(PropertyChangeNames.TeslaBucketPushed.getName())) {
@@ -704,6 +736,10 @@ public class PushE3OSHistoryFrame extends javax.swing.JFrame implements Property
                     null, options, options[0]);
 
             this.dispose();
+
+        } else if (propName.equals(PropertyChangeNames.E3OSHistoryReturned.getName())) {
+            List<DSG2QueryResultRecord> history = (List<DSG2QueryResultRecord>) evt.getNewValue();
+            System.out.println("wait here");
 
         } else if (propName.equals(PropertyChangeNames.PrimaryLoginResponseReturned.getName())) {
             this.dispose();

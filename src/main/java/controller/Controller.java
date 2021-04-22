@@ -96,6 +96,10 @@ public class Controller implements java.awt.event.ActionListener, PropertyChange
     public void getHistory(final HistoryRequest historyRequest) {
         model.getHistory(historyRequest);
     }
+    
+    public void getE3OSHistory( DateTime startTime, DateTime endTime, List<MappingTableRow> mappedRows){
+        model.getE3OSHistory(startTime, endTime, mappedRows);
+    }
 
     public void getHistoryInFrames(
             List<DatapointListItem> listOfTeslaPoints,

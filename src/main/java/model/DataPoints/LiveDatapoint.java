@@ -46,14 +46,19 @@ public class LiveDatapoint {
 
     @JsonProperty("rollupAggregation")
     private String rollupAggregation;
-    
+
     @JsonProperty("hourlySubAggregation")
     private String hourlySubAggregation;
-    
+
     @JsonProperty("hardwareIntegrationSource")
     private String hardwareIntegrationSource;
-    
-   
+
+    @JsonProperty("signalType")
+    private String signalType;
+
+    @JsonProperty("hardwareAddress")
+    private Object hardwareAddress;
+
     @JsonProperty("values")
     private List<Object> values;
 
@@ -107,11 +112,23 @@ public class LiveDatapoint {
     public String getRollupAggregation() {
         return rollupAggregation;
     }
-    
+
     public String getHardwareIntegrationSource() {
         return hardwareIntegrationSource;
     }
-    
+
+    public String getHourlySubAggregation() {
+        return hourlySubAggregation;
+    }
+
+    public String getSignalType() {
+        return signalType;
+    }
+
+    public Object getHardwareAddress() {
+        return hardwareAddress;
+    }
+
     public List<Object> getValues() {
         return values;
     }

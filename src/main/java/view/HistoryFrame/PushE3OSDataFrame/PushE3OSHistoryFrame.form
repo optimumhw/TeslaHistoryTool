@@ -306,6 +306,8 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jTextFieldMappingFilter" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jButtonGetE3OSHist" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="jCheckBoxMappingRexEx" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -318,9 +320,10 @@
                           <Component id="jLabel7" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jTextFieldMappingFilter" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jCheckBoxMappingRexEx" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jButtonGetE3OSHist" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane1" pref="172" max="32767" attributes="0"/>
+                      <Component id="jScrollPane1" pref="169" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -369,6 +372,14 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Use RegEx"/>
               </Properties>
+            </Component>
+            <Component class="javax.swing.JButton" name="jButtonGetE3OSHist">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="E3OSHist"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonGetE3OSHistActionPerformed"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>

@@ -14,6 +14,7 @@ public enum PropertyChangeNames {
     StationInfoAndSubFlagRetrieved("DatapointsAndSubFlagRetrieved"),
     LiveDataReturned("LiveDataReturned"),
     HistoryReturned("HistoryReturned"),
+    E3OSHistoryReturned("E3OSHistoryReturned"),
     FrameProcessed("FrameProcessed"),
     FrameError("FrameError"),
     FramesCompleted("HistoryReturned"),

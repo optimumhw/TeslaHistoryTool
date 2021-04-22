@@ -12,9 +12,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -40,6 +43,7 @@ public class DSG2Runner {
         Map<Integer, String> indexToPointNameMap = new HashMap<>();
 
         List<DSG2QueryResultRecord> list = new ArrayList<>();
+        
 
         try {
 
@@ -157,10 +161,18 @@ public class DSG2Runner {
     }
 
     private static java.sql.Timestamp getSqlDate(String dateString) {
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        DateTime ts = DateTime.parse(dateString, fmt);
-        //return new java.sql.Date(ts.getMillis());
-        return new java.sql.Timestamp(ts.getMillis());
+        
+        DateTime utc = new DateTime(dateString, DateTimeZone.UTC);
+        
+        TimeZone localTimeZone = TimeZone.getDefault();
+        DateTime localDate = new DateTime(utc, DateTimeZone.forID(localTimeZone.getID())); 
+        return new java.sql.Timestamp(localDate.getMillis());
+        
+        //DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        //DateTime ts = DateTime.parse(dateString, fmt);
+        //return new java.sql.Timestamp(ts.getMillis());
+        
+        
     }
 }
 

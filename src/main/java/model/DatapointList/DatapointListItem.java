@@ -51,7 +51,14 @@ public class DatapointListItem {
 
     @JsonProperty("hardwareIntegrationSource")
     private String hardwareIntegrationSource;
-
+    
+    @JsonProperty("signalType")
+    private String signalType;
+    
+    @JsonProperty("hardwareAddress")
+    private Object hardwareAddress;
+    
+   
     public String getId() {
         return id;
     }
@@ -103,5 +110,13 @@ public class DatapointListItem {
     public String getHardwareIntegrationSource() {
         return hardwareIntegrationSource;
     }
-
+    
+    public String getSignalType() {
+        return signalType;
+    }
+    
+    public Object getHardwareAddress() {
+        return hardwareAddress;
+    }
+    
 }

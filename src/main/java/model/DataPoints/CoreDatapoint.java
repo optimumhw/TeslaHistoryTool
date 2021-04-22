@@ -10,10 +10,10 @@ public class CoreDatapoint {
 
     @JsonProperty("name")
     private String name;
-    
+
     @JsonProperty("stationId")
     private String stationId;
-    
+
     @JsonProperty("shortName")
     private String shortName;
 
@@ -37,32 +37,40 @@ public class CoreDatapoint {
 
     @JsonProperty("calculation")
     private String calculation;
-    
+
     @JsonProperty("editable")
     private Boolean editable;
 
     @JsonProperty("minimumResolution")
     private String minimumResolution;
-    
+
     @JsonProperty("rollupAggregation")
     private String rollupAggregation;
-    
+
     @JsonProperty("hourlySubAggregation")
     private String hourlySubAggregation;
-    
+
+    @JsonProperty("signalType")
+    private String signalType;
+
+    @JsonProperty("hardwareAddress")
+    private Object hardwareAddress;
+
     @JsonIgnore
     private boolean subscribedFlag;
-    
+
     @JsonIgnore
     private Object liveDataValue;
-    
+
     @JsonIgnore
     private String hardwareIntegrationSource;
-    
-    
-    
+
     public String getId() {
         return id;
+    }
+
+    public String getStationId() {
+        return stationId;
     }
 
     public String getName() {
@@ -100,38 +108,49 @@ public class CoreDatapoint {
     public String getCalculation() {
         return calculation;
     }
-    
-    public Boolean getEditable(){
+
+    public Boolean getEditable() {
         return this.editable;
     }
 
     public String getMinimumResolution() {
         return minimumResolution;
     }
-    
+
     public String getRollupAggregation() {
         return rollupAggregation;
     }
-    
-    
-    public void setSubScribedFlag( boolean subscribedFlag ){
+
+    public void setSubScribedFlag(boolean subscribedFlag) {
         this.subscribedFlag = subscribedFlag;
     }
-    
+
     public boolean getSubscribedFlag() {
         return subscribedFlag;
     }
-    
-    public void setLiveDataValue( Object liveDataValue ){
+
+    public void setLiveDataValue(Object liveDataValue) {
         this.liveDataValue = liveDataValue;
     }
-    
+
     public Object getLiveDataValue() {
         return liveDataValue;
     }
-    
-    public String getHardwareIntegrationSource(){
+
+    public String getHardwareIntegrationSource() {
         return hardwareIntegrationSource;
     }
-    
+
+    public String getHourlySubAggregation() {
+        return hourlySubAggregation;
+    }
+
+    public String getSignalType() {
+        return signalType;
+    }
+
+    public Object getHardwareAddress() {
+        return hardwareAddress;
+    }
+
 }

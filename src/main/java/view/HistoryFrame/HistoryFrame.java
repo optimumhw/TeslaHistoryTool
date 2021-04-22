@@ -634,6 +634,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         jButtonChart = new javax.swing.JButton();
         jButtonPushE3OSData = new javax.swing.JButton();
         jButtonPushFromTesla = new javax.swing.JButton();
+        jButtonE3OSHist = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTableDataPointsList = new javax.swing.JTable();
@@ -776,7 +777,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                                 .addComponent(jComboBoxYears, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabelTimeZone)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jComboBoxResolutions, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -956,6 +957,13 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
             }
         });
 
+        jButtonE3OSHist.setText("E3OS Hist");
+        jButtonE3OSHist.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonE3OSHistActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -971,6 +979,8 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                         .addComponent(jButtonPushE3OSData)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButtonPushFromTesla)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonE3OSHist)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -988,7 +998,8 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
                     .addComponent(jButtonMakeCSV)
                     .addComponent(jButtonChart)
                     .addComponent(jButtonPushE3OSData)
-                    .addComponent(jButtonPushFromTesla))
+                    .addComponent(jButtonPushFromTesla)
+                    .addComponent(jButtonE3OSHist))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1494,6 +1505,10 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
     private void jButtonE3OSLiveAuthActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonE3OSLiveAuthActionPerformed
         controller.e3osLiveAuthenticate();
     }//GEN-LAST:event_jButtonE3OSLiveAuthActionPerformed
+
+    private void jButtonE3OSHistActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonE3OSHistActionPerformed
+            // TODO add your handling code here:
+    }//GEN-LAST:event_jButtonE3OSHistActionPerformed
     
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
@@ -1562,6 +1577,7 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonChart;
     private javax.swing.JButton jButtonClose;
+    private javax.swing.JButton jButtonE3OSHist;
     private javax.swing.JButton jButtonE3OSLiveAuth;
     private javax.swing.JButton jButtonMakeCSV;
     private javax.swing.JButton jButtonPushE3OSData;
