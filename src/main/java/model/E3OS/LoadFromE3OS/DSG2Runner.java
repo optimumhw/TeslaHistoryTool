@@ -8,6 +8,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -74,12 +77,12 @@ public class DSG2Runner {
             cs = (SQLServerCallableStatement) conn.prepareCall(sprocCaller);
 
             //DECLARE @FromTime_Local datetime
-            java.sql.Timestamp fromTime = getSqlDate(startDate);
-            cs.setTimestamp(1, fromTime);
+            //java.sql.Timestamp fromTime = getSqlDate(startDate);
+            cs.setString(1, startDate);
 
             //DECLARE @ToTime_Local datetime
-            java.sql.Timestamp toTime = getSqlDate(endDate);
-            cs.setTimestamp(2, toTime);
+            //java.sql.Timestamp toTime = getSqlDate(endDate);
+            cs.setString(2, endDate);
 
             //DECLARE @DataPointsOfInterest [fact].[DataPointsOfInterest]
             cs.setStructured(3, "fact.DataPointsOfInterest", sourceDataTable);
@@ -163,14 +166,21 @@ public class DSG2Runner {
     private static java.sql.Timestamp getSqlDate(String dateString) {
         
         DateTime utc = new DateTime(dateString, DateTimeZone.UTC);
+
+        Timestamp sqlts = new java.sql.Timestamp(utc.getMillis());
+
+        return sqlts;
         
-        TimeZone localTimeZone = TimeZone.getDefault();
-        DateTime localDate = new DateTime(utc, DateTimeZone.forID(localTimeZone.getID())); 
-        return new java.sql.Timestamp(localDate.getMillis());
         
-        //DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        //DateTime ts = DateTime.parse(dateString, fmt);
-        //return new java.sql.Timestamp(ts.getMillis());
+        
+        
+//        TimeZone localTimeZone = TimeZone.getDefault();
+//        DateTime localDate = new DateTime(utc, DateTimeZone.forID(localTimeZone.getID())); 
+//        return new java.sql.Timestamp(localDate.getMillis());
+        
+//        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+//        DateTime ts = DateTime.parse(dateString, fmt);
+//        return new java.sql.Timestamp(ts.getMillis());
         
         
     }

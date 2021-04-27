@@ -43,6 +43,8 @@ import model.TTT.TTTDataPointUpsertRequest;
 import model.TTT.TTTTableRow;
 import org.joda.time.DateTime;
 import org.joda.time.Hours;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1078,8 +1080,12 @@ public class TeslaAPIModel extends java.util.Observable {
 
             DSG2Runner dsg2Runner = new DSG2Runner(e3osConnProps);
 
-            String startTime = pushStartTime.toString();
-            String endTime = pushEndTime.toString();
+            //String startTime = pushStartTime.toString();
+            //String endTime = pushEndTime.toString();
+            
+            DateTimeFormatter fmt = DateTimeFormat.forPattern("MM-dd-yyyy HH:mm").withZoneUTC();
+            String startTime = pushStartTime.toString(fmt);
+            String endTime = pushEndTime.toString(fmt);
 
             List<DSG2QueryResultRecord> e3osHistory = dsg2Runner.runDSG2Query(startTime, endTime, points);
 
@@ -1628,8 +1634,12 @@ public class TeslaAPIModel extends java.util.Observable {
 
             DSG2Runner dsg2Runner = new DSG2Runner(e3osConnProps);
 
-            String startTimeString = startTime.toString();
-            String endTimeString = endTime.toString();
+            //String startTimeString = startTime.toString();
+            //String endTimeString = endTime.toString();
+            
+            DateTimeFormatter fmt = DateTimeFormat.forPattern("MM-dd-yyyy HH:mm").withZoneUTC();
+            String startTimeString = startTime.toString(fmt);
+            String endTimeString = endTime.toString(fmt);
 
             List<DSG2QueryResultRecord> e3osHistory = dsg2Runner.runDSG2Query(startTimeString, endTimeString, points);
             

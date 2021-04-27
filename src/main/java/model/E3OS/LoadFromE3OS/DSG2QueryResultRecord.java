@@ -51,10 +51,8 @@ public class DSG2QueryResultRecord {
             this.tz = rs.getInt("tz");
             
             DateTimeFormatter fromFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SS");
-            DateTime temp = DateTime.parse( timeStr, fromFormat ).withZone(DateTimeZone.UTC);
-            
-       
-            
+            DateTime temp = DateTime.parse( timeStr, fromFormat ).withZoneRetainFields(DateTimeZone.UTC);
+            //DateTime temp = DateTime.parse( timeStr, fromFormat );   
             this.timestamp = temp.minuteOfDay().roundFloorCopy();
                                                                                                
         } catch (SQLException ex) {
