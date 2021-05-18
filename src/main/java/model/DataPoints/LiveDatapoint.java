@@ -59,6 +59,9 @@ public class LiveDatapoint {
     @JsonProperty("hardwareAddress")
     private Object hardwareAddress;
 
+    @JsonProperty("hardwareIntegrationAddress")
+    private Object hardwareIntegrationAddress;
+
     @JsonProperty("values")
     private List<Object> values;
 
@@ -127,6 +130,10 @@ public class LiveDatapoint {
 
     public Object getHardwareAddress() {
         return hardwareAddress;
+    }
+
+    public Object getHardwareIntegrationAddress() {
+        return hardwareIntegrationAddress;
     }
 
     public List<Object> getValues() {

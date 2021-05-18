@@ -55,7 +55,11 @@ public class CoreDatapoint {
 
     @JsonProperty("hardwareAddress")
     private Object hardwareAddress;
-
+    
+                 //hardwareIntegrationAddress
+    @JsonProperty("hardwareIntegrationAddress")
+    private Object hardwareIntegrationAddress;
+    
     @JsonIgnore
     private boolean subscribedFlag;
 
@@ -152,5 +156,11 @@ public class CoreDatapoint {
     public Object getHardwareAddress() {
         return hardwareAddress;
     }
+    
+    public Object getHardwareIntegrationAddress() {
+        return hardwareIntegrationAddress;
+    }
+    
+    
 
 }

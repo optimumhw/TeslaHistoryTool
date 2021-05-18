@@ -14,10 +14,10 @@ public enum EnumOverrideSites {
     MANATI("Manati Plant"),
     BIOCORK("Cork IE Plant"),
     INDEPEND("Independencia CP"),
-    VISTAKON_7("Jacksonville CUP"),
-    VISTAKON_1("Jacksonville PH1"),
-    VISTAKON_PH2("Jacksonville PH2"),
-    VISTAKON_RND("Jacksonville RnD"),
+    JACKSONVILLE_CUP("Jacksonville CUP"),
+    JACKSONVILLE_PH1("Jacksonville PH1"),
+    JACKSONVILLE_PH2("Jacksonville PH2"),
+    JACKSONVILLE_RND("Jacksonville RnD"),
     LAJOLLA("La Jolla Plant"),
     SAN_ANGELO("San Angelo LOOP"),
     YALE("Yale CT US CCCP"),
@@ -26,7 +26,7 @@ public enum EnumOverrideSites {
     BLDG42("Springhouse B42"),
     ETHICON_NEW_MEXICO("Albuquerque LOOP"),
     XIAN("Xian Plant"),
-    GURABOJ2("Gurabo J2"),
+    GURABOJ1("Gurabo J1"),
     EC1EC2("EC1 & EC2 Plant"),
     UNKONWN("Unknown");
 

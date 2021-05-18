@@ -407,6 +407,10 @@ public class PushDataTable {
                 list.add("CTFSPD");
                 break;
 
+            case GURABOJ1:
+                list.add("CTFSPD");
+                break;
+
         }
 
         return list;
@@ -434,10 +438,10 @@ public class PushDataTable {
 
             // e3os --> core
             case UTMB:
-                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
-                map.put("CDWPSPD", "CDWCircuit1SPDSP");
 
                 map.put("LOOPREQ", "OEMode");
+                map.put("CDWPSPD", "condenserWaterPumpControlGroup1PTRSP");
+                map.put("PCHWPSPD", "primaryChilledWaterPumpControlGroup1SPDSP");
 
                 break;
 
@@ -450,9 +454,10 @@ public class PushDataTable {
                 map.put("PCHWP1", "PCHWP2");
                 map.put("PCHWP2", "PCHWP3");
                 map.put("PCHWP3", "PCHWP4");
-                map.put("TESCHWP1", "TESCHWP1");
-                map.put("TESCHWP2", "TESCHWP2");
-                map.put("TESCHWP3", "TESCHWP3");
+
+                map.put("TESP1", "TESCHWP1");
+                map.put("TESP2", "TESCHWP2");
+                map.put("TESP3", "TESCHWP3");
 
                 map.put("CHWPTR", "primaryChilledWaterPumpControlGroup1PTRSP");
                 map.put("CHWPSPD", "primaryChilledWaterPumpControlGroup1SPDSP");
@@ -593,7 +598,6 @@ public class PushDataTable {
                 map.put("CT11", "CT11");
                 map.put("CT12", "CT12");
 
-                map.put("CTTR", "????");
                 map.put("CTFSPD", "coolingTowerControlGroup1CTFSPD");
                 map.put("CTFSPD2", "coolingTowerControlGroup2CTFSPD");
                 map.put("CTBPV", "coolingTowerControlGroup1CDWBPVSP");
@@ -643,9 +647,7 @@ public class PushDataTable {
                 break;
 
             case LATINA:
-                map.put("CH1", "CH13");
-                map.put("CH2", "CH14");
-                map.put("CH4", "CH15");
+
                 map.put("PCHWP132A", "PCHWP132");
                 map.put("PCHWP132B", "PCHWP133");
                 map.put("PCHWP142A", "PCHWP142");
@@ -667,12 +669,36 @@ public class PushDataTable {
                 map.put("SCHWP42", "SCHWP42");
                 map.put("SCHWP43", "SCHWP43");
                 map.put("SCHWP44", "SCHWP44");
+
+                map.put("PCHWPTR", "primaryChilledWaterPumpControlGroup1PTRSP");
+                map.put("PCHWPSPD", "primaryChilledWaterPumpControlGroup1SPDSP");
+                map.put("PCHWPTR2", "primaryChilledWaterPumpControlGroup2PTRSP");
+                map.put("PCHWPSPD2", "primaryChilledWaterPumpControlGroup2SPDSP");
+                map.put("PCHWPTR3", "primaryChilledWaterPumpControlGroup3PTRSP");
+                map.put("PCHWPSPD3", "primaryChilledWaterPumpControlGroup3SPDSP");
+                map.put("SCHWPTR", "secondaryChilledWaterPumpControlGroup1PTRSP");
+                map.put("SCHWPSPD", "secondaryChilledWaterPumpControlGroup1SPDSP");
+                map.put("SCHWPTR2", "secondaryChilledWaterPumpControlGroup2PTRSP");
+                map.put("SCHWPSPD2", "secondaryChilledWaterPumpControlGroup2SPDSP");
+                map.put("SCHWPTR3", "secondaryChilledWaterPumpControlGroup3PTRSP");
+                map.put("SCHWPSPD3", "secondaryChilledWaterPumpControlGroup3SPDSP");
+                map.put("SCHWPTR4", "secondaryChilledWaterPumpControlGroup4PTRSP");
+                map.put("SCHWPSPD4", "secondaryChilledWaterPumpControlGroup4SPDSP");
+
                 map.put("CDWP131A", "CDWP131");
                 map.put("CDWP131B", "CDWP132");
                 map.put("CDWP141A", "CDWP141");
                 map.put("CDWP141B", "CDWP142");
                 map.put("CDWP151A", "CDWP151");
                 map.put("CDWP151B", "CDWP152");
+
+                map.put("CDWPSPD", "condenserWaterPumpControlGroup1SPDSP");
+                map.put("CDWPTR", "condenserWaterPumpControlGroup1SPTRSP");
+                map.put("CDWPSPD2", "condenserWaterPumpControlGroup2SPDSP");
+                map.put("CDWPTR2", "condenserWaterPumpControlGroup2SPTRSP");
+                map.put("CDWPSPD3", "condenserWaterPumpControlGroup3SPDSP");
+                map.put("CDWPTR3", "condenserWaterPumpControlGroup3SPTRSP");
+
                 map.put("CT131", "CT131");
                 map.put("CT132", "CT132");
                 map.put("CT133", "CT133");
@@ -683,28 +709,10 @@ public class PushDataTable {
                 map.put("CT152", "CT152");
                 map.put("CT153", "CT153");
 
-                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
-                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
+                map.put("CTFSPD", "coolingTowerControlGroup1CTFSPD");
+                map.put("CTFSPD2", "coolingTowerControlGroup2CTFSPD");
+                map.put("CTFSPD3", "coolingTowerControlGroup3CTFSPD");
 
-                map.put("PCHWPTR2", "PCHWCircuit2PTRSP");
-                map.put("PCHWPSPD2", "PCHWCircuit2SPDSP");
-                map.put("PCHWPTR3", "PCHWCircuit3PTRSP");
-                map.put("PCHWPSPD3", "PCHWCircuit3SPDSP");
-                map.put("SCHWPTR", "SCHWPCircuit1PTRSP");
-                map.put("SCHWPSPD", "SCHWPCircuit1SPDSP");
-                map.put("SCHWPTR2", "SCHWPCircuit2PTRSP");
-                map.put("SCHWPSPD2", "SCHWPCircuit2SPDSP");
-                map.put("SCHWPTR3", "SCHWPCircuit3PTRSP");
-                map.put("SCHWPSPD3", "SCHWPCircuit3SPDSP");
-                map.put("SCHWPTR4", "SCHWPCircuit4PTRSP");
-                map.put("SCHWPSPD4", "SCHWPCircuit4SPDSP");
-
-                map.put("CDWPSPD", "CDWCircuit1SPDSP");
-                map.put("CDWPTR", "CDWCircuit1PTRSP");
-                map.put("CDWPSPD2", "CDWCircuit2SPDSP");
-                map.put("CDWPTR2", "CDWCircuit2PTRSP");
-                map.put("CDWPSPD3", "CDWCircuit3SPDSP");
-                map.put("CDWPTR3", "CDWCircuit3PTRSP");
                 break;
 
             case MANATI:
@@ -714,15 +722,6 @@ public class PushDataTable {
                 map.put("CH5", "CH5");
                 map.put("CH6", "CH6");
                 map.put("CH7", "CH7");
-
-                map.put("CHWP1", "PCHWP1");
-                map.put("CHWP2", "PCHWP2");
-                map.put("CHWP3", "PCHWP3");
-                map.put("CHWP4", "PCHWP4");
-                map.put("CHWP5", "PCHWP5");
-                map.put("OBICHWP1", "SCHWP1");
-                map.put("OBICHWP2", "SCHWP2");
-                map.put("OBICHWP3", "SCHWP3");
 
                 map.put("CHWPTR", "primaryChilledWaterPumpControlGroup1PTRSP");
                 map.put("CHWPSPD", "primaryChilledWaterPumpControlGroup1SPDSP");
@@ -736,11 +735,11 @@ public class PushDataTable {
                 map.put("CDWP12", "CDWP4");
                 map.put("CDWP13", "CDWP5");
 
-                map.put("CDWPTR", "condenserWaterPumpControlGroup1PTRSP");
+                map.put("CDWPTR", "condenserWaterPumpControlGroup1SPTRSP");
                 map.put("CDWPSPD", "condenserWaterPumpControlGroup1SPDSP");
 
                 map.put("CDWPTR2", "condenserWaterPumpControlGroup2SPDSP");
-                map.put("CDWPSPD2", "condenserWaterPumpControlGroup2PTRSP");
+                map.put("CDWPSPD2", "condenserWaterPumpControlGroup2SPTRSP");
 
                 map.put("CT1", "CT1");
                 map.put("CT2", "CT2");
@@ -806,49 +805,57 @@ public class PushDataTable {
                 map.put("CT3", "CT3");
                 map.put("CT4", "CT4");
 
-                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
-                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
-                map.put("PCHWPTR2", "PCHWCircuit2PTRSP");
-                map.put("PCHWPSPD2", "PCHWCircuit2SPDSP");
-                map.put("PCHWPSPD3", "PCHWCircuit3SPDSP");
+                map.put("PCHWPTR", "primaryChilledWaterPumpControlGroup1PTRSP");
+                map.put("PCHWPSPD", "primaryChilledWaterPumpControlGroup1SPDSP");
+                map.put("PCHWPTR2", "primaryChilledWaterPumpControlGroup2PTRSP");
+                map.put("PCHWPSPD2", "primaryChilledWaterPumpControlGroup2SPDSP");
+                map.put("PCHWPSPD3", "primaryChilledWaterPumpControlGroup3SPDSP");
 
-                map.put("CDWPTR", "CDWCircuit4PTRSP");
-                map.put("CDWPSPD", "CDWCircuit4SPDSP");
-                map.put("CDWPTR2", "CDWCircuit6PTRSP");
-                map.put("CDWPSPD2", "CDWCircuit6SPDSP");
-                map.put("CDWPTR3", "CDWCircuit5PTRSP");
-                map.put("CDWPSPD3", "CDWCircuit5SPDSP");
+                map.put("CDWPTR", "condenserWaterPumpControlGroup1PTRSP");
+                map.put("CDWPSPD", "condenserWaterPumpControlGroup1SPDSP");
+                map.put("CDWPTR2", "condenserWaterPumpControlGroup2PTRSP");
+                map.put("CDWPSPD2", "condenserWaterPumpControlGroup2SPDSP");
+                map.put("CDWPTR3", "condenserWaterPumpControlGroup3PTRSP");
+                map.put("CDWPSPD3", "condenserWaterPumpControlGroup3SPDSP");
 
                 break;
 
-            case VISTAKON_7:
+            //JacksonVille Cup
+            case JACKSONVILLE_CUP:
 
                 map.put("CT1A", "CT11");
                 map.put("CT1B", "CT12");
                 map.put("CT2A", "CT21");
                 map.put("CT2B", "CT22");
 
-                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
-                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
-                map.put("CDWPSPD", "CDWCircuit1SPDSP");
+                map.put("CDWPTR", "condenserWaterPumpControlGroup1PTRSP");
+                map.put("CDWPSPD", "condenserWaterPumpControlGroup1SPDSP");
+                map.put("PCHWPTR", "primaryChilledWaterPumpControlGroup1PTRSP");
+                map.put("PCHWPSPD", "primaryChilledWaterPumpControlGroup1SPDSP");
 
                 break;
 
-            case VISTAKON_1:
+            case JACKSONVILLE_PH1:
+                map.put("PCHWPTR", "primaryChilledWaterPumpControlGroup1PTRSP");
+                map.put("PCHWPSPD", "primaryChilledWaterPumpControlGroup1SPDSP");
+
+                map.put("CDWPTR", "condenserWaterPumpControlGroup1PTRSP");
+                map.put("CDWPSPD", "condenserWaterPumpControlGroup1SPDSP");
+                map.put("CDWPTR2", "condenserWaterPumpControlGroup2PTRSP");
+                map.put("CDWPSPD2", "condenserWaterPumpControlGroup2SPDSP");
+                map.put("CDWPTR3", "condenserWaterPumpControlGroup3PTRSP");
+                map.put("CDWPSPD3", "condenserWaterPumpControlGroup3SPDSP");
+
                 map.put("CT1A", "CT11");
                 map.put("CT1B", "CT12");
                 map.put("CT2A", "CT21");
                 map.put("CT2B", "CT22");
 
-                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
-                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
-                map.put("CDWPSPD", "CDWCircuit1SPDSP");
-                map.put("CDWPSPD2", "CDWCircuit2SPDSP");
-                map.put("CDWPSPD3", "CDWCircuit3SPDSP");
-
+                map.put("CTFSPD", "coolingTowerControlGroup1CTFSPD");
+                map.put("CTTR", "coolingTowerControlGroup1CTTR");
                 break;
 
-            case VISTAKON_PH2:
+            case JACKSONVILLE_PH2:
                 map.put("CT3A", "CT31");
                 map.put("CT3B", "CT32");
                 map.put("CT4A", "CT41");
@@ -856,29 +863,29 @@ public class PushDataTable {
                 map.put("CT5A", "CT51");
                 map.put("CT5B", "CT52");
 
-                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
-                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
+                map.put("PCHWPTR", "primaryChilledWaterPumpControlGroup1PTRSP");
+                map.put("PCHWPSPD", "primaryChilledWaterPumpControlGroup1SPDSP");
 
-                map.put("CDWPTR", "CDWCircuit4PTRSP");
-                map.put("CDWPSPD", "CDWCircuit4SPDSP");
-                map.put("CDWPTR2", "CDWCircuit5PTRSP");
-                map.put("CDWPSPD2", "CDWCircuit5SPDSP");
-                map.put("CDWPTR3", "CDWCircuit6PTRSP");
-                map.put("CDWPSPD3", "CDWCircuit6SPDSP");
+                map.put("CDWPTR", "condenserWaterPumpControlGroup1PTRSP");
+                map.put("CDWPSPD", "condenserWaterPumpControlGroup1SPDSP");
+                map.put("CDWPTR2", "condenserWaterPumpControlGroup2PTRSP");
+                map.put("CDWPSPD2", "condenserWaterPumpControlGroup2SPDSP");
+                map.put("CDWPTR3", "condenserWaterPumpControlGroup3PTRSP");
+                map.put("CDWPSPD3", "condenserWaterPumpControlGroup3SPDSP");
 
                 break;
 
-            case VISTAKON_RND:
+            case JACKSONVILLE_RND:
                 map.put("CT1A", "CT11");
                 map.put("CT1B", "CT12");
                 map.put("CT2A", "CT21");
                 map.put("CT2B", "CT22");
 
-                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
-                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
+                map.put("PCHWPTR", "primaryChilledWaterPumpControlGroup1PTRSP");
+                map.put("PCHWPSPD", "primaryChilledWaterPumpControlGroup1SPDSP");
 
-                map.put("CDWPTR", "CDWCircuit2PTRSP");
-                map.put("CDWPSPD", "CDWCircuit2SPDSP");
+                map.put("CDWPTR", "condenserWaterPumpControlGroup1PTRSP");
+                map.put("CDWPSPD", "condenserWaterPumpControlGroup1SPDSP");
 
                 break;
 
@@ -886,18 +893,18 @@ public class PushDataTable {
                 map.put("Ton", "JACETon");
                 map.put("CH4", "CH12");
 
-                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
-                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
-                map.put("PCHWPTR2", "PCHWCircuit2PTRSP");
-                map.put("PCHWPSPD2", "PCHWCircuit2SPDSP");
+                map.put("PCHWPTR", "primaryChilledWaterPumpControlGroup1PTRSP");
+                map.put("PCHWPSPD", "primaryChilledWaterPumpControlGroup1SPDSP");
+                map.put("PCHWPTR2", "primaryChilledWaterPumpControlGroup2PTRSP");
+                map.put("PCHWPSPD2", "primaryChilledWaterPumpControlGroup2SPDSP");
 
-                map.put("SCHWPTR", "SCHWCircuit1PTRSP");
-                map.put("SCHWPSPD", "SCHWCircuit1SPDSP");
-                map.put("SCHWPTR2", "SCHWCircuit2PTRSP");
-                map.put("SCHWPSPD2", "SCHWCircuit2SPDSP");
+                map.put("SCHWPTR", "secondaryChilledWaterPumpControlGroup1PTRSP");
+                map.put("SCHWPSPD", "secondaryChilledWaterPumpControlGroup1SPDSP");
+                map.put("SCHWPTR2", "secondaryChilledWaterPumpControlGroup2PTRSP");
+                map.put("SCHWPSPD2", "secondaryChilledWaterPumpControlGroup2SPDSP");
 
-                map.put("CDWPTR", "CDWCircuit2PTRSP");
-                map.put("CDWPSPD", "CDWCircuit2SPDSP");
+                map.put("CDWPTR", "condenserWaterPumpControlGroup1PTRSP");
+                map.put("CDWPSPD", "condenserWaterPumpControlGroup1SPDSP");
 
                 break;
 
@@ -914,17 +921,17 @@ public class PushDataTable {
                 map.put("CT52", "CT52");
                 map.put("CT53", "CT53");
 
-                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
-                map.put("PCHWPTR2", "PCHWCircuit2PTRSP");
-                map.put("PCHWPSPD2", "PCHWCircuit2SPDSP");
+                map.put("PCHWPTR", "primaryChilledWaterPumpControlGroup1PTRSP");
+                map.put("CHWPSPD", "primaryChilledWaterPumpControlGroup1SPDSP");
 
-                map.put("CDWPTR", "CDWCircuit3PTRSP");
-                map.put("CDWPSPD", "CDWCircuit3SPDSP");
-                map.put("CDWPTR2", "CDWCircuit4PTRSP");
-                map.put("CDWPSPD2", "CDWCircuit4SPDSP");
+                map.put("PCHWPTR2", "primaryChilledWaterPumpControlGroup2PTRSP");
+                map.put("CHWPSPD2", "primaryChilledWaterPumpControlGroup2SPDSP");
 
-                map.put("CHWPSPD", "PCHWCircuit1SPDSP");
-                map.put("CHWPSPD2", "PCHWCircuit2SPDSP");
+                map.put("CDWPTR", "condenserWaterPumpControlGroup1PTRSP");
+                map.put("CDWPSPD", "condenserWaterPumpControlGroup1SPDSP");
+
+                map.put("CDWPTR2", "condenserWaterPumpControlGroup2PTRSP");
+                map.put("CDWPSPD2", "condenserWaterPumpControlGroup2SPDSP");
 
                 break;
 
@@ -942,13 +949,13 @@ public class PushDataTable {
                 map.put("PCHWPP2", "PCHWP4");
                 map.put("Ton", "JACETon");
 
-                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
-                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
+                map.put("PCHWPTR", "primaryChilledWaterPumpControlGroup1PTRSP");
+                map.put("CHWDPSP", "primaryChilledWaterPumpControlGroup1CHWDPSP");
 
-                map.put("CDWPTR", "CDWCircuit5PTRSP");
-                map.put("CDWPSPD", "CDWCircuit5SPDSP");
-                map.put("CDWPTR1", "CDWCircuit4PTRSP");
-                map.put("CDWPSPD1", "CDWCircuit4SPDSP");
+                map.put("CDWPTR", "condenserWaterPumpControlGroup3PTRSP");
+                map.put("CDWPSPD", "condenserWaterPumpControlGroup3SPDSP");
+                map.put("CDWPSPD2", "condenserWaterPumpControlGroup1SPDSP");
+                map.put("CDWPSPD3", "condenserWaterPumpControlGroup2SPDSP");
 
                 break;
 
@@ -975,36 +982,70 @@ public class PushDataTable {
                 map.put("CTD", "CT4");
                 map.put("CTF", "CT5  ");
 
-                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
-                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
-                map.put("PCHWPTR2", "PCHWCircuit2PTRSP");
-                map.put("PCHWPSPD2", "PCHWCircuit2SPDSP");
-                map.put("PCHWPTR3", "PCHWCircuit3PTRSP");
-                map.put("PCHWPSPD3", "PCHWCircuit3SPDSP");
-                map.put("PCHWPTR4", "PCHWCircuit4PTRSP");
-                map.put("PCHWPSPD4", "PCHWCircuit4SPDSP");
-                map.put("PCHWPTR5", "PCHWCircuit5PTRSP");
-                map.put("PCHWPSPD5", "PCHWCircuit5SPDSP");
+                map.put("PCHWPTR", "primaryChilledWaterPumpControlGroup1PTRSP");
+                map.put("PCHWPSPD", "primaryChilledWaterPumpControlGroup1SPDSP");
+                map.put("PCHWPTR2", "primaryChilledWaterPumpControlGroup2PTRSP");
+                map.put("PCHWPSPD2", "primaryChilledWaterPumpControlGroup2SPDSP");
+                map.put("PCHWPTR3", "primaryChilledWaterPumpControlGroup3PTRSP");
+                map.put("PCHWPSPD3", "primaryChilledWaterPumpControlGroup3SPDSP");
+                map.put("PCHWPTR4", "primaryChilledWaterPumpControlGroup4PTRSP");
+                map.put("PCHWPSPD4", "primaryChilledWaterPumpControlGroup4SPDSP");
+                map.put("PCHWPTR5", "primaryChilledWaterPumpControlGroup5PTRSP");
+                map.put("PCHWPSPD5", "primaryChilledWaterPumpControlGroup5SPDSP");
 
-                map.put("CDWPTR", "CDWCircuit4PTRSP");
-                map.put("CDWPSPD", "CDWCircuit4SPDSP");
-                map.put("CDWPTR2", "CDWCircuit5PTRSP");
-                map.put("CDWPSPD2", "CDWCircuit5SPDSP");
-                map.put("CDWPTR3", "CDWCircuit6PTRSP");
-                map.put("CDWPSPD3", "CDWCircuit6SPDSP");
+                map.put("CDWPTR", "condenserWaterPumpControlGroup1PTRSP");
+                map.put("CDWPSPD", "condenserWaterPumpControlGroup1SPDSP");
+                map.put("CDWPTR2", "condenserWaterPumpControlGroup2PTRSP");
+                map.put("CDWPSPD2", "condenserWaterPumpControlGroup2SPDSP");
+                map.put("CDWPTR3", "condenserWaterPumpControlGroup3PTRSP");
+                map.put("CDWPSPD3", "condenserWaterPumpControlGroup3SPDSP");
 
                 break;
 
             case SPRINGHOUSE_CUP:
-                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
-                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
-                map.put("SCHWPTR", "SCHWCircuit1PTRSP");
-                map.put("SCHWPSPD", "SCHWCircuit1SPDSP");
+                map.put("CH1", "CH1");
+                map.put("CH2", "CH2");
+                map.put("CH3", "CH3");
+                map.put("CH5", "CH5");
 
-                map.put("CDWPTR", "CDWCircuit3PTRSP");
-                map.put("CDWPSPD", "CDWCircuit3SPDSP");
-                map.put("CDWPTR2", "CDWCircuit4PTRSP");
-                map.put("CDWPSPD2", "CDWCircuit4SPDSP");
+                map.put("PCHWP1", "PCHWP1");
+                map.put("PCHWP2", "PCHWP2");
+                map.put("PCHWP3", "PCHWP3");
+                map.put("PCHWP4", "PCHWP4");
+                map.put("PCHWP5", "PCHWP5");
+                map.put("SCHWP1", "SCHWP1");
+                map.put("SCHWP2", "SCHWP2");
+                map.put("SCHWP3", "SCHWP3");
+
+                map.put("PCHWPTR", "primaryChilledWaterPumpControlGroup1PTRSP");
+                map.put("PCHWPSPD", "primaryChilledWaterPumpControlGroup1SPDSP");
+                map.put("SCHWPTR", "secondaryChilledWaterPumpControlGroup1PTRSP");
+                map.put("SCHWPSPD", "secondaryChilledWaterPumpControlGroup1SPDSP");
+
+                map.put("CDWP1", "CDWP1");
+                map.put("CDWP2", "CDWP2");
+                map.put("CDWP3", "CDWP3");
+                map.put("CDWP4", "CDWP4");
+                map.put("CDWP8", "CDWP8");
+                map.put("CDWP9", "CDWP9");
+
+                map.put("CDWPTR", "condenserWaterPumpControlGroup1PTRSP");
+                map.put("CDWPSPD", "condenserWaterPumpControlGroup1SPDSP");
+                map.put("CDWPTR2", "condenserWaterPumpControlGroup2PTRSP");
+                map.put("CDWPSPD2", "condenserWaterPumpControlGroup2SPDSP");
+
+                map.put("CT1", "CT1");
+                map.put("CT2", "CT2");
+                map.put("CT3", "CT3");
+                map.put("CT4", "CT4");
+                map.put("CT5", "CT5");
+                map.put("CT6", "CT6");
+
+                map.put("CTTR", "coolingTowerControlGroup1CTTR");
+                map.put("CTFSPD", "coolingTowerControlGroup1CTFSPD");
+                map.put("CTTR2", "coolingTowerControlGroup2CTTR");
+                map.put("CTFSPD2", "coolingTowerControlGroup2CTFSPD");
+                map.put("CDWBPVCMD", "coolingTowerControlGroup1CDWBPVSP");
 
                 break;
 
@@ -1016,24 +1057,36 @@ public class PushDataTable {
                 map.put("SCHWP2", "SCHWP422");
                 map.put("SCHWP3", "SCHWP423");
 
-                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
-                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
-                map.put("SCHWPTR", "SCHWCircuit1PTRSP");
-                map.put("SCHWPSPD", "SCHWCircuit1SPDSP");
+                map.put("PCHWPTR", "primaryChilledWaterPumpControlGroup1PTRSP");
+                map.put("PCHWPSPD", "primaryChilledWaterPumpControlGroup1SPDSP");
+                map.put("SCHWPTR", "secondaryChilledWaterPumpControlGroup1PTRSP");
+                map.put("SCHWPSPD", "secondaryChilledWaterPumpControlGroup1SPDSP");
 
-                map.put("CDWPTR2", "CDWCircuit2PTRSP");
-                map.put("CDWPSPD2", "CDWCircuit2SPDSP");
+                map.put("CDWP1", "CDWP1");
+                map.put("CDWP2", "CDWP2");
+                map.put("CDWP3", "CDWP3");
+
+                map.put("CDWPTR", "condenserWaterPumpControlGroup1PTRSP");
+                map.put("CDWPSPD", "condenserWaterPumpControlGroup1SPDSP");
+
+                map.put("CTTR", "coolingTowerControlGroup1CTTR");
+                map.put("CTFSPD", "coolingTowerControlGroup1CTFSPD");
+                map.put("CDWBPVCMD", "coolingTowerControlGroup1CDWBPVSP");
 
                 break;
 
             case ETHICON_NEW_MEXICO:
-                map.put("PCHWPTR", "PCHWCircuit1PTRSP");
-                map.put("PCHWPSPD", "PCHWCircuit1SPDSP");
-                map.put("SCHWPTR", "SCHWCircuit1PTRSP");
-                map.put("SCHWPSPD", "SCHWCircuit1SPDSP");
 
-                map.put("CDWPTR", "CDWCircuit2PTRSP");
-                map.put("CDWPSPD", "CDWCircuit2SPDSP");
+                map.put("PCHWPTR", "primaryChilledWaterPumpControlGroup1PTRSP");
+                map.put("PCHWPSPD", "primaryChilledWaterPumpControlGroup1SPDSP");
+                map.put("SCHWPTR", "secondaryChilledWaterPumpControlGroup1PTRSP");
+                map.put("SCHWPSPD", "secondaryChilledWaterPumpControlGroup1SPDSP");
+
+                map.put("CDWPTR", "condenserWaterPumpControlGroup1PTRSP");
+                map.put("CDWPSPD", "condenserWaterPumpControlGroup1SPDSP");
+
+                map.put("CTTR", "coolingTowerControlGroup1CTTR");
+                map.put("CTFSPD", "coolingTowerControlGroup1CTFSPD");
 
                 break;
 
@@ -1066,52 +1119,47 @@ public class PushDataTable {
                 map.put("HXCDWP1", "CDWP5");
                 map.put("HXCDWP2", "CDWP6");
 
-                map.put("CDWPTR", "CDWCircuit1PTRSP");
-                map.put("CDWPSPD", "CDWCircuit1SPDSP");
+                map.put("CHWPTR", "primaryChilledWaterPumpControlGroup1PTRSP");
+                map.put("CHWPSPD", "primaryChilledWaterPumpControlGroup1SPDSP");
 
-                map.put("CDWPTR2", "CDWCircuit2PTRSP");
-                map.put("CDWPSPD2", "CDWCircuit2SPDSP");
+                map.put("CHWPTR2", "primaryChilledWaterPumpControlGroup2PTRSP");
+                map.put("CHWPSPD2", "primaryChilledWaterPumpControlGroup2SPDSP");
 
-                map.put("CT1", "CT1");
-                map.put("CT2", "CT2");
-                map.put("CT3", "CT3");
-                map.put("CT4", "CT4");
-                map.put("CT5", "CT5");
+                map.put("CDWP1", "CDWP1");
+                map.put("CDWP2", "CDWP2");
+                map.put("CDWP3", "CDWP3");
+                map.put("CDWP4", "CDWP4");
+                map.put("CDWP7", "CDWP7");
+                map.put("HXCDWP1", "CDWP5");
+                map.put("HXCDWP2", "CDWP6");
+
+                map.put("CDWPTR", "condenserWaterPumpControlGroup1PTRSP");
+                map.put("CDWPSPD", "condenserWaterPumpControlGroup1SPDSP");
+
+                map.put("CDWPTR2", "condenserWaterPumpControlGroup2PTRSP");
+                map.put("CDWPSPD2", "condenserWaterPumpControlGroup2SPDSP");
+
+                map.put("CTTR", "coolingTowerControlGroup1CTTR");
+                map.put("CTFHZ", "coolingTowerControlGroup1CTFSPD");
+                map.put("CDWBPVCMD", "coolingTowerControlGroup1CDWBPVSP");
 
                 break;
 
-            case GURABOJ2:
+            case GURABOJ1:
 
-                map.put("CH1", "CH1");
-                map.put("CH2", "CH2");
-                map.put("CH3", "CH3");
-                map.put("CH4", "CH4");
-                map.put("CH5", "CH5");
-                map.put("CH6", "CH6");
-
-                map.put("PCHWP1", "PCHWP6");
-                map.put("PCHWP2", "PCWHP7");
+                map.put("PCHWP1", "PCHWP6*");
+                map.put("PCHWP2", "PCWHP7*");
                 map.put("CHWP1", "PCHWP1");
                 map.put("CHWP2", "PCHWP2");
                 map.put("CHWP3", "PCHWP3");
                 map.put("CHWP4", "PCHWP4");
                 map.put("CHWP5", "PCHWP5");
 
-                map.put("PCHWPTR", "PCHWCircuit2PTRSP");
-                map.put("PCHWPSPD", "PCHWCircuit2SPDSP");
-                map.put("CHWPSPD", "PCHWCircuit1SPDSP");
-                map.put("CHWPTR", "PCHWCircuit1PTRSP");
+                map.put("CHWPTR", "primaryChilledWaterPumpControlGroup1PTRSP");
+                map.put("CHWPSPD", "primaryChilledWaterPumpControlGroup1CHWDPSP");
 
-                map.put("CTP1", "CDWP1");
-                map.put("CTP3", "CDWP3");
-                map.put("CTP161", "CDWP161");
-                map.put("CTP162", "CDWP162");
-                map.put("CDWP4", "CDWP4");
-                map.put("CDWP5", "CDWP5");
-                map.put("CDWP6", "CDWP6");
-
-                map.put("CDWPTR", "CDWCircuit1PTRSP");
-                map.put("CDWPSPD", "CDWCircuit1SPDSP");
+                map.put("CDWPTR", "condenserWaterPumpControlGroup1PTRSP");
+                map.put("CDWPSPD", "condenserWaterPumpControlGroup1SPDSP");
 
                 map.put("CT1", "CT1");
                 map.put("CT2", "CT2");
@@ -1125,48 +1173,18 @@ public class PushDataTable {
                 map.put("CT5C", "CT53");
                 map.put("CT5D", "CT54");
 
+                map.put("CTFSPD", "coolingTowerControlGroup1CTFSPD");
+
                 break;
 
             case EC1EC2:
 
-                map.put("CH1", "CH1");
-                map.put("CH2", "CH2");
-                map.put("CH3", "CH3");
-                map.put("CH4", "CH4");
-                map.put("CH5", "CH5");
-                map.put("CH6", "CH6");
-                map.put("CH7", "CH7");
-                map.put("CH8", "CH8");
-
-                map.put("PCHWP1", "PCHWP1");
-                map.put("PCHWP2", "PCHWP2");
-                map.put("PCHWP3", "PCHWP3");
-                map.put("PCHWP4", "PCHWP4");
-
                 map.put("CHWPTR", "primaryChilledWaterPumpControlGroup1PTRSP");
-
-                map.put("CDWP1", "CDWP1");
-                map.put("CDWP2", "CDWP2");
-                map.put("CDWP3", "CDWP3");
-                map.put("CDWP4", "CDWP4");
-                map.put("CDWP5", "CDWP5");
-                map.put("CDWP6", "CDWP6");
-                map.put("CDWP7", "CDWP7");
-                map.put("CDWP8", "CDWP8");
 
                 map.put("CDWPTR", "condenserWaterPumpControlGroup1PTRSP");
                 map.put("CDWPSPD", "condenserWaterPumpControlGroup1SPDSP");
                 map.put("CDWPTR2", "condenserWaterPumpControlGroup2PTRSP");
                 map.put("CDWPSPD2", "condenserWaterPumpControlGroup2SPDSP");
-
-                map.put("CT1", "CT1");
-                map.put("CT2", "CT2");
-                map.put("CT3", "CT3");
-                map.put("CT4", "CT4");
-                map.put("CT5", "CT5");
-                map.put("CT6", "CT6");
-                map.put("CT7", "CT7");
-                map.put("CT8", "CT8");
 
                 map.put("CTTR", "coolingTowerControlGroup1CTTR");
                 map.put("CTFSPD", "coolingTowerControlGroup1CTFSPD");
