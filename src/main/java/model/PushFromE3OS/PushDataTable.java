@@ -14,7 +14,7 @@ import model.E3OS.LoadFromE3OS.EnumOverrideType;
 import model.E3OS.LoadFromE3OS.MappingTableRow;
 import view.HistoryFrame.PushE3OSDataFrame.MappingTable.EnumOverrideSites;
 
-public class PushDataTable {
+public final class PushDataTable {
 
     ArrayList<MappingTableRow> mappingTable;
 
@@ -26,8 +26,9 @@ public class PushDataTable {
         Map<String, String> coreToE3OSNameOverridesMap = getCoreToE3OSNameOverridesMap();
         Map<String, String> trailingPieceOverrideMap = getTrailingPieceOverridesMap();
 
-        validateOverrides(e3osPoints);
-
+        //validateOverrides(e3osPoints);
+        
+        
         //add all the core points to the table, set status to "no e3os info"
         mappingTable = new ArrayList<>();
 
@@ -185,7 +186,7 @@ public class PushDataTable {
                     }
 
                 } else {
-                    System.out.println("core name: " + coreName + " no match not found");
+                    System.out.println("core name: " + coreName + " no match found");
                 }
             }
         }
@@ -213,10 +214,6 @@ public class PushDataTable {
         Map<String, DataPointFromSql> map = new HashMap<>();
         for (DataPointFromSql e3osPoint : e3osPoints) {
 
-            if (e3osPoint.getDatapointName().equalsIgnoreCase("CH2COM1SPD")) {
-                System.out.println("found it");
-            }
-
             if (e3osOverrides.containsKey(e3osPoint.dpName)) {
                 map.put(e3osPoint.dpName, e3osPoint);
             }
@@ -224,6 +221,8 @@ public class PushDataTable {
         }
         return map;
     }
+
+    /*
 
     public boolean validateOverrides(List<DataPointFromSql> e3osPoints) {
 
@@ -246,7 +245,9 @@ public class PushDataTable {
         System.out.println("done.");
         return isValid;
     }
-
+     */
+    
+    
     private Map<String, String> getCoreToE3OSNameOverridesMap() {
 
         // CORE -- E3OS
@@ -439,9 +440,12 @@ public class PushDataTable {
             // e3os --> core
             case UTMB:
 
-                map.put("LOOPREQ", "OEMode");
                 map.put("CDWPSPD", "condenserWaterPumpControlGroup1PTRSP");
                 map.put("PCHWPSPD", "primaryChilledWaterPumpControlGroup1SPDSP");
+
+                map.put("CTTR", "coolingTowerControlGroup1CTTR");
+                map.put("CTFSPD", "coolingTowerControlGroup1CTFSPD");
+                map.put("CDWBPVCMD", "coolingTowerControlGroup1CDWBPVSP");
 
                 break;
 
@@ -590,7 +594,7 @@ public class PushDataTable {
 
                 map.put("CDWPSPD", "condenserWaterPumpControlGroup1SPDSP");
                 map.put("CDWPSPD2", "condenserWaterPumpControlGroup2SPDSP");
-                map.put("", "");
+
                 map.put("CT7", "CT7");
                 map.put("CT8", "CT8");
                 map.put("CT9", "CT9");
@@ -602,6 +606,7 @@ public class PushDataTable {
                 map.put("CTFSPD2", "coolingTowerControlGroup2CTFSPD");
                 map.put("CTBPV", "coolingTowerControlGroup1CDWBPVSP");
                 map.put("CTBPV2", "coolingTowerControlGroup2CDWBPVSP");
+
                 break;
 
             case CORNELIA:
