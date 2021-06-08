@@ -31,7 +31,7 @@ public class StationInfo {
 
     @JsonProperty("commissionedAt")
     private String commissionedAt;
-    
+
     @JsonProperty("commissionStatus")
     private String commissionStatus;
 
@@ -86,6 +86,12 @@ public class StationInfo {
     @JsonProperty("equipments")
     private List<Equipment> equipments;
 
+    @JsonProperty("circuits")
+    private Object circuits;
+
+    @JsonProperty("controlGroups")
+    private Object controlGroups;
+
     public String getId() {
         return id;
     }
@@ -121,7 +127,7 @@ public class StationInfo {
     public String getcommissionStatus() {
         return commissionStatus;
     }
-    
+
     public String getShortName() {
         return shortName;
     }
@@ -188,10 +194,17 @@ public class StationInfo {
 
     public List<Equipment> getequipments() {
         return equipments;
-
     }
 
     public String getCommunicationProtocol() {
         return communicationProtocol;
+    }
+
+    public Object getCircuits() {
+        return circuits;
+    }
+
+    public Object getControlGroups() {
+        return controlGroups;
     }
 }
