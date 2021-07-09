@@ -28,7 +28,10 @@ public enum EnumOverrideSites {
     XIAN("Xian Plant"),
     GURABOJ1("Gurabo J1"),
     EC1EC2("EC1 & EC2 Plant"),
-    UNKONWN("Unknown");
+    GURABO_PARENT("GuraboEPJ3"),
+    UNKONWN("Unknown"),
+    BCBS("BCBS TN LP"),
+    READING("West Hospital CP");
 
     private final String friendlyName;
 

@@ -588,6 +588,8 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         map.put("CDWPPower", Arrays.asList(new String[]{"CDWPPower", "CDWP\\d+kW"}));
         map.put("ChillerPower", Arrays.asList(new String[]{"ChillerPower", "CH\\d+kW"}));
         
+        map.put("CTD", Arrays.asList(new String[]{"OAWB", "OAT", "TotalTon", "CT\\d+S", "CT\\d+kW", "CDWST", "CDWRT", "CT\\d+CDWST", "CT\\d+BWT", "CDWBPV", "CDWFLO",  "CTFSPD", "CTTR", "Optimized", "CDWBPVCMD"}));
+        
         return map;
     }
     
@@ -1070,6 +1072,11 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
         });
 
         jComboBoxCalcPointsList.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBoxCalcPointsList.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBoxCalcPointsListActionPerformed(evt);
+            }
+        });
 
         jLabel10.setText("CalcPts:");
 
@@ -1509,6 +1516,10 @@ public final class HistoryFrame extends javax.swing.JFrame implements PropertyCh
     private void jButtonE3OSHistActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonE3OSHistActionPerformed
             // TODO add your handling code here:
     }//GEN-LAST:event_jButtonE3OSHistActionPerformed
+
+    private void jComboBoxCalcPointsListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxCalcPointsListActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBoxCalcPointsListActionPerformed
     
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
